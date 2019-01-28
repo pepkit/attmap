@@ -6,4 +6,5 @@ from ._mixins import EchoMixin
 
 class AttributeDictEcho(EchoMixin, AttributeDict):
     """ An AttributeDict that returns key/attr if it has no set value. """
-    pass
+    def __contains__(self, item):
+        return item in self.__dict__
