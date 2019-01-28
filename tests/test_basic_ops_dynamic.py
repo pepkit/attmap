@@ -1,4 +1,4 @@
-""" Tests absent the mutable operations, of basic Mapping operations """
+""" Test basic Mapping operations' responsiveness to underlying data change. """
 
 import pytest
 from helpers import make_mado
@@ -40,15 +40,9 @@ class BasicOpsStaticTests:
         assert nonmember not in m
 
     @pytest.mark.skip("Not implemented")
-    def test_repr(self, mado_type, entries):
-        assert str(dict) == repr(make_mado(mado_type, entries))
+    def test_repr(self):
+        pass
 
     @pytest.mark.skip("Not implemented")
-    def test_str(self, mado_type, entries):
-        m = make_mado(mado_type, entries)
-        text = str(m)
-        assert text.startswith(m.__class__.__name__)
-        m.add_entries(entries)
-        exp_data_text = "{}: {}".format(
-            self.__class__.__name__, str(entries))
-        assert exp_data_text == text
+    def test_str(self):
+        pass
