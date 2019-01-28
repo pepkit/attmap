@@ -111,3 +111,41 @@ class NullStorageTests:
         m[arb_key] = None
         assert arb_key in m
         assert m[arb_key] is None
+
+
+
+class MembershipTests:
+    """ Tests of determining whether a key is present in a data object. """
+
+    @pytest.mark.skip("Not implemented")
+    def test_echoer_key_absent(self):
+        pass
+
+    @pytest.mark.skip("Not implemented")
+    def test_echoer_key_present(self):
+        pass
+
+
+class EchoerTests:
+    """ Tests of behavior of the echo-style  """
+    pass
+
+
+def is_missing(k, m):
+    """
+    Determine whether a mapping is missing a particular key.
+
+    This helper is useful for explicitly routing execution through __getitem__
+    rather than using the __contains__ implementation.
+
+    :param object k: the key to check for status as missing
+    :param Mapping m: the key-value collection to query
+    :return bool: whether the requested key is missing from the given mapping,
+        with "missing" determined by KeyError encounter during __getitem__
+    """
+    try:
+        m[k]
+    except KeyError:
+        return True
+    else:
+        return False
