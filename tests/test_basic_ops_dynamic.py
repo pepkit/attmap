@@ -1,6 +1,5 @@
 """ Test basic Mapping operations' responsiveness to underlying data change. """
 
-import copy
 import sys
 import pytest
 from helpers import make_mado
@@ -11,7 +10,6 @@ __email__ = "vreuter@virginia.edu"
 
 @pytest.fixture(
     scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": {1: 2}}])
-    #scope="function", params=[{}, {"a": 1}, {"c": {1: 2}}])
 def entries(request):
     """ Data to store as entries in a mado. """
     return request.param
