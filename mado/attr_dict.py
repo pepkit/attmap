@@ -68,8 +68,13 @@ class AttributeDict(MadoLike):
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
-        self.__dict__[key] = value if not isinstance(value, Mapping) \
-            or isinstance(value, self.__class__) else self.__init__(value)
+        if isinstance(value, Mapping) and not isinstance(value, self.__class__):
+            cls = self.__class__
+            val = cls.__new__(cls)
+            val.__init__(value)
+            self.__dict__[key] = val
+        else:
+            self.__dict__[key] = value
 
     def __getitem__(self, item):
         try:
