@@ -1,8 +1,8 @@
 """ Tests for mutability of AttributeDict """
 
 from mado import AttributeDict, AttributeDictEcho
-from mado._mado_like import MadoLike
 import pytest
+from helpers import make_mado
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -16,14 +16,6 @@ NULLABLE_MADOS = ALL_MADOS
 def arb_key(request):
     """ Provide arbitrary key name for a test case. """
     return request.param
-
-
-def _make_empty_mado(cls):
-    """ Create a fresh, empty data object. """
-    assert issubclass(cls, MadoLike)
-    m = cls.__new__(cls)
-    m.__init__({})
-    return m
 
 
 class UniversalMadoOptsTests:
@@ -40,7 +32,7 @@ class UniversalMadoOptsTests:
     @pytest.fixture(scope="function", params=ALL_MADOS)
     def m(request):
         """ Return an empty, particular mado instance """
-        _make_empty_mado(request.param)
+        make_mado(request.param)
 
     @pytest.mark.skip("Not implemented")
     def test_len(self, m, entries):
@@ -51,12 +43,12 @@ class UniversalMadoOptsTests:
     
     @pytest.mark.skip("Not implemented")
     def test_repr(self, m, entries):
-        """ Validate length operation's accuracy. """
+        """ Validate raw text representation's accuracy. """
         pass
     
     @pytest.mark.skip("Not implemented")
     def test_str(self, m, entries):
-        """ Validate length operation's accuracy. """
+        """ Validate refined text representation's accuracy. """
         text = str(m)
         assert text.startswith(m.__class__.__name__)
         m.add_entries(entries)
@@ -72,7 +64,7 @@ class UniversalMutabilityTests:
     @pytest.fixture(scope="function", params=ALL_MADOS)
     def m(request):
         """ Provide a test case with a fresh empty data object. """
-        return _make_empty_mado(request.param)
+        return make_mado(request.param)
 
     def test_null_can_always_be_set_if_key_is_absent(self, arb_key, m):
         """ When AttributeDict lacks a key, a null value can be set """
@@ -100,7 +92,7 @@ class NullStorageTests:
     @pytest.fixture(scope="function", params=NULLABLE_MADOS)
     def m(self, request):
         """ Provide a test case with a fresh empty data object. """
-        return _make_empty_mado(request.param)
+        return make_mado(request.param)
 
     def test_null_overwrites_existing(self, arb_key, m):
         """ Verify that a null value can replace a non-null one. """
@@ -113,7 +105,6 @@ class NullStorageTests:
         assert m[arb_key] is None
 
 
-
 class MembershipTests:
     """ Tests of determining whether a key is present in a data object. """
 
@@ -123,6 +114,14 @@ class MembershipTests:
 
     @pytest.mark.skip("Not implemented")
     def test_echoer_key_present(self):
+        pass
+
+    @pytest.mark.skip("Not implemented")
+    def test_membership(self):
+        pass
+
+    @pytest.mark.skip("Not implemented")
+    def test_membership_test_dynamism(self):
         pass
 
 
