@@ -90,7 +90,7 @@ class MadoLike(MutableMapping):
             collection of pairs of keys and values
         """
         from pandas import Series
-        if entries is None:
+        if not entries:
             return
         # Permit mapping-likes and iterables/generators of pairs.
         if callable(entries):
