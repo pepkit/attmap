@@ -14,35 +14,43 @@ def entries(request):
     return request.param
 
 
-@pytest.fixture(scope="function", params=["Z", 1, None])
-def nonmember(request):
-    """ Object that should not be present as key in a mapping. """
-    return request.param
-
-
 class BasicOpsStaticTests:
     """ Tests of basic Mapping behavior, without complication of dynamism """
 
-    @pytest.mark.skip("Not implemented")
     def test_length(self, mado_type, entries):
         """ Length/size of a mado should match number of entries. """
-        assert len(entries) == len(make_mado(mado_type, entries))
+        m = make_mado(mado_type, entries)
+        assert len(entries) == len(m)
+        ks = list(entries.keys())
+        for i, k in enumerate(ks):
+            del m[k]
+            assert len(entries) - (i + 1) == len(m)
 
-    @pytest.mark.skip("Not implemented")
     def test_positive_membership(self, mado_type, entries):
         """ Each key is a member; a nonmember should be flagged as such """
-        m = make_mado(mado_type, entries)
-        assert [] == [k for k in entries if k not in m]
+        import random
+        m = make_mado(mado_type)
+        assert not any(k in m for k in entries)
+        for k in entries:
+            assert k not in m
+            m[k] = random.random()
+            assert k in m
+        assert all(k in m for k in entries)
 
-    @pytest.mark.skip("Not implemented")
-    def test_negative_membership(self, mado_type, entries, nonmember):
+    def test_negative_membership(self, mado_type, entries):
+        """ Object key status responds to underlying data change. """
         m = make_mado(mado_type, entries)
-        assert nonmember not in m
+        for k in entries:
+            assert k in m
+            del m[k]
+            assert k not in m
 
     @pytest.mark.skip("Not implemented")
     def test_repr(self):
+        """ Formal text representation of a mado responds to data change. """
         pass
 
     @pytest.mark.skip("Not implemented")
     def test_str(self):
+        """ Informal text representation of a mado responds to data change. """
         pass
