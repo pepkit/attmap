@@ -56,7 +56,7 @@ def test_negative_membership(mado_type, entries):
 
 
 @pytest.mark.parametrize("f_extra_checks_pair",
-    [(repr, []), (str, [lambda (s, dt): s.startswith(dt.__class.__.__name__)])])
+    [(repr, []), (str, [lambda s, dt: s.startswith(dt.__name__)])])
 def test_text(mado_type, entries, f_extra_checks_pair):
     """ Formal text representation of a mado responds to data change. """
 
