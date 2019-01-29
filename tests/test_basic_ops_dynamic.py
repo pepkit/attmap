@@ -55,17 +55,20 @@ def test_negative_membership(mado_type, entries):
         assert k not in m
 
 
-def test_repr(mado_type, entries):
+@pytest.mark.parametrize("f_extra_checks_pair",
+    [(repr, []), (str, [lambda (s, dt): s.startswith(dt.__class.__.__name__)])])
+def test_text(mado_type, entries, f_extra_checks_pair):
     """ Formal text representation of a mado responds to data change. """
 
+    get_rep, extra_checks = f_extra_checks_pair
     m = make_mado(mado_type)
 
     added = {}
     for k, v in entries.items():
         m[k] = v
         added[k] = v
-        r = repr(m)
-        miss_keys, miss_vals = _missing_items(r, added)
+        text = get_rep(m)
+        miss_keys, miss_vals = _missing_items(text, added)
         assert [] == miss_keys
         assert [] == miss_vals
 
@@ -73,18 +76,14 @@ def test_repr(mado_type, entries):
     for k in entries:
         del m[k]
         del added[k]
-        r = repr(m)
-        miss_keys, miss_vals = _missing_items(r, added)
+        text = get_rep(m)
+        miss_keys, miss_vals = _missing_items(text, added)
         assert [] == miss_keys
         assert [] == miss_vals
-        assert len(r) < n
-        n = len(r)
-
-
-@pytest.mark.skip("Not implemented")
-def test_str(mado_type, entries):
-    """ Informal text representation of a mado responds to data change. """
-    pass
+        assert len(text) < n
+        for check in extra_checks:
+            check(text, mado_type)
+        n = len(text)
 
 
 def _missing_items(r, data):
