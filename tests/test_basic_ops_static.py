@@ -32,15 +32,18 @@ def test_positive_membership(mado_type, entries):
 
 
 def test_negative_membership(mado_type, entries, nonmember):
+    """ Check correctness of membership test for nonmember key. """
     m = make_mado(mado_type, entries)
     assert nonmember not in m
 
 
 def test_repr(mado_type, entries):
+    """ Check raw text representation of a mado. """
     assert repr(entries) == repr(make_mado(mado_type, entries))
 
 
 def test_str(mado_type, entries):
+    """ Check informal text representation of a mado. """
     m = make_mado(mado_type, entries)
     text = str(m)
     assert text.startswith(m.__class__.__name__)
