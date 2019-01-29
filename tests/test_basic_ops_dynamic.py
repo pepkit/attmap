@@ -2,7 +2,7 @@
 
 import sys
 import pytest
-from helpers import make_mado
+from .helpers import make_mado
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
