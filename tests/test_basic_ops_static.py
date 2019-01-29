@@ -20,35 +20,30 @@ def nonmember(request):
     return request.param
 
 
-class BasicOpsStaticTests:
-    """ Tests of basic Mapping behavior, without complication of dynamism """
+def test_length(mado_type, entries):
+    """ Length/size of a mado should match number of entries. """
+    assert len(entries) == len(make_mado(mado_type, entries))
 
-    @pytest.mark.skip("Not implemented")
-    def test_length(self, mado_type, entries):
-        """ Length/size of a mado should match number of entries. """
-        assert len(entries) == len(make_mado(mado_type, entries))
 
-    @pytest.mark.skip("Not implemented")
-    def test_positive_membership(self, mado_type, entries):
-        """ Each key is a member; a nonmember should be flagged as such """
-        m = make_mado(mado_type, entries)
-        assert [] == [k for k in entries if k not in m]
+def test_positive_membership(mado_type, entries):
+    """ Each key is a member; a nonmember should be flagged as such """
+    m = make_mado(mado_type, entries)
+    assert [] == [k for k in entries if k not in m]
 
-    @pytest.mark.skip("Not implemented")
-    def test_negative_membership(self, mado_type, entries, nonmember):
-        m = make_mado(mado_type, entries)
-        assert nonmember not in m
 
-    @pytest.mark.skip("Not implemented")
-    def test_repr(self, mado_type, entries):
-        assert str(dict) == repr(make_mado(mado_type, entries))
+def test_negative_membership(mado_type, entries, nonmember):
+    m = make_mado(mado_type, entries)
+    assert nonmember not in m
 
-    @pytest.mark.skip("Not implemented")
-    def test_str(self, mado_type, entries):
-        m = make_mado(mado_type, entries)
-        text = str(m)
-        assert text.startswith(m.__class__.__name__)
-        m.add_entries(entries)
-        exp_data_text = "{}: {}".format(
-            self.__class__.__name__, str(entries))
-        assert exp_data_text == text
+
+def test_repr(mado_type, entries):
+    assert repr(entries) == repr(make_mado(mado_type, entries))
+
+
+def test_str(mado_type, entries):
+    m = make_mado(mado_type, entries)
+    text = str(m)
+    assert text.startswith(m.__class__.__name__)
+    m.add_entries(entries)
+    exp_data_text = "{}: {}".format(mado_type.__name__, str(entries))
+    assert exp_data_text == text
