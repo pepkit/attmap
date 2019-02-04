@@ -84,7 +84,7 @@ class AttMapLike(MutableMapping):
 
     def add_entries(self, entries):
         """
-        Update this `AttributeDict` with provided key-value pairs.
+        Update this instance with provided key-value pairs.
 
         :param Iterable[(object, object)] | Mapping | pandas.Series entries:
             collection of pairs of keys and values

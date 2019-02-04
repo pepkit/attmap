@@ -1,4 +1,4 @@
-""" Mixin traits to specify particular behavior of AttributeDict """
+""" Mixin traits to specify particular behavior of AttMapLike """
 
 import abc
 

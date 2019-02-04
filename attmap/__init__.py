@@ -1,4 +1,9 @@
 """ Package-scope definitions """
 
-from .attr_dict import AttributeDict
-from .attr_dict_echo import AttributeDictEcho
+from .attmap import AttMap
+from .attmap_echo import AttMapEcho
+
+AttributeDict = AttMap
+AttributeDictEcho = AttMapEcho
+
+__all__ = ["AttMap", "AttMapEcho", "AttributeDict", "AttributeDictEcho"]

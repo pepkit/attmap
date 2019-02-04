@@ -11,12 +11,12 @@ from ._att_map_like import AttMapLike
 
 
 @copy
-class AttributeDict(AttMapLike):
+class AttMap(AttMapLike):
     """
     A class to convert a nested mapping(s) into an object(s) with key-values
-    using object syntax (attr_dict.attribute) instead of getitem syntax
-    (attr_dict["key"]). This class recursively sets mappings to objects,
-    facilitating attribute traversal (e.g., attr_dict.attr.attr).
+    using object syntax (attmap.attribute) instead of getitem syntax
+    (attmap["key"]). This class recursively sets mappings to objects,
+    facilitating attribute traversal (e.g., attmap.attr.attr).
     """
 
     def __getattr__(self, item, default=None):
@@ -34,7 +34,7 @@ class AttributeDict(AttMapLike):
             to be indicative of the intent of protection.
         """
         try:
-            return super(AttributeDict, self).__getattribute__(item)
+            return super(AttMap, self).__getattribute__(item)
         except (AttributeError, TypeError):
             # Handle potential failure from non-string or property request.
             pass
@@ -103,7 +103,7 @@ class AttributeDict(AttMapLike):
         :return bool: whether to include attribute in an object's
             text representation
         """
-        # TODO: localize to peppy and subclass AttributeDict there for Project.
+        # TODO: localize to peppy and subclass AttMap there for Project.
         exclusions_by_class = {
             "Project": ["_samples", "sample_subannotation",
                         "sheet", "interfaces_by_protocol"],
