@@ -67,11 +67,25 @@ class CheckNullTests:
         return dict([kv for kv, _ in self.DATA])
 
     @staticmethod
-    def test_is_null(attmap_type, entries):
-        """ Null check on key's value works as expected. """
-        pass
+    @pytest.fixture("function", params=[k for ((k, _), _) in DATA])
+    def k(request):
+        return request.param
 
     @staticmethod
-    def test_non_null(attmap_type):
+    def test_present_is_null(attmap_type, entries, k):
+        """ Null check on key's value works as expected. """
+        m = get_att_map(attmap_type, entries)
+        assert (entries[k] is None) == m.is_null(k)
+
+    @staticmethod
+    def test_present_non_null(attmap_type, entries, k):
         """ Non-null check on key's value works as expected. """
-        pass
+        m = get_att_map(attmap_type, entries)
+        assert (entries[k] is not None) == m.non_null(k)
+
+    @staticmethod
+    @pytest.mark.parametrize("abs_key", ["missing", "absent"])
+    def test_absent_is_neither_null_nor_non_null(attmap_type, entries, abs_key):
+        m = get_att_map(attmap_type, entries)
+        assert abs_key not in m
+        assert not m.is_null(abs_key) and not m.non_null(abs_key)
