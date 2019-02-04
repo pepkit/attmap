@@ -8,7 +8,9 @@ __email__ = "vreuter@virginia.edu"
 
 
 @pytest.fixture(
-    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": {1: 2}}])
+    scope="function",
+    params=[{}, {"a": 1}, {"b": [1, "2", 3], "c": {1: 2}},
+            {"d": {"e": 0, "F": "G"}}])
 def entries(request):
     """ Data to store as entries in an attmap. """
     return request.param
@@ -57,8 +59,9 @@ class CheckNullTests:
 
     DATA = [(("truly_null", None), True)] + \
            [(kv, False) for kv in [
-               ("empty_list", []), ("empty_text", ""), ("empty_int", 0),
-               ("empty_float", 0), ("empty_map", {})
+               ("empty_list", []), ("empty_text", ""),  ("empty_map", {}),
+               ("empty_int", 0), ("empty_float", 0), ("bad_num", float("nan")),
+               ("pos_inf", float("inf")), ("neg_inf", float("-inf")),
            ]]
 
     @pytest.fixture(scope="function")
