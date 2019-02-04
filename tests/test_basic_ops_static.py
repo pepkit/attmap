@@ -50,3 +50,28 @@ def test_str(attmap_type, entries):
     m.add_entries(entries)
     exp_data_text = "{}: {}".format(attmap_type.__name__, str(entries))
     assert exp_data_text == text
+
+
+class CheckNullTests:
+    """ Test accuracy of the null value test methods. """
+
+    DATA = [(("truly_null", None), True)] + \
+           [(kv, False) for kv in [
+               ("empty_list", []), ("empty_text", ""), ("empty_int", 0),
+               ("empty_float", 0), ("empty_map", {})
+           ]]
+
+    @pytest.fixture(scope="function")
+    def entries(self):
+        """ Provide some basic entries for a test case's attmap. """
+        return dict([kv for kv, _ in self.DATA])
+
+    @staticmethod
+    def test_is_null(attmap_type, entries):
+        """ Null check on key's value works as expected. """
+        pass
+
+    @staticmethod
+    def test_non_null(attmap_type):
+        """ Non-null check on key's value works as expected. """
+        pass
