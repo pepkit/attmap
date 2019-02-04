@@ -3,7 +3,7 @@
 from setuptools import setup
 import sys
 
-PACKAGE = "mado"
+PACKAGE = "attmap"
 
 # Additional keyword arguments for setup().
 extra = {}

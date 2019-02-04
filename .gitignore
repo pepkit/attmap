@@ -70,5 +70,5 @@ Thumbs.db
 # Build-related stuff
 build/
 dist/
-mado.egg-info/
+attmap.egg-info/
 

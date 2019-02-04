@@ -2,7 +2,7 @@
 
 import sys
 import pytest
-from .helpers import make_mado
+from .helpers import get_att_map
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -11,13 +11,13 @@ __email__ = "vreuter@virginia.edu"
 @pytest.fixture(
     scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": {1: 2}}])
 def entries(request):
-    """ Data to store as entries in a mado. """
+    """ Data to store as entries in an attmap. """
     return request.param
 
 
-def test_length_decrease(mado_type, entries):
-    """ Length/size of a mado should match number of entries. """
-    m = make_mado(mado_type, entries)
+def test_length_decrease(attmap_type, entries):
+    """ Length/size of an attmap should match number of entries. """
+    m = get_att_map(attmap_type, entries)
     assert len(entries) == len(m)
     ks = list(entries.keys())
     for i, k in enumerate(ks):
@@ -25,19 +25,19 @@ def test_length_decrease(mado_type, entries):
         assert len(entries) - (i + 1) == len(m)
 
 
-def test_length_increase(mado_type, entries):
-    """ Length/size of a mado should match number of entries. """
-    m = make_mado(mado_type)
+def test_length_increase(attmap_type, entries):
+    """ Length/size of an attmap should match number of entries. """
+    m = get_att_map(attmap_type)
     for (i, (k, v)) in enumerate(entries.items()):
         assert i == len(m)
         m[k] = v
         assert (i + 1) == len(m)
 
 
-def test_positive_membership(mado_type, entries):
+def test_positive_membership(attmap_type, entries):
     """ Each key is a member; a nonmember should be flagged as such """
     import random
-    m = make_mado(mado_type)
+    m = get_att_map(attmap_type)
     assert not any(k in m for k in entries)
     for k in entries:
         assert k not in m
@@ -46,9 +46,9 @@ def test_positive_membership(mado_type, entries):
     assert all(k in m for k in entries)
 
 
-def test_negative_membership(mado_type, entries):
+def test_negative_membership(attmap_type, entries):
     """ Object key status responds to underlying data change. """
-    m = make_mado(mado_type, entries)
+    m = get_att_map(attmap_type, entries)
     for k in entries:
         assert k in m
         del m[k]
@@ -57,11 +57,11 @@ def test_negative_membership(mado_type, entries):
 
 @pytest.mark.parametrize("f_extra_checks_pair",
     [(repr, []), (str, [lambda s, dt: s.startswith(dt.__name__)])])
-def test_text(mado_type, entries, f_extra_checks_pair):
-    """ Formal text representation of a mado responds to data change. """
+def test_text(attmap_type, entries, f_extra_checks_pair):
+    """ Formal text representation of an attmap responds to data change. """
 
     get_rep, extra_checks = f_extra_checks_pair
-    m = make_mado(mado_type)
+    m = get_att_map(attmap_type)
 
     added = {}
     for k, v in entries.items():
@@ -82,7 +82,7 @@ def test_text(mado_type, entries, f_extra_checks_pair):
         assert [] == miss_vals
         assert len(text) < n
         for check in extra_checks:
-            check(text, mado_type)
+            check(text, attmap_type)
         n = len(text)
 
 

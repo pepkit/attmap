@@ -15,7 +15,7 @@ __email__ = "vreuter@virginia.edu"
 _LOGGER = get_logger(__name__)
 
 
-class MadoLike(MutableMapping):
+class AttMapLike(MutableMapping):
     """ Base class for multi-access-mode data objects. """
 
     __metaclass__ = abc.ABCMeta

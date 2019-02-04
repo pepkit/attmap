@@ -7,11 +7,11 @@ else:
     from collections.abc import Mapping
 
 from .helpers import copy
-from ._mado_like import MadoLike
+from ._att_map_like import AttMapLike
 
 
 @copy
-class AttributeDict(MadoLike):
+class AttributeDict(AttMapLike):
     """
     A class to convert a nested mapping(s) into an object(s) with key-values
     using object syntax (attr_dict.attribute) instead of getitem syntax

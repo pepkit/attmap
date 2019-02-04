@@ -1,15 +1,15 @@
 """ Tests for mutability of AttributeDict """
 
-from mado import AttributeDict, AttributeDictEcho
+from attmap import AttributeDict, AttributeDictEcho
 import pytest
-from .helpers import make_mado
+from .helpers import get_att_map
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
-ALL_MADOS = [AttributeDict, AttributeDictEcho]
-NULLABLE_MADOS = ALL_MADOS
+ALL_ATTMAPS = [AttributeDict, AttributeDictEcho]
+NULLABLE_ATTMAPS = ALL_ATTMAPS
 
 
 @pytest.fixture(scope="function", params=["arbitrary", "random"])
@@ -19,13 +19,13 @@ def arb_key(request):
 
 
 class UniversalMutabilityTests:
-    """ Tests of mado behavior with respect to mutability """
+    """ Tests of attmap behavior with respect to mutability """
 
     @staticmethod
-    @pytest.fixture(scope="function", params=ALL_MADOS)
+    @pytest.fixture(scope="function", params=ALL_ATTMAPS)
     def m(request):
         """ Provide a test case with a fresh empty data object. """
-        return make_mado(request.param)
+        return get_att_map(request.param)
 
     def test_null_can_always_be_set_if_key_is_absent(self, arb_key, m):
         """ When AttributeDict lacks a key, a null value can be set """
@@ -48,12 +48,12 @@ class UniversalMutabilityTests:
 
 
 class NullStorageTests:
-    """ Tests for behavior of a mado w.r.t. storing null value """
+    """ Tests for behavior of a attmap w.r.t. storing null value """
 
-    @pytest.fixture(scope="function", params=NULLABLE_MADOS)
+    @pytest.fixture(scope="function", params=NULLABLE_ATTMAPS)
     def m(self, request):
         """ Provide a test case with a fresh empty data object. """
-        return make_mado(request.param)
+        return get_att_map(request.param)
 
     def test_null_overwrites_existing(self, arb_key, m):
         """ Verify that a null value can replace a non-null one. """

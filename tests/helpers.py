@@ -1,14 +1,14 @@
 """ Helper functions for tests """
 
-from mado._mado_like import MadoLike
+from attmap._att_map_like import AttMapLike
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
-def make_mado(cls, data=None):
+def get_att_map(cls, data=None):
     """ Create a fresh, empty data object. """
-    assert issubclass(cls, MadoLike)
+    assert issubclass(cls, AttMapLike)
     m = cls.__new__(cls)
     m.__init__(data or {})
     return m
