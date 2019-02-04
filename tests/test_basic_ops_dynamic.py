@@ -1,8 +1,10 @@
 """ Test basic Mapping operations' responsiveness to underlying data change. """
 
+import random
 import sys
+from hypothesis import given
 import pytest
-from .helpers import get_att_map
+from .helpers import get_att_map, random_str_key, rand_non_null
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -86,20 +88,6 @@ def test_text(attmap_type, entries, f_extra_checks_pair):
         n = len(text)
 
 
-def _missing_items(r, data):
-    """
-    Determine which keys and/or values are missing from Mapping representation.
-
-    :param str r: representation of the mapping
-    :param Mapping data: data expected to be represented in the provided text
-    :return list[str], list[str]: list of keys and of values, respectively, for
-        which are not represented in the given text
-    """
-    missing_keys = [k for k in data if repr(k) not in r]
-    missing_values = [v for v in data.values() if repr(v) not in r]
-    return missing_keys, missing_values
-
-
 class CheckNullTests:
     """ Test accuracy of the null value test methods. """
 
@@ -120,11 +108,55 @@ class CheckNullTests:
         return request.param
 
     @staticmethod
-    @pytest.mark.skip("Not implemented")
-    def test_null_to_non_null():
-        pass
+    @pytest.fixture("function")
+    def m(attmap_type):
+        return get_att_map(attmap_type)
 
     @staticmethod
-    @pytest.mark.skip("Not implemented")
-    def test_non_null_to_null():
-        pass
+    @given(v=rand_non_null())
+    def test_null_to_non_null(m, v):
+        k = random_str_key()
+        m[k] = None
+        assert m.is_null(k) and not m.non_null(k)
+        m[k] = v
+        assert not m.is_null(k) and m.non_null(k)
+
+    @staticmethod
+    @given(v=rand_non_null())
+    def test_non_null_to_null(m, v):
+        k = random_str_key()
+        m[k] = v
+        assert not m.is_null(k) and m.non_null(k)
+        m[k] = None
+        assert m.is_null(k) and not m.non_null(k)
+
+    @staticmethod
+    def test_null_to_absent(m):
+        k = random_str_key()
+        m[k] = None
+        assert m.is_null(k) and not m.non_null(k)
+        del m[k]
+        assert not m.is_null(k) and not m.non_null(k)
+
+    @staticmethod
+    @given(v=rand_non_null())
+    def test_non_null_to_absent(m, v):
+        k = random_str_key()
+        m[k] = v
+        assert not m.is_null(k) and m.non_null(k)
+        del m[k]
+        assert not m.is_null(k) and not m.non_null(k)
+
+
+def _missing_items(r, data):
+    """
+    Determine which keys and/or values are missing from Mapping representation.
+
+    :param str r: representation of the mapping
+    :param Mapping data: data expected to be represented in the provided text
+    :return list[str], list[str]: list of keys and of values, respectively, for
+        which are not represented in the given text
+    """
+    missing_keys = [k for k in data if repr(k) not in r]
+    missing_values = [v for v in data.values() if repr(v) not in r]
+    return missing_keys, missing_values

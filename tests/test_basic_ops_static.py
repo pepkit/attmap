@@ -72,6 +72,7 @@ class CheckNullTests:
     @staticmethod
     @pytest.fixture("function", params=[k for ((k, _), _) in DATA])
     def k(request):
+        """ Key to test """
         return request.param
 
     @staticmethod
