@@ -98,3 +98,33 @@ def _missing_items(r, data):
     missing_keys = [k for k in data if repr(k) not in r]
     missing_values = [v for v in data.values() if repr(v) not in r]
     return missing_keys, missing_values
+
+
+class CheckNullTests:
+    """ Test accuracy of the null value test methods. """
+
+    DATA = [(("truly_null", None), True)] + \
+           [(kv, False) for kv in [
+               ("empty_list", []), ("empty_text", ""), ("empty_int", 0),
+               ("empty_float", 0), ("empty_map", {})
+           ]]
+
+    @pytest.fixture(scope="function")
+    def entries(self):
+        """ Provide some basic entries for a test case's attmap. """
+        return dict([kv for kv, _ in self.DATA])
+
+    @staticmethod
+    @pytest.fixture("function", params=[k for ((k, _), _) in DATA])
+    def k(request):
+        return request.param
+
+    @staticmethod
+    @pytest.mark.skip("Not implemented")
+    def test_null_to_non_null():
+        pass
+
+    @staticmethod
+    @pytest.mark.skip("Not implemented")
+    def test_non_null_to_null():
+        pass
