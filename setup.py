@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import os
 from setuptools import setup
 import sys
 
@@ -8,14 +9,20 @@ PACKAGE = "attmap"
 # Additional keyword arguments for setup().
 extra = {}
 
-# Ordinary dependencies
-DEPENDENCIES = []
-with open("requirements/requirements-all.txt", "r") as reqs_file:
-    for line in reqs_file:
-        if not line.strip():
-            continue
-        #DEPENDENCIES.append(line.split("=")[0].rstrip("<>"))
-        DEPENDENCIES.append(line)
+
+def read_reqs(reqs_name):
+    deps = []
+    with open(os.path.join("requirements", "requirements-{}.txt".format(reqs_name)), 'r') as f:
+        for l in f:
+            if not l.strip():
+                continue
+            #deps.append(l.split("=")[0].rstrip("<>"))
+            deps.append(l)
+    return deps
+
+
+DEPENDENCIES = read_reqs("all")
+
 
 # numexpr for pandas
 try:
@@ -61,7 +68,7 @@ setup(
     author=u"Nathan Sheffield, Vince Reuter",
     license="BSD2",
     test_suite="tests",
-    tests_require=(["mock", "pytest"]),
+    tests_require=read_reqs("dev"),
     setup_requires=(["pytest-runner"] if {"test", "pytest", "ptr"} & set(sys.argv) else []),
     **extra
 )
