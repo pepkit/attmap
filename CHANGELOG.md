@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.5] - 2019-02-05
+### Changed
+- `add_entries` method on an `AttMapLike` now returns the instance.
+- Improve test coverage
+
 ## [0.1.4] - 2019-02-05
 ### Changed
 - Removed support for Python 3.4

@@ -69,10 +69,9 @@ class AttMap(AttMapLike):
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
         if isinstance(value, Mapping) and not isinstance(value, self.__class__):
-            cls = self.__class__
-            val = cls.__new__(cls)
-            val.__init__(value)
-            self.__dict__[key] = val
+            v = self.__class__.__new__(self.__class__)
+            v.__init__(value)
+            self.__dict__[key] = v
         else:
             self.__dict__[key] = value
 
@@ -85,30 +84,5 @@ class AttMap(AttMapLike):
             # __getitem__ syntax, not attribute-access syntax.
             raise KeyError(item)
 
-    def __repr__(self):
-        return repr({k: v for k, v in self.__dict__.items()
-                    if self._include_in_repr(k, klazz=self.__class__)})
-
     def __str__(self):
         return "{}: {}".format(self.__class__.__name__, repr(self))
-
-    @staticmethod
-    def _include_in_repr(attr, klazz):
-        """
-        Determine whether to include attribute in an object's text representation.
-
-        :param str attr: attribute to include/exclude from object's representation
-        :param str | type klazz: name of type or type itself of which the object
-            to be represented is an instance
-        :return bool: whether to include attribute in an object's
-            text representation
-        """
-        # TODO: localize to peppy and subclass AttMap there for Project.
-        exclusions_by_class = {
-            "Project": ["_samples", "sample_subannotation",
-                        "sheet", "interfaces_by_protocol"],
-            "Subsample": ["sheet", "sample", "merged_cols"],
-            "Sample": ["sheet", "prj", "merged_cols"]
-        }
-        classname = klazz.__name__ if isinstance(klazz, type) else klazz
-        return attr not in exclusions_by_class.get(classname, [])

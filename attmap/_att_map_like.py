@@ -77,7 +77,8 @@ class AttMapLike(MutableMapping):
         return sum(1 for _ in iter(self))
 
     def __repr__(self):
-        return repr({k: v for k, v in self.__dict__.items()})
+        return repr({k: v for k, v in self.__dict__.items()
+                    if not self._omit_from_repr(k, cls=self.__class__)})
 
     def __str__(self):
         return "{}: {}".format(self.__class__.__name__, repr(self))
@@ -104,6 +105,7 @@ class AttMapLike(MutableMapping):
         # Assume we now have pairs; allow corner cases to fail hard here.
         for key, value in entries_iter:
             self.__setitem__(key, value)
+        return self
 
     def is_null(self, item):
         """
@@ -122,3 +124,15 @@ class AttMapLike(MutableMapping):
         :return bool: True iff the item is present and has non-null value
         """
         return item in self and self[item] is not None
+
+    @staticmethod
+    def _omit_from_repr(k, cls):
+        """
+        Hook for exclusion of particular value from a representation
+
+        :param hashable k: key to consider for omission
+        :param type cls: data type on which to base the exclusion
+        :return bool: whether the given key k should be omitted from
+            text representation
+        """
+        return False
