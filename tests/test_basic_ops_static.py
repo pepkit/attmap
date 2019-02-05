@@ -7,10 +7,13 @@ __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
+ENTRY_DATA = [(), ("a", 1), ("b", [1, "2", 3]),
+              ("c", {1: 2}), ("d", {"e": 0, "F": "G"})]
+
+
 @pytest.fixture(
     scope="function",
-    params=[{}, {"a": 1}, {"b": [1, "2", 3], "c": {1: 2}},
-            {"d": {"e": 0, "F": "G"}}])
+    params=[{}, {"a": 1}, {"b": [1, "2", 3]}, {"c": {1: 2}}, {"d": {"F": "G"}}])
 def entries(request):
     """ Data to store as entries in an attmap. """
     return request.param
@@ -46,12 +49,9 @@ def test_repr(attmap_type, entries):
 
 def test_str(attmap_type, entries):
     """ Check informal text representation of an attmap. """
-    m = get_att_map(attmap_type, entries)
-    text = str(m)
-    assert text.startswith(m.__class__.__name__)
-    m.add_entries(entries)
-    exp_data_text = "{}: {}".format(attmap_type.__name__, str(entries))
-    assert exp_data_text == text
+    exp = "{}: {}".format(attmap_type.__name__, str(entries))
+    obs = str(get_att_map(attmap_type, entries))
+    assert exp == obs
 
 
 class CheckNullTests:
