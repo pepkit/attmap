@@ -2,6 +2,7 @@
 
 ## [0.1.5] - unreleased
 ### Changed
+- `add_entries` method on an `AttMapLike` now returns the instance.
 - Improve test coverage
 
 ## [0.1.4] - 2019-02-05

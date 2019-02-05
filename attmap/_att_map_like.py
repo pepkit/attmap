@@ -104,6 +104,7 @@ class AttMapLike(MutableMapping):
         # Assume we now have pairs; allow corner cases to fail hard here.
         for key, value in entries_iter:
             self.__setitem__(key, value)
+        return self
 
     def is_null(self, item):
         """
