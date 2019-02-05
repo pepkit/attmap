@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.5] - unreleased
+### Changed
+- Improve test coverage
+
 ## [0.1.4] - 2019-02-05
 ### Changed
 - Removed support for Python 3.4
