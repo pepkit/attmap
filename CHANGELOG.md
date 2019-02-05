@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.4] - 2019-02-05
+### Changed
+- Removed support for Python 3.4
+
 ## [0.1.3] - 2019-02-05
 ### Fixed
 - Pass unit tests on Python 3.4
