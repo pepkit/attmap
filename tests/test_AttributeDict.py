@@ -1,6 +1,5 @@
-""" Tests for AttributeDict. """
+""" Tests for AttMap. """
 
-from copy import deepcopy
 import itertools
 import os
 import pickle
@@ -9,16 +8,26 @@ import numpy as np
 import pytest
 import yaml
 
-from attmap import AttributeDict
-from tests.conftest import basic_entries, nested_entries, COMPARISON_FUNCTIONS
-from tests.helpers import assert_entirely_equal
+from attmap import AttMap, AttMapEcho
+from .helpers import assert_entirely_equal
 
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
+# Provide some basic atomic-type data for models tests.
+_BASE_KEYS = ("epigenomics", "H3K", "ac", "EWS", "FLI1")
+_BASE_VALUES = \
+    ("topic", "residue", "acetylation", "RNA binding protein", "FLI1")
 _ENTRIES_PROVISION_MODES = ["gen", "dict", "zip", "list", "items"]
+_SEASON_HIERARCHY = {
+    "spring": {"February": 28, "March": 31, "April": 30, "May": 31},
+    "summer": {"June": 30, "July": 31, "August": 31},
+    "fall": {"September": 30, "October": 31, "November": 30},
+    "winter": {"December": 31, "January": 31}
+}
+
 ADDITIONAL_NON_NESTED = {"West Complex": {"CPHG": 6}, "BIG": {"MR-4": 6}}
 ADDITIONAL_NESTED = {"JPA": {"West Complex": {"CPHG": 6}},
                      "Lane": {"BIG": {"MR-4": 6}}}
@@ -26,10 +35,35 @@ ADDITIONAL_VALUES_BY_NESTING = {
     False: ADDITIONAL_NON_NESTED,
     True: ADDITIONAL_NESTED
 }
+COMPARISON_FUNCTIONS = ["__eq__", "__ne__", "__len__",
+                        "keys", "values", "items"]
+
+
+def pytest_generate_tests(metafunc):
+    """ Centralize dynamic test case parameterization. """
+    if "empty_collection" in metafunc.fixturenames:
+        # Test case strives to validate expected behavior on empty container.
+        collection_types = [tuple, list, set, dict]
+        metafunc.parametrize(
+                "empty_collection",
+                argvalues=[ctype() for ctype in collection_types],
+                ids=[ctype.__name__ for ctype in collection_types])
+
+
+def basic_entries():
+    """ AttMap data that lack nested structure. """
+    for k, v in zip(_BASE_KEYS, _BASE_VALUES):
+        yield k, v
+
+
+def nested_entries():
+    """ AttributeDict data with some nesting going on. """
+    for k, v in _SEASON_HIERARCHY.items():
+        yield k, v
 
 
 class AttributeConstructionDictTests:
-    """Tests for the AttributeDict ADT.
+    """Tests for the AttMap ADT.
 
     Note that the implementation of the equality comparison operator
     is tested indirectly via the mechanism of many of the assertion
@@ -44,12 +78,12 @@ class AttributeConstructionDictTests:
     # data and fixtures specific to this class.
 
     def test_null_construction(self):
-        """ Null entries value creates empty AttributeDict. """
-        assert {} == AttributeDict(None)
+        """ Null entries value creates empty AttMap. """
+        assert {} == AttMap(None)
 
     def test_empty_construction(self, empty_collection):
-        """ Empty entries container create empty AttributeDict. """
-        assert {} == AttributeDict(empty_collection)
+        """ Empty entries container create empty AttMap. """
+        assert {} == AttMap(empty_collection)
 
     @pytest.mark.parametrize(
             argnames="entries_gen,entries_provision_type",
@@ -79,25 +113,8 @@ class AttributeConstructionDictTests:
             raise ValueError("Unexpected entries type: {}".
                              format(entries_provision_type))
         expected = entries_mapping
-        observed = AttributeDict(entries)
+        observed = AttMap(entries)
         assert expected == observed
-
-    @pytest.mark.parametrize(
-            argnames="entries,comp_func",
-            argvalues=itertools.product([basic_entries, nested_entries],
-                                        COMPARISON_FUNCTIONS),
-            ids=["{}-{}".format(gen.__name__, name_comp_func)
-                 for gen, name_comp_func in itertools.product(
-                     [basic_entries, nested_entries], COMPARISON_FUNCTIONS)]
-    )
-    def test_abstract_mapping_method_implementations_basic(
-            self, comp_func, entries):
-        """ AttributeDict can store mappings as values, no problem. """
-        if entries.__name__ == nested_entries.__name__ and \
-                        comp_func in ("values", "items"):
-            pytest.xfail("Nested AD values involve behavioral metadata")
-        self._validate_mapping_function_implementation(
-            entries_gen=entries, name_comp_func=comp_func)
 
     @pytest.mark.parametrize(
             argnames="attval",
@@ -106,7 +123,7 @@ class AttributeConstructionDictTests:
     def test_ctor_non_nested(self, attval):
         """ Test attr fetch, with dictionary syntax and with object syntax. """
         # Set and retrieve attributes
-        attrd = AttributeDict({"attr": attval})
+        attrd = AttMap({"attr": attval})
         assert_entirely_equal(attrd["attr"], attval)
         assert_entirely_equal(getattr(attrd, "attr"), attval)
 
@@ -115,9 +132,9 @@ class AttributeConstructionDictTests:
             argvalues=[None, set(), [], {}, {"abc": 123}, (1, 'a'), "",
                        "str", -1, 0, 1.0, np.nan] + [np.random.random(20)])
     def test_ctor_nested(self, attval):
-        """ Test AttributeDict nesting functionality. """
-        attrd = AttributeDict({"attr": attval})
-        attrd.attrd = AttributeDict({"attr": attval})
+        """ Test AttMap nesting functionality. """
+        attrd = AttMap({"attr": attval})
+        attrd.attrd = AttMap({"attr": attval})
         assert_entirely_equal(attrd.attrd["attr"], attval)
         assert_entirely_equal(getattr(attrd.attrd, "attr"), attval)
         assert_entirely_equal(attrd["attrd"].attr, attval)
@@ -125,7 +142,7 @@ class AttributeConstructionDictTests:
     @staticmethod
     def _validate_mapping_function_implementation(entries_gen, name_comp_func):
         data = dict(entries_gen())
-        attrdict = AttributeDict(data)
+        attrdict = AttMap(data)
         if __name__ == '__main__':
             if name_comp_func in ["__eq__", "__ne__"]:
                 are_equal = getattr(attrdict, name_comp_func).__call__(data)
@@ -144,11 +161,11 @@ class AttributeConstructionDictTests:
                     assert expected == observed
 
 
-class AttributeDictUpdateTests:
+class AttMapUpdateTests:
     """Validate behavior of post-construction addition of entries.
 
     Though entries may and often will be provided at instantiation time,
-    AttributeDict is motivated to support inheritance by domain-specific
+    AttMap is motivated to support inheritance by domain-specific
     data types for which use cases are likely to be unable to provide
     all relevant data at construction time. So let's verify that we get the
     expected behavior when entries are added after initial construction.
@@ -168,9 +185,9 @@ class AttributeDictUpdateTests:
     def test_set_get_atomic(self, setter_name, getter_name, is_novel):
         """ For new and existing items, validate set/get behavior. """
 
-        # Establish the AttributeDict for the test case.
+        # Establish the AttMap for the test case.
         data = dict(basic_entries())
-        ad = AttributeDict(basic_entries())
+        ad = AttMap(basic_entries())
 
         # Establish a ground truth and select name/value(s) based on
         # whether or not the test case wants to test a new or existing item.
@@ -196,95 +213,12 @@ class AttributeDictUpdateTests:
             setter(item_name, value)
             assert getter(item_name) == value
 
-    @pytest.mark.parametrize(
-            argnames=["initial_entries", "name_update_func",
-                      "is_update_attrdict", "nested", "validation_getter"],
-            argvalues=itertools.product([basic_entries, nested_entries],
-                                        _SETTERS + ["add_entries"],
-                                        [False, True],
-                                        [False, True],
-                                        ["__getitem__", "__getattr__"]),
-            ids=lambda arg: arg.__name__ if callable(arg) else str(arg)
-    )
-    def test_new_entries_mappings(
-            self, initial_entries, name_update_func,
-            is_update_attrdict, nested, validation_getter):
-        """ Raw mapping for previously-unknown key becomes AttributeDict. """
-        ad = AttributeDict(dict(initial_entries()))
-        setter = getattr(ad, name_update_func)
-        new_entries_data = ADDITIONAL_VALUES_BY_NESTING[nested]
-        if name_update_func == "add_entries":
-            setter({k: (AttributeDict(v) if is_update_attrdict else v)
-                    for k, v in new_entries_data.items()})
-        else:
-            for k, v in new_entries_data.items():
-                setter(k, AttributeDict(v) if is_update_attrdict else v)
-        validation_getter = getattr(ad, validation_getter)
-        for item_name, expected_value in new_entries_data.items():
-            # A value that's a mapping is inserted as AttributeDict.
-            observed_value = validation_getter(item_name)
-            assert isinstance(observed_value, AttributeDict)
-            # Check equality on the mapping's contents.
-            assert expected_value == observed_value
 
 
-class AttributeDictCollisionTests:
+class AttMapCollisionTests:
     """ Tests for proper merging and type conversion of mappings. 
-     AttributeDict converts a mapping being inserted as a value to an 
-     AttributeDict. If assigning to a key that already contains a mapping, 
-     the existing value (mapping) for the key merges with the new one. """
-
-    CPHG_DATA = {"CPHG": 6}
-    WEST_COMPLEX_DATA = {"West Complex": CPHG_DATA}
-
-    BIG_DATA = {"BIG": 4}
-    INITIAL_MR_DATA = {"MR": BIG_DATA}
-    NEW_MR_DATA = {"MR": {"BME": 5, "Carter-Harrison": 6}}
-    PINN_DATA = {"Pinn": ["SOM", "Jordan", 1340]}
-
-    @pytest.mark.parametrize(argnames="name_setter_func",
-                             argvalues=["__setattr__", "__setitem__"])
-    @pytest.mark.parametrize(argnames="name_getter_func", 
-                             argvalues=["__getattr__", "__getitem__"])
-    def test_merge_mappings(
-                self, name_setter_func, name_getter_func):
-        """ During construction/insertion, KV pair mappings merge. """
-
-        # Create bare AttributeDict and select the parameterized get/set.
-        attrdict = AttributeDict()
-        raw_data = {}
-        setter = getattr(attrdict, name_setter_func)
-        getter = getattr(attrdict, name_getter_func)
-
-        # Add the JPA data.
-        setter("JPA", self.WEST_COMPLEX_DATA)
-        raw_data.update({"JPA": self.WEST_COMPLEX_DATA})
-        # Mappings are converted to AttributeDict when added.
-        observed = getter("JPA")
-        assert isinstance(observed, AttributeDict)
-        assert self.WEST_COMPLEX_DATA == observed
-
-        # Perform the same sort of addition and assertions for the Lane data.
-        setter("Lane", self.INITIAL_MR_DATA)
-        raw_data.update({"Lane": self.INITIAL_MR_DATA})
-        assert isinstance(getter("Lane"), AttributeDict)
-        assert raw_data == attrdict
-
-        # Add Pinn data, also attributed to JPA. This should trigger a merge.
-        setter("JPA", self.PINN_DATA)
-        observed = getter("JPA")
-        tempdict = deepcopy(self.WEST_COMPLEX_DATA)
-        tempdict.update(self.PINN_DATA)
-        assert isinstance(observed, AttributeDict)
-        assert AttributeDict(tempdict) == observed
-
-        tempdict.update(self.INITIAL_MR_DATA)
-        setter("Lane", self.NEW_MR_DATA)
-        higher_level_tempdict = {"JPA": self.WEST_COMPLEX_DATA}
-        higher_level_tempdict["JPA"].update(self.PINN_DATA)
-        higher_level_tempdict["Lane"] = {"MR": self.BIG_DATA}
-        higher_level_tempdict["Lane"]["MR"].update(self.NEW_MR_DATA["MR"])
-        assert higher_level_tempdict == attrdict
+     AttMap converts a mapping being inserted as a value to an 
+     AttMap. """
 
     @pytest.mark.parametrize(
             argnames="name_update_func",
@@ -292,7 +226,7 @@ class AttributeDictCollisionTests:
     def test_squash_existing(self, name_update_func):
         """ When a value that's a mapping is assigned to existing key with 
         non-mapping value, the new value overwrites the old. """
-        ad = AttributeDict({"MR": 4})
+        ad = AttMap({"MR": 4})
         assert 4 == ad.MR
         assert 4 == ad["MR"]
         new_value = [4, 5, 6]
@@ -306,43 +240,28 @@ class AttributeDictCollisionTests:
         assert new_value == ad["MR"]
 
 
+
 @pytest.mark.parametrize(
         argnames="name_update_func",
         argvalues=["add_entries", "__setattr__", "__setitem__"])
 @pytest.mark.parametrize(
         argnames="name_fetch_func",
         argvalues=["__getattr__", "__getitem__"])
-class AttributeDictNullTests:
-    """ AttributeDict has configurable behavior regarding null values. """
+class AttMapNullTests:
+    """ AttMap has configurable behavior regarding null values. """
 
     def test_new_null(self, name_update_func, name_fetch_func):
         """ When a key/item, isn't known, null is allowed. """
-        ad = AttributeDict()
+        ad = AttMap()
         setter = getattr(ad, name_update_func)
         args = ("new_key", None)
         self._do_update(name_update_func, setter, args)
         getter = getattr(ad, name_fetch_func)
         assert getter("new_key") is None
 
-    @pytest.mark.parametrize(
-            argnames="_force_nulls", argvalues=[None, False, True])
-    def test_force_null(self, name_update_func, name_fetch_func, _force_nulls):
-        """ AttributeDict is configurable w.r.t. null value insertion. """
-
-        ctor_kwargs = {}
-        if _force_nulls is not None:
-            ctor_kwargs["_force_nulls"] = _force_nulls
-        ad = AttributeDict({"only_attr": 1}, **ctor_kwargs)
-
-        setter = getattr(ad, name_update_func)
-        self._do_update(name_update_func, setter, ("only_attr", None))
-
-        is_now_null = getattr(ad, name_fetch_func)("only_attr") is None
-        assert is_now_null if _force_nulls else not is_now_null
-
     def test_replace_null(self, name_update_func, name_fetch_func):
         """ Null can be replaced by non-null. """
-        ad = AttributeDict({"lone_attr": None})
+        ad = AttMap({"lone_attr": None})
         assert getattr(ad, name_fetch_func)("lone_attr") is None
         setter = getattr(ad, name_update_func)
         non_null_value = {"was_null": "not_now"}
@@ -358,25 +277,25 @@ class AttributeDictNullTests:
             setter_bound_method(*args)
 
 
-class AttributeDictItemAccessTests:
+class AttMapItemAccessTests:
     """ Tests for access of items (key- or attribute- style). """
 
     @pytest.mark.parametrize(argnames="missing", argvalues=["att", ""])
     def test_missing_getattr(self, missing):
-        attrd = AttributeDict()
+        attrd = AttMap()
         with pytest.raises(AttributeError):
             getattr(attrd, missing)
 
     @pytest.mark.parametrize(argnames="missing",
                              argvalues=["", "b", "missing"])
     def test_missing_getitem(self, missing):
-        attrd = AttributeDict()
+        attrd = AttMap()
         with pytest.raises(KeyError):
             attrd[missing]
 
     def test_numeric_key(self):
         """ Attribute request must be string. """
-        ad = AttributeDict({1: 'a'})
+        ad = AttMap({1: 'a'})
         assert 'a' == ad[1]
         with pytest.raises(TypeError):
             getattr(ad, 1)
@@ -385,26 +304,23 @@ class AttributeDictItemAccessTests:
             argnames="getter,error_type",
             argvalues=zip(["__getattr__", "__getitem__"],
                           [AttributeError, KeyError]))
-    def test_attribute_identity(self, getter, error_type):
-        """ AttributeDict can return requested item itself if unset. """
-        ad = AttributeDict()
+    def test_att_map_echo(self, getter, error_type):
+        """ AttMap can return requested item itself if unset. """
+        ad = AttMap()
         with pytest.raises(error_type):
             getattr(ad, getter)("unknown")
-        ad = AttributeDict(_attribute_identity=True)
+        ad = AttMapEcho()
         assert getattr(ad, getter)("self_reporter") == "self_reporter"
 
 
-class AttributeDictSerializationTests:
-    """ Tests for AttributeDict serialization. """
+class AttMapSerializationTests:
+    """ Tests for AttMap serialization. """
 
     DATA_PAIRS = [('a', 1), ('b', False), ('c', range(5)),
                   ('d', {'A': None, 'T': []}),
-                  ('e', AttributeDict({'G': 1, 'C': [False, None]})),
-                  ('f',
-                   [AttributeDict({"DNA": "deoxyribose", "RNA": "ribose"},
-                                  _attribute_identity=True),
-                    AttributeDict({"DNA": "thymine", "RNA": "uracil"},
-                                  _attribute_identity=False)])]
+                  ('e', AttMap({'G': 1, 'C': [False, None]})),
+                  ('f', [AttMap({"DNA": "deoxyribose", "RNA": "ribose"}),
+                         AttMap({"DNA": "thymine", "RNA": "uracil"})])]
 
     @pytest.mark.parametrize(
             argnames="data",
@@ -414,11 +330,11 @@ class AttributeDictSerializationTests:
             argnames="data_type", argvalues=[list, dict],
             ids=lambda data_type: " data_type = {}".format(data_type))
     def test_pickle_restoration(self, tmpdir, data, data_type):
-        """ Pickled and restored AttributeDict objects are identical. """
+        """ Pickled and restored AttMap objects are identical. """
 
-        # Type the AttributeDict input data argument according to parameter.
+        # Type the AttMap input data argument according to parameter.
         data = data_type(data)
-        original_attrdict = AttributeDict(data)
+        original_attrdict = AttMap(data)
         filename = "attrdict-test.pkl"
 
         # Allow either Path or raw string.
@@ -427,18 +343,18 @@ class AttributeDictSerializationTests:
         except AttributeError:
             dirpath = tmpdir
 
-        # Serialize AttributeDict and write to disk.
+        # Serialize AttMap and write to disk.
         filepath = os.path.join(dirpath, filename)
         with open(filepath, 'wb') as pkl:
             pickle.dump(original_attrdict, pkl)
 
         # Validate equivalence between original and restored versions.
         with open(filepath, 'rb') as pkl:
-            restored_attrdict = AttributeDict(pickle.load(pkl))
+            restored_attrdict = AttMap(pickle.load(pkl))
         assert restored_attrdict == original_attrdict
 
 
-class AttributeDictObjectSyntaxAccessTests:
+class AttMapObjectSyntaxAccessTests:
     """ Test behavior of dot attribute access / identity setting. """
 
     DEFAULT_VALUE = "totally-arbitrary"
@@ -450,8 +366,10 @@ class AttributeDictObjectSyntaxAccessTests:
 
     @pytest.fixture(scope="function")
     def attrdict(self, request):
-        identity = request.getfixturevalue("return_identity")
-        return AttributeDict(self.ATTR_DICT_DATA, _attribute_identity=identity)
+        """ Provide a test case with an AttMap. """
+        d = self.ATTR_DICT_DATA
+        return AttMapEcho(d) if request.getfixturevalue("return_identity") \
+            else AttMap(d)
 
 
     @pytest.mark.parametrize(
@@ -497,13 +415,13 @@ class NullityTests:
     @pytest.mark.parametrize(argnames="item", argvalues=_KEYNAMES)
     def test_missing_is_neither_null_nor_non_null(self, item):
         """ Value of absent key is neither null nor non-null """
-        ad = AttributeDict()
+        ad = AttMap()
         assert not ad.is_null(item) and not ad.non_null(item)
 
     @pytest.mark.parametrize(argnames="item", argvalues=_KEYNAMES)
     def test_is_null(self, item):
         """ Null-valued key/item evaluates as such. """
-        ad = AttributeDict()
+        ad = AttMap()
         ad[item] = None
         assert ad.is_null(item) and not ad.non_null(item)
 
@@ -512,7 +430,7 @@ class NullityTests:
         argvalues=list(zip(_KEYNAMES, ["sampleA", "WGBS", "random"])))
     def test_non_null(self, k, v):
         """ AD is sensitive to value updates """
-        ad = AttributeDict()
+        ad = AttMap()
         assert not ad.is_null(k) and not ad.non_null(k)
         ad[k] = None
         assert ad.is_null(k) and not ad.non_null(k)
@@ -522,7 +440,7 @@ class NullityTests:
 
 @pytest.mark.usefixtures("write_project_files")
 class SampleYamlTests:
-    """ AttributeDict metadata only appear in YAML if non-default. """
+    """ AttMap metadata only appear in YAML if non-default. """
 
     @staticmethod
     def _yaml_data(sample, filepath, section_to_change=None,
@@ -550,7 +468,7 @@ class SampleYamlTests:
 
 @pytest.mark.parametrize(
     ["func", "exp"],
-    [(repr, "{}"), (str, AttributeDict().__class__.__name__ + ": {}")])
+    [(repr, "{}"), (str, AttMap().__class__.__name__ + ": {}")])
 def test_text_repr_empty(func, exp):
-    """ Empty AttributeDict is correctly represented as text. """
-    assert exp == func(AttributeDict())
+    """ Empty AttMap is correctly represented as text. """
+    assert exp == func(AttMap())

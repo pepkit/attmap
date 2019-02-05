@@ -1,3 +1,4 @@
+""" Fixtures and values shared among project's various test suites """
 
 from attmap import *
 import pytest
