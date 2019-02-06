@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.7] - 2019-02-05
+### Changed
+- Make `__version__` available on the main package object
+
 ##  [0.1.6] - 2019-02-05
 ### Changed
 - Bound on most specific type to which a stored `Mapping` should be converted can be controlled in a subclass via overriding.
