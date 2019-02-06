@@ -2,7 +2,7 @@
 
 ## [0.1.8] - 2019-02-05
 ### Fixed
-- Installation working as dependency for `peppy`
+- Installation working for dependent packages
 
 ## [0.1.7] - 2019-02-05
 ### Changed
