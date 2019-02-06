@@ -68,8 +68,9 @@ class AttMap(AttMapLike):
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
-        if isinstance(value, Mapping) and not isinstance(value, self.__class__):
-            v = self.__class__.__new__(self.__class__)
+        if isinstance(value, Mapping) and \
+                not isinstance(value, self._lower_type_bound):
+            v = self._lower_type_bound.__new__(self._lower_type_bound)
             v.__init__(value)
             self.__dict__[key] = v
         else:
@@ -86,3 +87,8 @@ class AttMap(AttMapLike):
 
     def __str__(self):
         return "{}: {}".format(self.__class__.__name__, repr(self))
+
+    @property
+    def _lower_type_bound(self):
+        """ Most specific type to which stored Mapping should be transformed """
+        return AttMap
