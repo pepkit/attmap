@@ -91,4 +91,4 @@ class AttMap(AttMapLike):
     @property
     def _lower_type_bound(self):
         """ Most specific type to which stored Mapping should be transformed """
-        return self.__class__
+        return AttMap

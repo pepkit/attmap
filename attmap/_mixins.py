@@ -5,6 +5,8 @@ import abc
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
+__all__ = ["EchoMixin", "HomogeneousMixin"]
+
 
 class EchoMixin(object):
     """ If a requested key/attr is unset, echo it back as return value. """
@@ -43,3 +45,14 @@ class EchoMixin(object):
                 # For compatibility with ordinary getattr() call, allow default value.
                 return default
             return item
+
+
+class HomogeneousMixin(object):
+    """ Convert each stored Mapping can to the instance's type. """
+
+    __metaclass__ = abc.ABCMeta
+
+    @property
+    def _lower_type_bound(self):
+        """ Hook to indicate stored Mapping conversion """
+        return self.__class__
