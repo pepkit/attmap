@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.8] - 2019-02-05
+## [0.1.8] - 2019-02-06
 ### Fixed
 - Installation working for dependent packages
 
