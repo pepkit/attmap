@@ -1,5 +1,9 @@
 # Changelog
 
+##  [0.1.6] - 2019-02-05
+### Changed
+- Bound on most specific type to which a stored `Mapping` should be converted can be controlled in a subclass via overriding.
+
 ## [0.1.5] - 2019-02-05
 ### Changed
 - `add_entries` method on an `AttMapLike` now returns the instance.
