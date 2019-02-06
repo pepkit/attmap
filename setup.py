@@ -12,7 +12,9 @@ extra = {}
 
 def read_reqs(reqs_name):
     deps = []
-    with open(os.path.join("requirements", "requirements-{}.txt".format(reqs_name)), 'r') as f:
+    with open(os.path.join(
+            os.path.dirname(__file__), "requirements",
+            "requirements-{}.txt".format(reqs_name)), 'r') as f:
         for l in f:
             if not l.strip():
                 continue
