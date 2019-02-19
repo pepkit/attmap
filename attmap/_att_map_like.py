@@ -102,17 +102,13 @@ class AttMapLike(MutableMapping):
             entries_iter = entries.items()
         except AttributeError:
             entries_iter = entries
-        self._perform_updates(entries_iter)
-        return self
-
-    def _perform_updates(self, entries):
-        # Assume we now have pairs; allow corner cases to fail hard here.
-        for k, v in entries:
+        for k, v in entries_iter:
             if k not in self or not (isinstance(v, AttMapLike) and
                                      isinstance(self[k], AttMapLike)):
                 self.__setitem__(k, v)
             else:
                 self[k].add_entries(v)
+        return self
 
     def is_null(self, item):
         """
