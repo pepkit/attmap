@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Changed
+- `AttMapEcho` now converts an inserted `Mapping` to `AttMapEcho` -- no more specific type than that.
+
 ## [0.1.8] - 2019-02-06
 ### Fixed
 - Installation working for dependent packages
@@ -36,3 +40,4 @@
 ## [0.1] - 2019-02-04
 ### New
 - Initial release
+
