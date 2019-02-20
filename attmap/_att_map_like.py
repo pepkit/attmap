@@ -103,16 +103,12 @@ class AttMapLike(MutableMapping):
         except AttributeError:
             entries_iter = entries
         for k, v in entries_iter:
-            if self._ready_to_store(k, v):
+            if k not in self or not \
+                    (isinstance(v, Mapping) and isinstance(self[k], AttMapLike)):
                 self.__setitem__(k, v)
             else:
                 self[k].add_entries(v)
         return self
-
-    def _ready_to_store(self, k, v):
-        """ Determine whether given KV pair is ready to be stored. """
-        return k not in self or not \
-            (isinstance(v, Mapping) and isinstance(self[k], AttMapLike))
 
     def is_null(self, item):
         """
