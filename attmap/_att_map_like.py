@@ -78,7 +78,7 @@ class AttMapLike(MutableMapping):
 
     def __repr__(self):
         return repr({k: v for k, v in self.__dict__.items()
-                    if not self._omit_from_repr(k, cls=self.__class__)})
+                    if not self._omit_from_repr(k, self.__class__)})
 
     def __str__(self):
         return "{}: {}".format(self.__class__.__name__, repr(self))
