@@ -1,6 +1,5 @@
 """ Test basic Mapping operations' responsiveness to underlying data change. """
 
-import random
 import sys
 from hypothesis import given
 import pytest

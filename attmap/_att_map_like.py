@@ -1,6 +1,7 @@
 """ The trait defining a multi-access data object """
 
 import abc
+from functools import partial
 import sys
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
@@ -61,11 +62,33 @@ class AttMapLike(MutableMapping):
             return False
         for k, v in self.items():
             try:
-                if v != other[k]:
+                if not self._cmp(v, other[k]):
                     return False
             except KeyError:
                 return False
         return True
+
+    @staticmethod
+    def _cmp(a, b):
+        def same_type(obj1, obj2, t=None):
+            t1, t2 = str(obj1.__class__), str(obj2.__class__)
+            # DEBUG
+            print("T1: {}".format(t1))
+            print("T2: {}".format(t2))
+            return (t1 == t and t2 == t) if t else t1 == t2
+        if same_type(a, b, "<type 'numpy.ndarray'>") or \
+            same_type(a, b, "<class 'pandas.core.series.Series'>"):
+            check = lambda x, y: (x == y).all()
+        elif same_type(a, b, "<class 'pandas.core.frame.DataFrame'>"):
+            check = lambda x, y: (x == y).all().all()
+        else:
+            check = lambda x, y: x == y
+        try:
+            return check(a, b)
+        except ValueError:
+            # ValueError arises if, e.g., the pair of Series have
+            # have nonidentical labels.
+            return False
 
     def __ne__(self, other):
         return not self == other
