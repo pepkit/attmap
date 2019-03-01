@@ -126,9 +126,9 @@ class AttMapLike(MutableMapping):
         for k, v in entries_iter:
             if k not in self or not \
                     (isinstance(v, Mapping) and isinstance(self[k], AttMapLike)):
-                self.__setitem__(k, v)
+                self[k] = v
             else:
-                self[k].add_entries(v)
+                self[k] = self[k].add_entries(v)
         return self
 
     def is_null(self, item):
