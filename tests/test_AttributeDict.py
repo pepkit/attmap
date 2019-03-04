@@ -62,6 +62,20 @@ def nested_entries():
         yield k, v
 
 
+
+@pytest.mark.parametrize("base", ["random", "irrelevant", "arbitrary"])
+@pytest.mark.parametrize("protect", [False, True])
+def test_echo_is_conditional(base, protect):
+    """ Protected member isn't echoed. """
+    m = AttMapEcho({})
+    if protect:
+        with pytest.raises(AttributeError):
+            m.__getattr__("__{}__".format(base))
+    else:
+        assert base == m.__getattr__(base)
+
+
+
 class AttributeConstructionDictTests:
     """Tests for the AttMap ADT.
 

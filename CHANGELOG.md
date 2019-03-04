@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2] - 2019-03-04
+### Changed
+- `AttMapEcho` now converts an inserted `Mapping` to `AttMapEcho` -- no more specific type than that.
+- Handle equivalence comparison when values are array-likes from `numpy` or `pandas`
+
 ## [0.1.8] - 2019-02-06
 ### Fixed
 - Installation working for dependent packages
@@ -36,3 +41,4 @@
 ## [0.1] - 2019-02-04
 ### New
 - Initial release
+

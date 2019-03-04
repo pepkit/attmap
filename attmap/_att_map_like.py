@@ -1,6 +1,7 @@
 """ The trait defining a multi-access data object """
 
 import abc
+from functools import partial
 import sys
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
@@ -61,11 +62,31 @@ class AttMapLike(MutableMapping):
             return False
         for k, v in self.items():
             try:
-                if v != other[k]:
+                if not self._cmp(v, other[k]):
                     return False
             except KeyError:
                 return False
         return True
+
+    @staticmethod
+    def _cmp(a, b):
+        def same_type(obj1, obj2, ts=None):
+            t1, t2 = str(obj1.__class__), str(obj2.__class__)
+            return (t1 in ts and t2 in ts) if ts else t1 == t2
+        if same_type(a, b, ["<type 'numpy.ndarray'>",
+                            "<class 'numpy.ndarray'>"]) or \
+            same_type(a, b, ["<class 'pandas.core.series.Series'>"]):
+            check = lambda x, y: (x == y).all()
+        elif same_type(a, b, ["<class 'pandas.core.frame.DataFrame'>"]):
+            check = lambda x, y: (x == y).all().all()
+        else:
+            check = lambda x, y: x == y
+        try:
+            return check(a, b)
+        except ValueError:
+            # ValueError arises if, e.g., the pair of Series have
+            # have nonidentical labels.
+            return False
 
     def __ne__(self, other):
         return not self == other
@@ -78,7 +99,7 @@ class AttMapLike(MutableMapping):
 
     def __repr__(self):
         return repr({k: v for k, v in self.__dict__.items()
-                    if not self._omit_from_repr(k, cls=self.__class__)})
+                    if not self._omit_from_repr(k, self.__class__)})
 
     def __str__(self):
         return "{}: {}".format(self.__class__.__name__, repr(self))
@@ -102,9 +123,12 @@ class AttMapLike(MutableMapping):
             entries_iter = entries.items()
         except AttributeError:
             entries_iter = entries
-        # Assume we now have pairs; allow corner cases to fail hard here.
-        for key, value in entries_iter:
-            self.__setitem__(key, value)
+        for k, v in entries_iter:
+            if k not in self or not \
+                    (isinstance(v, Mapping) and isinstance(self[k], AttMapLike)):
+                self[k] = v
+            else:
+                self[k] = self[k].add_entries(v)
         return self
 
     def is_null(self, item):
