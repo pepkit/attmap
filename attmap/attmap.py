@@ -53,6 +53,46 @@ class AttMap(AttMapLike):
             # Throw up our hands in despair and resort to exception behavior.
             raise AttributeError(item)
 
+    @property
+    def _transformations(self):
+        """
+        Add path expansion behavior to more general attmap.
+
+        :return list[(function, function)]: pairs in which first component is a
+            predicate and second is a function to apply to a value if it
+            satisfies the predicate
+        """
+        newmap = lambda obj: isinstance(obj, Mapping) and \
+                             not isinstance(obj, self._lower_type_bound)
+        return [(newmap, self._metamorph_maplike)]
+
+    def _finalize_value(self, v):
+        """
+        Before storing a value, apply any desired transformation.
+
+        :param object v: value to potentially transform before storing
+        :return object: finalized value
+        """
+        for p, f in self._transformations:
+            if p(v):
+                return f(v)
+        return v
+
+    def _metamorph_maplike(self, m):
+        """
+        Ensure a stored Mapping conforms with type expectation.
+
+        :param Mapping m: the mapping to which to apply type transformation
+        :return Mapping: a (perhaps more specialized) version of the given map
+        :raise TypeError: if the given value isn't a Mapping
+        """
+        if not isinstance(m, Mapping):
+            raise TypeError("Cannot integrate a non-Mapping: {}\nType: {}".
+                            format(m, type(m)))
+        m_prime = self._lower_type_bound.__new__(self._lower_type_bound)
+        m_prime.__init__(m)
+        return m_prime
+
     def __setitem__(self, key, value):
         """
         This is the key to making this a unique data type. Flag set at
@@ -68,13 +108,7 @@ class AttMap(AttMapLike):
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
-        if isinstance(value, Mapping) and \
-                not isinstance(value, self._lower_type_bound):
-            v = self._lower_type_bound.__new__(self._lower_type_bound)
-            v.__init__(value)
-            self.__dict__[key] = v
-        else:
-            self.__dict__[key] = value
+        self.__dict__[key] = self._finalize_value(value)
 
     def __getitem__(self, item):
         try:
