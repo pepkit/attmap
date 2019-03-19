@@ -20,7 +20,7 @@ _RVS = _ARB_VAR_NAMES + _ENV_VAR_NAMES
 @pytest.fixture(scope="function")
 def pam():
     """ Provide a test case with a clean/fresh map. """
-    return PepAttMap()
+    return PathExAttMap()
 
 
 class TmpEnv(object):
@@ -69,7 +69,7 @@ def get_path_env_pair(perm):
     [get_path_env_pair(p) for p in itertools.chain(*[
         itertools.permutations(_RVS, k) for k in range(1, len(_RVS))])])
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
-def test_pepattmap_expands_available_variables(pam, path, env, fetch):
+def test_PathExAttMap_expands_available_variables(pam, path, env, fetch):
     """ Insertion of text encoding environment variables should expand. """
     k = random.choice(string.ascii_lowercase)
     with TmpEnv(**env):
@@ -104,7 +104,7 @@ def build_selective_substitution_space():
 @pytest.mark.parametrize(
     ["path", "pres", "repl", "env"], build_selective_substitution_space())
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
-def test_pepattmap_substitution_is_selective(path, pres, repl, env, pam, fetch):
+def test_PathExAttMap_substitution_is_selective(path, pres, repl, env, pam, fetch):
     """ Values that are environment variables are replaced; others aren't. """
     k = random.choice(string.ascii_lowercase)
     with TmpEnv(**env):
@@ -120,8 +120,8 @@ def test_pepattmap_substitution_is_selective(path, pres, repl, env, pam, fetch):
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
 @pytest.mark.parametrize("env",
     [{ev: "".join(string.ascii_lowercase for _ in range(20)) for ev in _RVS}])
-def test_non_pepattmap_preserves_all_variables(path, fetch, env):
-    """ Only a PepAttMap eagerly attempts expansion of text as a path. """
+def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
+    """ Only a PathExAttMap eagerly attempts expansion of text as a path. """
     m = AttMap()
     k = random.choice(string.ascii_letters)
     with TmpEnv(**env):
