@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4] - 2019-03-19
+### Changed
+- What was `PepAttMap` is now `PathExAttMap`.
+
 ## [0.3] - 2019-03-19
 ### Added
 - `PepAttMap` attempts expansion of text value as a path, using available environment variables
