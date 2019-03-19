@@ -1,5 +1,6 @@
 # ignore test results
 tests/test/*
+.hypothesis/
 
 # toy/experimental files
 *.csv

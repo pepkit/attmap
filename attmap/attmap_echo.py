@@ -1,10 +1,10 @@
 """ AttMap that echoes an unset key/attr """
 
-from .attmap import AttMap
+from .pepattmap import PepAttMap
 from ._mixins import *
 
 
-class AttMapEcho(EchoMixin, AttMap):
+class AttMapEcho(EchoMixin, PepAttMap):
     """ An AttMap that returns key/attr if it has no set value. """
 
     def __contains__(self, item):

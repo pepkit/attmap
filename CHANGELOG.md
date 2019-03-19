@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3] - 2019-03-19
+### Added
+- `PepAttMap` attempts expansion of text value as a path, using available environment variables
+### Changed
+- `AttMap` now derives from `PepAttMap` rather than ordinary `AttMap`
+
 ## [0.2] - 2019-03-04
 ### Changed
 - `AttMapEcho` now converts an inserted `Mapping` to `AttMapEcho` -- no more specific type than that.
