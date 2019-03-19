@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.3] - 2019-03-19
 ### Added
 - `PepAttMap` attempts expansion of text value as a path, using available environment variables
 ### Changed
