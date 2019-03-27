@@ -1,6 +1,7 @@
 # Changelog
 
-## Unreleased
+## [0.5] - 2019-03-27
+### Added
 - Add `to_map` method to convert `Mapping` values to basic type
 
 ## [0.4] - 2019-03-19
