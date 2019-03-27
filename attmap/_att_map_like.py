@@ -149,6 +149,23 @@ class AttMapLike(MutableMapping):
         """
         return item in self and self[item] is not None
 
+    def to_map(self):
+        """
+        Convert this instance to a dict.
+
+        :return dict[str, object]:
+        """
+        def go(kvs, acc):
+            try:
+                h, t = kvs[0], kvs[1:]
+            except IndexError:
+                return acc
+            k, v = h
+            acc[k] = go(list(v.items()), {}) \
+                if isinstance(v, Mapping) and not isinstance(v, dict) else v
+            return go(t, acc)
+        return go(list(self.items()), {})
+
     @staticmethod
     def _omit_from_repr(k, cls):
         """
