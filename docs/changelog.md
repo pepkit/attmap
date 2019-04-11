@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6] - 2019-04-11
+### Added
+- Hook for omission of key(s) from instance comparison
+- Documentation
+
 ## [0.5] - 2019-03-27
 ### Added
 - Add `to_map` method to convert `Mapping` values to basic type
