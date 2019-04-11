@@ -1,0 +1,23 @@
+site_name: AttMap
+site_url: http://code.databio.org/attmap/
+repo_url: http://github.com/pepkit/attmap
+pypi_name: attmap
+
+nav:
+  - Introduction:
+    - Home: README.md
+  - Reference:
+    - API: autodoc_build/attmap.md
+    - Support: support.md
+    - Contributing: contributing.md
+    - Changelog: changelog.md
+
+theme: databio
+
+plugins:
+  - search
+  - databio:
+      autodoc_package: attmap
+      autodoc_build: "docs/autodoc_build"
+      no_top_level: true
+
