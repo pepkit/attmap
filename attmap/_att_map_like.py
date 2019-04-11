@@ -1,7 +1,6 @@
 """ The trait defining a multi-access data object """
 
 import abc
-from functools import partial
 import sys
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
@@ -61,6 +60,9 @@ class AttMapLike(MutableMapping):
             # Ensure we don't have to worry about other containing self.
             return False
         for k, v in self.items():
+            if self._omit_from_eq(k):
+                _LOGGER.debug("Excluding from comparison: {}".format(k))
+                continue
             try:
                 if not self._cmp(v, other[k]):
                     return False
@@ -70,9 +72,9 @@ class AttMapLike(MutableMapping):
 
     @staticmethod
     def _cmp(a, b):
-        def same_type(obj1, obj2, ts=None):
+        def same_type(obj1, obj2, typenames=None):
             t1, t2 = str(obj1.__class__), str(obj2.__class__)
-            return (t1 in ts and t2 in ts) if ts else t1 == t2
+            return (t1 in typenames and t2 in typenames) if typenames else t1 == t2
         if same_type(a, b, ["<type 'numpy.ndarray'>",
                             "<class 'numpy.ndarray'>"]) or \
             same_type(a, b, ["<class 'pandas.core.series.Series'>"]):
@@ -165,6 +167,16 @@ class AttMapLike(MutableMapping):
                 if isinstance(v, Mapping) and not isinstance(v, dict) else v
             return go(t, acc)
         return go(list(self.items()), {})
+
+    @staticmethod
+    def _omit_from_eq(k):
+        """
+        Hook for exclusion of particular value from a representation
+
+        :param hashable k: key to consider for omission
+        :return bool: whether the given key k should be omitted from comparison
+        """
+        return False
 
     @staticmethod
     def _omit_from_repr(k, cls):
