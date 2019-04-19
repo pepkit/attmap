@@ -167,8 +167,7 @@ class AttMapLike(MutableMapping):
             return go(t, acc)
         return go(list(self.items()), {})
 
-    @staticmethod
-    def _omit_from_eq(k):
+    def _omit_from_eq(self, k):
         """
         Hook for exclusion of particular value from a representation
 
@@ -177,8 +176,7 @@ class AttMapLike(MutableMapping):
         """
         return False
 
-    @staticmethod
-    def _omit_from_repr(k, cls):
+    def _omit_from_repr(self, k, cls):
         """
         Hook for exclusion of particular value from a representation
 
