@@ -113,13 +113,12 @@ class AttMapLike(MutableMapping):
         :param Iterable[(object, object)] | Mapping | pandas.Series entries:
             collection of pairs of keys and values
         """
-        from pandas import Series
         if not entries:
             return
         # Permit mapping-likes and iterables/generators of pairs.
         if callable(entries):
             entries = entries()
-        elif isinstance(entries, Series):
+        elif "pandas.core.series.Series" in type(entries).__bases__:
             entries = entries.to_dict()
         try:
             entries_iter = entries.items()
@@ -168,8 +167,7 @@ class AttMapLike(MutableMapping):
             return go(t, acc)
         return go(list(self.items()), {})
 
-    @staticmethod
-    def _omit_from_eq(k):
+    def _omit_from_eq(self, k):
         """
         Hook for exclusion of particular value from a representation
 
@@ -178,8 +176,7 @@ class AttMapLike(MutableMapping):
         """
         return False
 
-    @staticmethod
-    def _omit_from_repr(k, cls):
+    def _omit_from_repr(self, k, cls):
         """
         Hook for exclusion of particular value from a representation
 

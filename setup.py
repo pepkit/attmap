@@ -21,19 +21,8 @@ def read_reqs(reqs_name):
             deps.append(l)
     return deps
 
-
-DEPENDENCIES = read_reqs("all")
-
-
-# numexpr for pandas
-try:
-    import numexpr
-except ImportError:
-    # No numexpr is OK for pandas.
-    pass
-else:
-    # pandas 0.20.2 needs updated numexpr; the claim is 2.4.6, but that failed.
-    DEPENDENCIES.append("numexpr>=2.6.2")
+#DEPENDENCIES = read_reqs("all")
+DEPENDENCIES = []
 
 # 2to3
 if sys.version_info >= (3, ):
