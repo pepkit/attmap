@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7] - 2019-04-24
+### Changed
+- Removed `pandas` dependency
+- Made hooks for omission of specific keys instance methods
+
 ## [0.6] - 2019-04-11
 ### Added
 - Hook for omission of key(s) from instance comparison

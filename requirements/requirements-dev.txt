@@ -3,4 +3,3 @@ mock>=2.0.0
 pytest>=3.0.7
 pyyaml>=3.12
 pandas>=0.20.2
-
