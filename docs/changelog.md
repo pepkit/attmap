@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## [0.7] - 2019-04-24
 ### Changed
 - Removed `pandas` dependency
