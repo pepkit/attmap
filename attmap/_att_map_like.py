@@ -60,7 +60,7 @@ class AttMapLike(MutableMapping):
             # Ensure we don't have to worry about other containing self.
             return False
         for k, v in self.items():
-            if self._omit_from_eq(k):
+            if self._excl_from_eq(k):
                 _LOGGER.debug("Excluding from comparison: {}".format(k))
                 continue
             try:
@@ -101,7 +101,7 @@ class AttMapLike(MutableMapping):
 
     def __repr__(self):
         return repr({k: v for k, v in self.__dict__.items()
-                    if not self._omit_from_repr(k, self.__class__)})
+                    if not self._excl_from_repr(k, self.__class__)})
 
     def __str__(self):
         return "{}: {}".format(self.__class__.__name__, repr(self))
@@ -167,7 +167,7 @@ class AttMapLike(MutableMapping):
             return go(t, acc)
         return go(list(self.items()), {})
 
-    def _omit_from_eq(self, k):
+    def _excl_from_eq(self, k):
         """
         Hook for exclusion of particular value from a representation
 
@@ -176,7 +176,7 @@ class AttMapLike(MutableMapping):
         """
         return False
 
-    def _omit_from_repr(self, k, cls):
+    def _excl_from_repr(self, k, cls):
         """
         Hook for exclusion of particular value from a representation
 
