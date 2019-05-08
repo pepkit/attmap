@@ -6,7 +6,7 @@ import random
 import string
 import pytest
 from attmap import *
-from attmap.helpers import expandpath
+from ubiquerg import expandpath
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"

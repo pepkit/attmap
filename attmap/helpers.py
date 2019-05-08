@@ -17,17 +17,6 @@ def copy(obj):
     return obj
 
 
-def expandpath(p):
-    """
-    Expand environment and/or user variable(s) in a path.
-
-    :param str p: path in which to populate variables for which value is
-        available in current state
-    :return str: variable-expanded path
-    """
-    return os.path.expanduser(os.path.expandvars(p))
-
-
 def get_logger(name):
     """
     Return a logger equipped with a null handler.

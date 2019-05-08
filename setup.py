@@ -17,12 +17,11 @@ def read_reqs(reqs_name):
         for l in f:
             if not l.strip():
                 continue
-            #deps.append(l.split("=")[0].rstrip("<>"))
             deps.append(l)
     return deps
 
-#DEPENDENCIES = read_reqs("all")
-DEPENDENCIES = []
+
+DEPENDENCIES = read_reqs("all")
 
 # 2to3
 if sys.version_info >= (3, ):
