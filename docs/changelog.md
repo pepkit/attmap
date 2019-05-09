@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+### Added
+- `OrdAttMap` to create maps that preserve insertion order and otherwise behave like ordinary `AttMap`
 
 ## [0.7] - 2019-04-24
 ### Changed
