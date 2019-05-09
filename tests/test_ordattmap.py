@@ -5,7 +5,7 @@ from itertools import combinations
 import pytest
 from hypothesis import given
 from hypothesis.strategies import *
-from attmap import AttMap, AttMapEcho, OrdAttMap, PathExAttMap
+from attmap import AttMap, AttMapEcho, OrdAttMap, OrdPathExAttMap
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -13,7 +13,7 @@ __email__ = "vreuter@virginia.edu"
 
 def pytest_generate_tests(metafunc):
     """ Test case generation and parameterization for this module """
-    hwy_dat = [("San Simeon", 1), ("Icefields", 93), ("Ridgway", 550),
+    hwy_dat = [("Big Sur", 1), ("Jasper", 93), ("Sneffels", 62),
                ("Robson", 16), ("Garibaldi", 99)]
     keyhook, dathook = "hwy_dat_key", "raw_hwy_dat"
     if dathook in metafunc.fixturenames:
@@ -37,7 +37,7 @@ def kv_lists_strategy(pool=(integers, text, characters, uuids), **kwargs):
 
 @pytest.mark.parametrize(["cls", "exp"], [
     (OrdAttMap, True), (OrderedDict, True), (AttMap, True),
-    (PathExAttMap, False), (AttMapEcho, False)])
+    (OrdPathExAttMap, False), (AttMapEcho, False)])
 def test_subclassing(cls, exp):
     """ Verify that OrdAttMap type has expected type memberships. """
     assert exp is issubclass(OrdAttMap, cls)
@@ -45,7 +45,7 @@ def test_subclassing(cls, exp):
 
 @pytest.mark.parametrize(["cls", "exp"], [
     (OrdAttMap, True), (OrderedDict, True), (AttMap, True),
-    (PathExAttMap, False), (AttMapEcho, False)])
+    (OrdPathExAttMap, False), (AttMapEcho, False)])
 def test_type_membership(cls, exp):
     """ Verify that an OrdAttMap instance passes type checks as expected. """
     assert exp is isinstance(OrdAttMap(), cls)
@@ -139,8 +139,8 @@ def test_ordattmap_overrides_repr_exclusion(hwy_dat_key, raw_hwy_dat, that_type)
 
 
 @pytest.mark.parametrize(["that_type", "exp"], [
-    (OrdAttMap, True), (AttMapEcho, True), (AttMap, True),
-    (PathExAttMap, True), (OrderedDict, False), (dict, True)])
+    (OrdAttMap, True), (AttMapEcho, False), (AttMap, False),
+    (OrdPathExAttMap, False), (OrderedDict, False), (dict, False)])
 def test_ordattmap_repr(raw_hwy_dat, that_type, exp):
     """ Test __repr__ of OrdAttMap. """
     assert exp is (repr(OrdAttMap(raw_hwy_dat)) == repr(that_type(raw_hwy_dat)))

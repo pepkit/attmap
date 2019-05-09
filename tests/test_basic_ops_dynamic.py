@@ -10,7 +10,7 @@ __email__ = "vreuter@virginia.edu"
 
 
 @pytest.fixture(
-    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": {1: 2}}])
+    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": (1, 2)}])
 def entries(request):
     """ Data to store as entries in an attmap. """
     return request.param
@@ -70,6 +70,7 @@ def test_text(attmap_type, entries, f_extra_checks_pair):
         added[k] = v
         text = get_rep(m)
         miss_keys, miss_vals = _missing_items(text, added)
+        print("TEXT: {}".format(text))
         assert [] == miss_keys
         assert [] == miss_vals
 

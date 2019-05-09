@@ -1,10 +1,10 @@
 """ AttMap that echoes an unset key/attr """
 
-from .pathex_attmap import PathExAttMap
+from .ordpathex_attmap import OrdPathExAttMap
 from ._mixins import *
 
 
-class AttMapEcho(EchoMixin, PathExAttMap):
+class AttMapEcho(EchoMixin, OrdPathExAttMap):
     """ An AttMap that returns key/attr if it has no set value. """
 
     def __contains__(self, item):

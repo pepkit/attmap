@@ -1,6 +1,7 @@
 """ The trait defining a multi-access data object """
 
 import abc
+import pprint
 import sys
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
@@ -75,8 +76,7 @@ class AttMapLike(MutableMapping):
         def same_type(obj1, obj2, typenames=None):
             t1, t2 = str(obj1.__class__), str(obj2.__class__)
             return (t1 in typenames and t2 in typenames) if typenames else t1 == t2
-        if same_type(a, b, ["<type 'numpy.ndarray'>",
-                            "<class 'numpy.ndarray'>"]) or \
+        if same_type(a, b, ["<type 'numpy.ndarray'>", "<class 'numpy.ndarray'>"]) or \
             same_type(a, b, ["<class 'pandas.core.series.Series'>"]):
             check = lambda x, y: (x == y).all()
         elif same_type(a, b, ["<class 'pandas.core.frame.DataFrame'>"]):
@@ -100,11 +100,19 @@ class AttMapLike(MutableMapping):
         return sum(1 for _ in iter(self))
 
     def __repr__(self):
-        return repr({k: v for k, v in self.__dict__.items()
-                    if not self._excl_from_repr(k, self.__class__)})
+        base = self.__class__.__name__
+        data = self._wrap_data_repr(self._data_for_repr())
+        data_text = "({})".format(pprint.PrettyPrinter(indent=2).pformat(data)) if data else "({})"
+        return base + data_text
 
-    def __str__(self):
-        return "{}: {}".format(self.__class__.__name__, repr(self))
+    def _data_for_repr(self):
+        return self._wrap_data_repr(
+            filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
+                   self.items()))
+
+    @staticmethod
+    def _wrap_data_repr(data):
+        return dict(data)
 
     def add_entries(self, entries):
         """
@@ -163,9 +171,38 @@ class AttMapLike(MutableMapping):
                 return acc
             k, v = h
             acc[k] = go(list(v.items()), {}) \
-                if isinstance(v, Mapping) and not isinstance(v, dict) else v
+                if isinstance(v, Mapping) and type(v) is not dict else v
             return go(t, acc)
         return go(list(self.items()), {})
+
+    @staticmethod
+    def _simplify(data, empty, update, transform):
+        """
+        Simplify an overall data structure and types of contained values.
+
+        :param Mapping data: the data collection to simplify
+        :param callable empty: a no-arg callable that builds an empty collection,
+            e.g. a type object like list
+        :param function(Iterable, object, callable) update: a function that
+            accepts as argument a single value to either simplify or return
+            unchanged
+        :param function(object) -> object transform: a function that
+            accepts as argument a single value to either simplify or return
+            unchanged
+        :return Iterable: a simplified version of original container
+        """
+        def go(kvs, acc):
+            try:
+                h, t = kvs[0], kvs[1:]
+            except IndexError:
+                return acc
+            k, v = h
+            update(acc, k, transform(v))
+            return go(t, acc)
+            #acc[k] = go(list(v.items()), {}) \
+            #    if isinstance(v, Mapping) and type(v) is not dict else v
+            #return go(t, acc)
+        return go(list(data.items()), empty())
 
     def _excl_from_eq(self, k):
         """

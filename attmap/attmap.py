@@ -119,9 +119,6 @@ class AttMap(AttMapLike):
             # __getitem__ syntax, not attribute-access syntax.
             raise KeyError(item)
 
-    def __str__(self):
-        return "{}: {}".format(self.__class__.__name__, repr(self))
-
     @property
     def _lower_type_bound(self):
         """ Most specific type to which stored Mapping should be transformed """
