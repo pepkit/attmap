@@ -70,6 +70,7 @@ def test_text(attmap_type, entries, f_extra_checks_pair):
         added[k] = v
         text = get_rep(m)
         miss_keys, miss_vals = _missing_items(text, added)
+        print("TEXT: {}".format(text))
         assert [] == miss_keys
         assert [] == miss_vals
 

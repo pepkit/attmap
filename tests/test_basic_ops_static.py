@@ -59,12 +59,10 @@ def test_str(attmap_type, entries):
 class CheckNullTests:
     """ Test accuracy of the null value test methods. """
 
-    DATA = [(("truly_null", None), True)] + \
-           [(kv, False) for kv in [
-               ("empty_list", []), ("empty_text", ""),  ("empty_map", {}),
-               ("empty_int", 0), ("empty_float", 0), ("bad_num", float("nan")),
-               ("pos_inf", float("inf")), ("neg_inf", float("-inf")),
-           ]]
+    DATA = [(("truly_null", None), True)] + [(kv, False) for kv in [
+        ("empty_list", []), ("empty_text", ""), ("empty_map", {}),
+        ("empty_int", 0), ("empty_float", 0), ("bad_num", float("nan")),
+        ("pos_inf", float("inf")), ("neg_inf", float("-inf"))]]
 
     @pytest.fixture(scope="function")
     def entries(self):
