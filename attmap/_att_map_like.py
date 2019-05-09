@@ -162,7 +162,7 @@ class AttMapLike(MutableMapping):
                 return acc
             k, v = h
             acc[k] = go(list(v.items()), {}) \
-                if isinstance(v, Mapping) and not isinstance(v, dict) else v
+                if isinstance(v, Mapping) and type(v) is not dict else v
             return go(t, acc)
         return go(list(self.items()), {})
 
