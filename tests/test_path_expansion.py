@@ -20,7 +20,7 @@ _RVS = _ARB_VAR_NAMES + _ENV_VAR_NAMES
 @pytest.fixture(scope="function")
 def pam():
     """ Provide a test case with a clean/fresh map. """
-    return PathExAttMap()
+    return OrdPathExAttMap()
 
 
 class TmpEnv(object):

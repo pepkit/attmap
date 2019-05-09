@@ -10,7 +10,7 @@ __email__ = "vreuter@virginia.edu"
 
 
 @pytest.fixture(
-    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": {1: 2}}])
+    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": (1, 2)}])
 def entries(request):
     """ Data to store as entries in an attmap. """
     return request.param

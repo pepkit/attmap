@@ -100,11 +100,10 @@ class AttMapLike(MutableMapping):
         return sum(1 for _ in iter(self))
 
     def __repr__(self):
-        return repr({k: v for k, v in self.__dict__.items()
-                    if not self._excl_from_repr(k, self.__class__)})
-
-    def __str__(self):
-        return "{}: {}".format(self.__class__.__name__, repr(self))
+        return "{}: {}".format(
+            self.__class__.__name__, repr(
+                [(k, v) for k, v in self.__dict__.items()
+                 if not self._excl_from_repr(k, self.__class__)]))
 
     def add_entries(self, entries):
         """

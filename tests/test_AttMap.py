@@ -385,7 +385,6 @@ class AttMapObjectSyntaxAccessTests:
         return AttMapEcho(d) if request.getfixturevalue("return_identity") \
             else AttMap(d)
 
-
     @pytest.mark.parametrize(
             argnames="return_identity", argvalues=[False, True],
             ids=lambda ret_id: " identity setting: {} ".format(ret_id))
@@ -481,8 +480,7 @@ class SampleYamlTests:
 
 
 @pytest.mark.parametrize(
-    ["func", "exp"],
-    [(repr, "{}"), (str, AttMap().__class__.__name__ + ": {}")])
+    ["func", "exp"], [(repr, "AttMap: []"), (str, "AttMap: []")])
 def test_text_repr_empty(func, exp):
     """ Empty AttMap is correctly represented as text. """
     assert exp == func(AttMap())

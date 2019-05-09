@@ -43,6 +43,7 @@ def test_type_conversion_completeness(am, attmap_type, exp_num_raw):
     num_subtypes = _tally_types(am, AttMap)
     assert exp_num_raw == num_subtypes
     res = am.to_map()
+    print("Object under test: {}".format(res))
     assert 0 == _tally_types(res, attmap_type)
     assert exp_num_raw == _get_num_raw(res)
 
