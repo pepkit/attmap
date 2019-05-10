@@ -18,3 +18,7 @@ class OrdAttMap(AttMap, OrderedDict):
 
     def _new_empty_basic_map(self):
         return OrderedDict()
+
+    @property
+    def _lower_type_bound(self):
+        return OrdAttMap

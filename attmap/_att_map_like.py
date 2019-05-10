@@ -100,9 +100,10 @@ class AttMapLike(MutableMapping):
 
     def __repr__(self):
         base = self.__class__.__name__
-        data = self._wrap_data_repr(self._simplify_keyvalue(self._data_for_repr()))
+        data = self._simplify_keyvalue(self._data_for_repr())
         if data:
-            return base + ": {\n" + "\n".join(get_data_lines(data, repr)) + "\n}"
+            return base + "\n" + "\n".join(
+                get_data_lines(data, lambda obj: repr(obj).strip("'")))
         else:
             return base + ": {}"
 
@@ -157,6 +158,10 @@ class AttMapLike(MutableMapping):
         return self._simplify_keyvalue(
             self.items(), self._new_empty_basic_map())
 
+    def _data_for_repr(self):
+        return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
+                      self.items())
+
     def _excl_from_eq(self, k):
         """
         Hook for exclusion of particular value from a representation
@@ -177,14 +182,15 @@ class AttMapLike(MutableMapping):
         """
         return False
 
+    @abc.abstractproperty
+    def _lower_type_bound(self):
+        """ Most specific type to which stored Mapping should be transformed """
+        pass
+
     @abc.abstractmethod
     def _new_empty_basic_map(self):
         """ Return the empty collection builder for Mapping type simplification. """
         pass
-
-    def _data_for_repr(self):
-        return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
-                      self.items())
 
     def _simplify_keyvalue(self, kvs, acc=None):
         """
@@ -203,7 +209,3 @@ class AttMapLike(MutableMapping):
         acc[k] = self._simplify_keyvalue(
             v.items(), self._new_empty_basic_map()) if is_custom_map(v) else v
         return self._simplify_keyvalue(kvs, acc)
-
-    @staticmethod
-    def _wrap_data_repr(data):
-        return dict(data)

@@ -43,11 +43,15 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
     def space(lev):
         return " " * lev * space_per_level
 
-    def render(lev, key, val):
-        if key is None:
-            return space(lev) + val
-        valtext = val if val in ["{", "}"] else fun_val(val)
-        return space(lev) + fun_key(key) + ": " + valtext
+    # Render a line; pass val=<obj> for a line with a value (i.e., not jeader)
+    def render(lev, key, **kwargs):
+        try:
+            val = kwargs["val"]
+        except KeyError:
+            valtext = ""    # Key-only (section header) --> add no value text.
+        else:
+            valtext = "" if val is None else fun_val(val)
+        return space(lev) + fun_key(key) + ":" + valtext
 
     def go(kvs, curr_lev, acc):
         try:
@@ -55,14 +59,15 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
         except StopIteration:
             return acc
         if not isinstance(v, Mapping) or len(v) == 0:
-            acc.append(render(curr_lev, k, v))
+            # Add line representing single key-value or empty mapping
+            acc.append(render(curr_lev, k, val=v))
         else:
-            acc.append(render(curr_lev, k, "{"))
-            acc.append(",\n".join(go(iter(v.items()), curr_lev + 1, [])))
-            acc.append(render(curr_lev, None, "}"))
+            # Add section header and section data.
+            acc.append(render(curr_lev, k))
+            acc.append("\n".join(go(iter(v.items()), curr_lev + 1, [])))
         return go(kvs, curr_lev, acc)
 
-    return go(iter(data.items()), 1, [])
+    return go(iter(data.items()), 0, [])
 
 
 def get_logger(name):
