@@ -1,13 +1,12 @@
 """ The trait defining a multi-access data object """
 
 import abc
-import pprint
 import sys
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
 else:
     from collections.abc import Mapping, MutableMapping
-from .helpers import get_logger
+from .helpers import is_custom_map, get_data_lines, get_logger
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -101,18 +100,11 @@ class AttMapLike(MutableMapping):
 
     def __repr__(self):
         base = self.__class__.__name__
-        data = self._wrap_data_repr(self._data_for_repr())
-        data_text = "({})".format(pprint.PrettyPrinter(indent=2).pformat(data)) if data else "({})"
-        return base + data_text
-
-    def _data_for_repr(self):
-        return self._wrap_data_repr(
-            filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
-                   self.items()))
-
-    @staticmethod
-    def _wrap_data_repr(data):
-        return dict(data)
+        data = self._wrap_data_repr(self._simplify_keyvalue(self._data_for_repr()))
+        if data:
+            return base + ": {\n" + ",\n".join(get_data_lines(data, repr)) + "\n}"
+        else:
+            return base + ": {}"
 
     def add_entries(self, entries):
         """
@@ -133,11 +125,9 @@ class AttMapLike(MutableMapping):
         except AttributeError:
             entries_iter = entries
         for k, v in entries_iter:
-            if k not in self or not \
-                    (isinstance(v, Mapping) and isinstance(self[k], AttMapLike)):
-                self[k] = v
-            else:
-                self[k] = self[k].add_entries(v)
+            self[k] = v if k not in self or not \
+                (isinstance(v, Mapping) and isinstance(self[k], AttMapLike)) \
+                else self[k].add_entries(v)
         return self
 
     def is_null(self, item):
@@ -162,47 +152,9 @@ class AttMapLike(MutableMapping):
         """
         Convert this instance to a dict.
 
-        :return dict[str, object]:
+        :return dict[str, object]: this map's data, in a simpler container
         """
-        def go(kvs, acc):
-            try:
-                h, t = kvs[0], kvs[1:]
-            except IndexError:
-                return acc
-            k, v = h
-            acc[k] = go(list(v.items()), {}) \
-                if isinstance(v, Mapping) and type(v) is not dict else v
-            return go(t, acc)
-        return go(list(self.items()), {})
-
-    @staticmethod
-    def _simplify(data, empty, update, transform):
-        """
-        Simplify an overall data structure and types of contained values.
-
-        :param Mapping data: the data collection to simplify
-        :param callable empty: a no-arg callable that builds an empty collection,
-            e.g. a type object like list
-        :param function(Iterable, object, callable) update: a function that
-            accepts as argument a single value to either simplify or return
-            unchanged
-        :param function(object) -> object transform: a function that
-            accepts as argument a single value to either simplify or return
-            unchanged
-        :return Iterable: a simplified version of original container
-        """
-        def go(kvs, acc):
-            try:
-                h, t = kvs[0], kvs[1:]
-            except IndexError:
-                return acc
-            k, v = h
-            update(acc, k, transform(v))
-            return go(t, acc)
-            #acc[k] = go(list(v.items()), {}) \
-            #    if isinstance(v, Mapping) and type(v) is not dict else v
-            #return go(t, acc)
-        return go(list(data.items()), empty())
+        return self._simplify_keyvalue(self.items(), {})
 
     def _excl_from_eq(self, k):
         """
@@ -223,3 +175,33 @@ class AttMapLike(MutableMapping):
             text representation
         """
         return False
+
+    @staticmethod
+    def _new_empty_basic_map():
+        """ Return the empty collection builder for Mapping type simplification. """
+        return dict()
+
+    def _data_for_repr(self):
+        return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
+                      self.items())
+
+    def _simplify_keyvalue(self, kvs, acc=None):
+        """
+        Simplify a collection of key-value pairs, "reducing" to simpler types.
+
+        :param Iterable[(object, object)] kvs: collection of key-value pairs
+        :param Iterable acc: accumulating collection of simplified data
+        :return Iterable: collection of simplified data
+        """
+        acc = acc or self._new_empty_basic_map()
+        kvs = iter(kvs)
+        try:
+            k, v = next(kvs)
+        except StopIteration:
+            return acc
+        acc[k] = self._simplify_keyvalue(v.items()) if is_custom_map(v) else v
+        return self._simplify_keyvalue(kvs, acc)
+
+    @staticmethod
+    def _wrap_data_repr(data):
+        return dict(data)

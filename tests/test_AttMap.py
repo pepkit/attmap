@@ -480,7 +480,7 @@ class SampleYamlTests:
 
 
 @pytest.mark.parametrize(
-    ["func", "exp"], [(repr, "AttMap({})"), (str, "AttMap({})")])
+    ["func", "exp"], [(repr, "AttMap: {}"), (str, "AttMap: {}")])
 def test_text_repr_empty(func, exp):
     """ Empty AttMap is correctly represented as text. """
     assert exp == func(AttMap())

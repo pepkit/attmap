@@ -3,6 +3,8 @@
 ## Unreleased
 ### Added
 - `OrdAttMap` to create maps that preserve insertion order and otherwise behave like ordinary `AttMap`
+- `get_data_lines` utility, supporting nice instance `repr`
+- `is_custom_map` utility
 
 ## [0.7] - 2019-04-24
 ### Changed
