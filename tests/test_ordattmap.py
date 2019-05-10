@@ -156,6 +156,7 @@ class BasicDataTests:
     
     @pytest.fixture(params=[OrdAttMap, OrdPathExAttMap])
     def oam(self, request):
+        """ Provide test case with a simple ordered attmap instance. """
         return request.param(self.BASIC_DATA)
     
     @pytest.mark.parametrize(["get_value", "expected"], [
@@ -165,8 +166,19 @@ class BasicDataTests:
         (lambda m: m["e"], OrderedDict([("f", 6)]))
     ])
     def test_ordattmap_simplification_to_map(self, oam, get_value, expected):
+        """ Test the nested type simplification behavior for ordered attmap.  """
         assert expected == get_value(oam.to_map())
 
-    @pytest.mark.skip("not implemented")
-    def test_ordattmap_repr(self, oam):
-        pass
+    @pytest.mark.parametrize(["lineno", "expected"], [
+        (1, "  'a': {"),
+        (2, "    'c': 3,"), (3, "    'b': 2"),
+        (4, "  }"),
+        (5, "  'd': 4"), (6, "  'e': {"),
+        (7, "    'f': 6"),
+        (8, "  }"), (-1, "}")
+    ])
+    def test_ordattmap_repr(self, oam, lineno, expected):
+        """ Test the ordering and indentation of ordered attmap repr. """
+        obstext = repr(oam)
+        ls = obstext.split("\n")
+        assert expected == ls[lineno].rstrip("\n")

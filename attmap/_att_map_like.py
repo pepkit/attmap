@@ -102,7 +102,7 @@ class AttMapLike(MutableMapping):
         base = self.__class__.__name__
         data = self._wrap_data_repr(self._simplify_keyvalue(self._data_for_repr()))
         if data:
-            return base + ": {\n" + ",\n".join(get_data_lines(data, repr)) + "\n}"
+            return base + ": {\n" + "\n".join(get_data_lines(data, repr)) + "\n}"
         else:
             return base + ": {}"
 
