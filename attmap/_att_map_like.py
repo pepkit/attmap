@@ -154,7 +154,8 @@ class AttMapLike(MutableMapping):
 
         :return dict[str, object]: this map's data, in a simpler container
         """
-        return self._simplify_keyvalue(self.items(), {})
+        return self._simplify_keyvalue(
+            self.items(), self._new_empty_basic_map())
 
     def _excl_from_eq(self, k):
         """
@@ -199,7 +200,8 @@ class AttMapLike(MutableMapping):
             k, v = next(kvs)
         except StopIteration:
             return acc
-        acc[k] = self._simplify_keyvalue(v.items()) if is_custom_map(v) else v
+        acc[k] = self._simplify_keyvalue(
+            v.items(), self._new_empty_basic_map()) if is_custom_map(v) else v
         return self._simplify_keyvalue(kvs, acc)
 
     @staticmethod

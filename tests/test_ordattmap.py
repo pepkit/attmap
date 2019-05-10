@@ -109,10 +109,12 @@ def test_ordattmap_deletion(hwy_dat_key, raw_hwy_dat, alter, check):
     assert check(orig, obs), "Expected {} but found {}".format(orig, obs)
 
 
+@pytest.mark.parametrize("this_type", [OrdAttMap, OrdPathExAttMap])
 @pytest.mark.parametrize("that_type", [dict, OrderedDict, OrdAttMap])
-def test_ordattmap_overrides_eq_exclusion(hwy_dat_key, raw_hwy_dat, that_type):
+def test_ordattmap_overrides_eq_exclusion(
+        hwy_dat_key, raw_hwy_dat, this_type, that_type):
     """ Verify ability to exclude key from comparisons. """
-    class OrdSub(OrdAttMap):
+    class OrdSub(this_type):
         def _excl_from_eq(self, k):
             return super(OrdSub, self)._excl_from_eq(k) or k == hwy_dat_key
     msub = OrdSub(raw_hwy_dat)
@@ -144,3 +146,27 @@ def test_ordattmap_overrides_repr_exclusion(hwy_dat_key, raw_hwy_dat, that_type)
 def test_ordattmap_repr(raw_hwy_dat, that_type, exp):
     """ Test __repr__ of OrdAttMap. """
     assert exp is (repr(OrdAttMap(raw_hwy_dat)) == repr(that_type(raw_hwy_dat)))
+
+
+class BasicDataTests:
+    """ Tests for some OrdAttMap behaviors on some very basic data. """
+
+    BASIC_DATA = [("a", OrderedDict([("c", 3), ("b", 2)])), ("d", 4),
+                  ("e", OrderedDict([("f", 6)]))]
+    
+    @pytest.fixture(params=[OrdAttMap, OrdPathExAttMap])
+    def oam(self, request):
+        return request.param(self.BASIC_DATA)
+    
+    @pytest.mark.parametrize(["get_value", "expected"], [
+        (lambda m: type(m), OrderedDict),
+        (lambda m: m["a"], OrderedDict([("c", 3), ("b", 2)])),
+        (lambda m: m["d"], 4),
+        (lambda m: m["e"], OrderedDict([("f", 6)]))
+    ])
+    def test_ordattmap_simplification_to_map(self, oam, get_value, expected):
+        assert expected == get_value(oam.to_map())
+
+    @pytest.mark.skip("not implemented")
+    def test_ordattmap_repr(self, oam):
+        pass
