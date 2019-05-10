@@ -53,6 +53,10 @@ class AttMap(AttMapLike):
             # Throw up our hands in despair and resort to exception behavior.
             raise AttributeError(item)
 
+    def _new_empty_basic_map(self):
+        """ Return the empty collection builder for Mapping type simplification. """
+        return dict()
+
     @property
     def _transformations(self):
         """

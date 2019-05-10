@@ -176,10 +176,10 @@ class AttMapLike(MutableMapping):
         """
         return False
 
-    @staticmethod
-    def _new_empty_basic_map():
+    @abc.abstractmethod
+    def _new_empty_basic_map(self):
         """ Return the empty collection builder for Mapping type simplification. """
-        return dict()
+        pass
 
     def _data_for_repr(self):
         return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
