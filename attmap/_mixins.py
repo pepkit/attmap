@@ -28,7 +28,7 @@ class EchoMixin(object):
             to be indicative of the intent of protection.
         """
         try:
-            return super(EchoMixin, self).__getattribute__(item)
+            return super(self.__class__, self).__getattribute__(item)
         except (AttributeError, TypeError):
             # Handle potential failure from non-string or property request.
             pass
@@ -45,3 +45,7 @@ class EchoMixin(object):
                 # For compatibility with ordinary getattr() call, allow default value.
                 return default
             return item
+
+    def __getitem__(self, item):
+        """ Prevent echo behavior from propagating to __getitem__ syntax. """
+        return self.__dict__[item]
