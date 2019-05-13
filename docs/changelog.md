@@ -7,6 +7,7 @@
 - `is_custom_map` utility
 ### Changed
 - Better `repr` and `str` for all `attmap`-like types, rendering like YAML
+- `__getitem__` syntax on `AttMapEcho` no longer exhibits echo behavior (only dot notation does.)
 
 ## [0.7] - 2019-04-24
 ### Changed
