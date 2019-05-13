@@ -114,15 +114,6 @@ class AttMap(AttMapLike):
         # type may not overwrite existing.
         self.__dict__[key] = self._finalize_value(value)
 
-    def __getitem__(self, item):
-        try:
-            # Ability to return requested item name itself is delegated.
-            return self.__getattr__(item)
-        except AttributeError:
-            # Requested item is unknown, but request was made via
-            # __getitem__ syntax, not attribute-access syntax.
-            raise KeyError(item)
-
     @property
     def _lower_type_bound(self):
         return AttMap
