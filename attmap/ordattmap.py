@@ -13,8 +13,7 @@ class OrdAttMap(AttMap, OrderedDict):
     """ Insertion-ordered mapping with dot notation access """
 
     def __init__(self, entries=None):
-        super(OrderedDict, self).__init__()
-        super(AttMap, self).__init__(entries)
+        super(OrdAttMap, self).__init__(entries)
 
     def _new_empty_basic_map(self):
         return OrderedDict()
