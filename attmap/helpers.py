@@ -43,15 +43,16 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
     def space(lev):
         return " " * lev * space_per_level
 
-    # Render a line; pass val=<obj> for a line with a value (i.e., not jeader)
+    # Render a line; pass val=<obj> for a line with a value (i.e., not header)
     def render(lev, key, **kwargs):
+        ktext = fun_key(key) + ":"
         try:
             val = kwargs["val"]
         except KeyError:
-            valtext = ""    # Key-only (section header) --> add no value text.
+            return space(lev) + ktext
         else:
-            valtext = "" if val is None else fun_val(val)
-        return space(lev) + fun_key(key) + ":" + valtext
+            return space(lev) + "{} {}".format(
+                ktext, "null" if val is None else fun_val(val))
 
     def go(kvs, curr_lev, acc):
         try:

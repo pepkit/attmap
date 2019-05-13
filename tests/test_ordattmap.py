@@ -170,15 +170,15 @@ class BasicDataTests:
         assert expected == get_value(oam.to_map())
 
     @pytest.mark.parametrize(["lineno", "expected"], [
-        (1, "  'a': {"),
-        (2, "    'c': 3,"), (3, "    'b': 2"),
-        (4, "  }"),
-        (5, "  'd': 4"), (6, "  'e': {"),
-        (7, "    'f': 6"),
-        (8, "  }"), (-1, "}")
+        (1, "a:"),
+        (2, "  c: 3"), (3, "  b: 2"),
+        (4, "d: 4"), (5, "e:"),
+        (6, "  f: 6")
     ])
     def test_ordattmap_repr(self, oam, lineno, expected):
         """ Test the ordering and indentation of ordered attmap repr. """
         obstext = repr(oam)
+        print("OBSERVED TEXT (below):\n{}".format(obstext))
         ls = obstext.split("\n")
+        assert oam.__class__.__name__ == ls[0]
         assert expected == ls[lineno].rstrip("\n")
