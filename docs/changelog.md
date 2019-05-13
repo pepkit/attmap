@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## [0.8] - 2019-05-13
 ### Added
 - `OrdAttMap` to create maps that preserve insertion order and otherwise behave like ordinary `AttMap`
 - `get_data_lines` utility, supporting nice instance `repr`
 - `is_custom_map` utility
+### Changed
+- Better `repr` and `str` for all `attmap`-like types, rendering like YAML
 
 ## [0.7] - 2019-04-24
 ### Changed
