@@ -52,45 +52,9 @@ class AttMapLike(MutableMapping):
         except KeyError:
             _LOGGER.debug("No item {} to delete".format(item))
 
-    def __eq__(self, other):
-        # TODO: check for equality across classes?
-        if not isinstance(other, Mapping):
-            return False
-        if len(self) != len(other):
-            # Ensure we don't have to worry about other containing self.
-            return False
-        for k, v in self.items():
-            if self._excl_from_eq(k):
-                _LOGGER.debug("Excluding from comparison: {}".format(k))
-                continue
-            try:
-                if not self._cmp(v, other[k]):
-                    return False
-            except KeyError:
-                return False
-        return True
-
     @staticmethod
     def _cmp(a, b):
-        def same_type(obj1, obj2, typenames=None):
-            t1, t2 = str(obj1.__class__), str(obj2.__class__)
-            return (t1 in typenames and t2 in typenames) if typenames else t1 == t2
-        if same_type(a, b, ["<type 'numpy.ndarray'>", "<class 'numpy.ndarray'>"]) or \
-            same_type(a, b, ["<class 'pandas.core.series.Series'>"]):
-            check = lambda x, y: (x == y).all()
-        elif same_type(a, b, ["<class 'pandas.core.frame.DataFrame'>"]):
-            check = lambda x, y: (x == y).all().all()
-        else:
-            check = lambda x, y: x == y
-        try:
-            return check(a, b)
-        except ValueError:
-            # ValueError arises if, e.g., the pair of Series have
-            # have nonidentical labels.
-            return False
-
-    def __ne__(self, other):
-        return not self == other
+        return a == b
 
     def __iter__(self):
         return iter([k for k in self.__dict__.keys()])
