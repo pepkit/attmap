@@ -51,10 +51,7 @@ class AttMap(AttMapLike):
             if self._excl_from_eq(k):
                 _LOGGER.debug("Excluding from comparison: {}".format(k))
                 continue
-            try:
-                if not self._cmp(v, other[k]):
-                    return False
-            except KeyError:
+            if not self._cmp(v, other[k]):
                 return False
         return True
 
