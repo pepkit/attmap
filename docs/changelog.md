@@ -9,6 +9,8 @@
 - Better `repr` and `str` for all `attmap`-like types, rendering like YAML
 - `__getitem__` syntax on `AttMapEcho` no longer exhibits echo behavior (only dot notation does.)
 - Instance comparison is now much stricter, requiring exact type match. This reflects some of the type-specific value conversion and representation behavior.
+- `PathExAttMap` is now `OrdPathExAttMap`, preserving item insertion order
+- `AttMapEcho` preserves item insertion order
 
 ## [0.7] - 2019-04-24
 ### Changed
