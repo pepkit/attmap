@@ -9,8 +9,6 @@ import pytest
 import yaml
 
 from attmap import AttMap, AttMapEcho
-from .helpers import assert_entirely_equal
-
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -62,7 +60,6 @@ def nested_entries():
         yield k, v
 
 
-
 @pytest.mark.parametrize("base", ["random", "irrelevant", "arbitrary"])
 @pytest.mark.parametrize("protect", [False, True])
 def test_echo_is_conditional(base, protect):
@@ -73,7 +70,6 @@ def test_echo_is_conditional(base, protect):
             m.__getattr__("__{}__".format(base))
     else:
         assert base == m.__getattr__(base)
-
 
 
 class AttributeConstructionDictTests:
@@ -93,11 +89,13 @@ class AttributeConstructionDictTests:
 
     def test_null_construction(self):
         """ Null entries value creates empty AttMap. """
-        assert {} == AttMap(None)
+        assert AttMap({}) == AttMap(None)
 
     def test_empty_construction(self, empty_collection):
         """ Empty entries container create empty AttMap. """
-        assert {} == AttMap(empty_collection)
+        m = AttMap(empty_collection)
+        assert AttMap(None) == m
+        assert m != dict()
 
     @pytest.mark.parametrize(
             argnames="entries_gen,entries_provision_type",
@@ -126,32 +124,9 @@ class AttributeConstructionDictTests:
         else:
             raise ValueError("Unexpected entries type: {}".
                              format(entries_provision_type))
-        expected = entries_mapping
+        expected = AttMap(entries_mapping)
         observed = AttMap(entries)
         assert expected == observed
-
-    @pytest.mark.parametrize(
-            argnames="attval",
-            argvalues= [None, set(), [], {}, {"abc": 123}, (1, 'a'), "",
-                        "str", -1, 0, 1.0, np.nan] + [np.random.random(20)])
-    def test_ctor_non_nested(self, attval):
-        """ Test attr fetch, with dictionary syntax and with object syntax. """
-        # Set and retrieve attributes
-        attrd = AttMap({"attr": attval})
-        assert_entirely_equal(attrd["attr"], attval)
-        assert_entirely_equal(getattr(attrd, "attr"), attval)
-
-    @pytest.mark.parametrize(
-            argnames="attval",
-            argvalues=[None, set(), [], {}, {"abc": 123}, (1, 'a'), "",
-                       "str", -1, 0, 1.0, np.nan] + [np.random.random(20)])
-    def test_ctor_nested(self, attval):
-        """ Test AttMap nesting functionality. """
-        attrd = AttMap({"attr": attval})
-        attrd.attrd = AttMap({"attr": attval})
-        assert_entirely_equal(attrd.attrd["attr"], attval)
-        assert_entirely_equal(getattr(attrd.attrd, "attr"), attval)
-        assert_entirely_equal(attrd["attrd"].attr, attval)
 
     @staticmethod
     def _validate_mapping_function_implementation(entries_gen, name_comp_func):
@@ -228,7 +203,6 @@ class AttMapUpdateTests:
             assert getter(item_name) == value
 
 
-
 class AttMapCollisionTests:
     """ Tests for proper merging and type conversion of mappings. 
      AttMap converts a mapping being inserted as a value to an 
@@ -254,7 +228,6 @@ class AttMapCollisionTests:
         assert new_value == ad["MR"]
 
 
-
 @pytest.mark.parametrize(
         argnames="name_update_func",
         argvalues=["add_entries", "__setattr__", "__setitem__"])
@@ -278,7 +251,7 @@ class AttMapNullTests:
         ad = AttMap({"lone_attr": None})
         assert getattr(ad, name_fetch_func)("lone_attr") is None
         setter = getattr(ad, name_update_func)
-        non_null_value = {"was_null": "not_now"}
+        non_null_value = AttMap({"was_null": "not_now"})
         self._do_update(name_update_func, setter,
                         ("lone_attr", non_null_value))
         assert non_null_value == getattr(ad, name_fetch_func)("lone_attr")
@@ -300,8 +273,7 @@ class AttMapItemAccessTests:
         with pytest.raises(AttributeError):
             getattr(attrd, missing)
 
-    @pytest.mark.parametrize(argnames="missing",
-                             argvalues=["", "b", "missing"])
+    @pytest.mark.parametrize(argnames="missing", argvalues=["", "b", "missing"])
     def test_missing_getitem(self, missing):
         attrd = AttMap()
         with pytest.raises(KeyError):
@@ -313,18 +285,6 @@ class AttMapItemAccessTests:
         assert 'a' == ad[1]
         with pytest.raises(TypeError):
             getattr(ad, 1)
-
-    @pytest.mark.parametrize(
-            argnames="getter,error_type",
-            argvalues=zip(["__getattr__", "__getitem__"],
-                          [AttributeError, KeyError]))
-    def test_att_map_echo(self, getter, error_type):
-        """ AttMap can return requested item itself if unset. """
-        ad = AttMap()
-        with pytest.raises(error_type):
-            getattr(ad, getter)("unknown")
-        ad = AttMapEcho()
-        assert getattr(ad, getter)("self_reporter") == "self_reporter"
 
 
 class AttMapSerializationTests:
@@ -385,15 +345,14 @@ class AttMapObjectSyntaxAccessTests:
         return AttMapEcho(d) if request.getfixturevalue("return_identity") \
             else AttMap(d)
 
-
     @pytest.mark.parametrize(
             argnames="return_identity", argvalues=[False, True],
-            ids=lambda ret_id: " identity setting: {} ".format(ret_id))
+            ids=lambda ret_id: " identity setting={} ".format(ret_id))
     @pytest.mark.parametrize(
             argnames="attr_to_request",
             argvalues=NORMAL_ITEM_ARG_VALUES + PICKLE_ITEM_ARG_VALUES +
                       UNMAPPED + list(ATTR_DICT_DATA.keys()),
-            ids=lambda attr: " requested = {} ".format(attr))
+            ids=lambda attr: " requested={} ".format(attr))
     def test_attribute_access(
             self, return_identity, attr_to_request, attrdict):
         """ Access behavior depends on request and behavior toggle. """
@@ -406,7 +365,8 @@ class AttMapObjectSyntaxAccessTests:
         elif attr_to_request in self.PICKLE_ITEM_ARG_VALUES:
             # We don't tinker with the pickle-relevant attributes.
             with pytest.raises(AttributeError):
-                getattr(attrdict, attr_to_request)
+                print("Should have failed, but got result: {}".
+                      format(getattr(attrdict, attr_to_request)))
         elif attr_to_request in self.UNMAPPED:
             # Unmapped request behavior depends on parameterization.
             if return_identity:
@@ -417,7 +377,10 @@ class AttMapObjectSyntaxAccessTests:
         else:
             # A mapped attribute returns its known value.
             expected = self.ATTR_DICT_DATA[attr_to_request]
+            if isinstance(expected, dict):
+                expected = type(attrdict)(expected)
             observed = getattr(attrdict, attr_to_request)
+            print("AD (below):\n{}".format(attrdict))
             assert expected == observed
 
 
@@ -481,8 +444,7 @@ class SampleYamlTests:
 
 
 @pytest.mark.parametrize(
-    ["func", "exp"],
-    [(repr, "{}"), (str, AttMap().__class__.__name__ + ": {}")])
+    ["func", "exp"], [(repr, "AttMap: {}"), (str, "AttMap: {}")])
 def test_text_repr_empty(func, exp):
     """ Empty AttMap is correctly represented as text. """
     assert exp == func(AttMap())

@@ -6,7 +6,7 @@ import random
 import string
 import pytest
 from attmap import *
-from attmap.helpers import expandpath
+from ubiquerg import expandpath
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -20,7 +20,7 @@ _RVS = _ARB_VAR_NAMES + _ENV_VAR_NAMES
 @pytest.fixture(scope="function")
 def pam():
     """ Provide a test case with a clean/fresh map. """
-    return PathExAttMap()
+    return OrdPathExAttMap()
 
 
 class TmpEnv(object):

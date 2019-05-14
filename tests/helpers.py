@@ -1,6 +1,5 @@
 """ Helper functions for tests """
 
-import math
 import random
 import string
 from attmap._att_map_like import AttMapLike
@@ -17,16 +16,6 @@ ATOMIC_STRATEGIES = [
     booleans, binary, floats, integers, text, characters, uuids,
     emails, timedeltas, times, dates, datetimes, complex_numbers
 ]
-
-
-def assert_entirely_equal(observed, expected):
-    """ Accommodate equality assertion for varied data, including NaN. """
-    try:
-        assert observed == expected
-    except AssertionError:
-        assert math.isnan(observed) and math.isnan(expected)
-    except ValueError:
-        assert (observed == expected).all()
 
 
 def get_att_map(cls, entries=None):

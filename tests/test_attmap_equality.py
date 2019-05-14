@@ -4,6 +4,7 @@ import copy
 import numpy as np
 from pandas import DataFrame as DF, Series
 import pytest
+from attmap import AttMap, OrdAttMap, OrdPathExAttMap, AttMapEcho
 from .conftest import ALL_ATTMAPS
 from .helpers import get_att_map
 
@@ -48,4 +49,39 @@ def test_eq_with_scistack_value_types(attmap_type, obj1, obj2, expected):
     key = "obj"
     m1 = get_att_map(attmap_type, {key: obj1})
     m2 = get_att_map(attmap_type, {key: obj2})
+    print("m1: {}".format(m1))
     assert (m1 == m2) is expected
+
+
+@pytest.mark.parametrize("data", [{}, {"a": 1}])
+@pytest.mark.parametrize(["this_type", "that_type", "exp"], [
+    (AttMap, AttMap, True),
+    (AttMap, AttMapEcho, False), (AttMap, OrdAttMap, False), (AttMap, OrdPathExAttMap, False),
+    (OrdAttMap, OrdAttMap, True),
+    (OrdAttMap, OrdPathExAttMap, False), (OrdAttMap, AttMapEcho, False),
+    (OrdPathExAttMap, OrdPathExAttMap, True), (OrdPathExAttMap, AttMapEcho, False),
+    (AttMapEcho, AttMapEcho, True)])
+def test_equality_is_strict_in_type(data, this_type, that_type, exp):
+    """ Attmap equality requires exact type match. """
+    m1 = get_att_map(this_type, data)
+    m2 = get_att_map(that_type, data)
+    assert type(m1) == this_type
+    assert type(m2) == that_type
+    assert (m1 == m2) is exp
+    assert (m2 == m1) is exp
+    assert (m1 != m2) is not exp
+    assert (m2 != m1) is not exp
+
+
+@pytest.mark.parametrize("maptype", ALL_ATTMAPS)
+@pytest.mark.parametrize(["data", "delkey"], [
+    ({"a": 1}, "a"), ({"b": 2, "c": 3}, "b"), ({"b": 2, "c": 3}, "c")])
+def test_equality_fails_when_keysets_are_non_identical(maptype, data, delkey):
+    """ Map comparison fails--unexceptionally--when operands differ in keys. """
+    m1 = get_att_map(maptype, data)
+    m2 = get_att_map(maptype, data)
+    assert m1 == m2
+    assert m2 == m1
+    del m1[delkey]
+    assert m1 != m2
+    assert m2 != m1

@@ -1,16 +1,16 @@
 """ Test basic Mapping operations' responsiveness to underlying data change. """
 
-import sys
 from hypothesis import given
 import pytest
 from .helpers import get_att_map, random_str_key, rand_non_null
+from pandas import Series
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
 @pytest.fixture(
-    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": {1: 2}}])
+    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": (1, 2)}])
 def entries(request):
     """ Data to store as entries in an attmap. """
     return request.param
@@ -56,6 +56,30 @@ def test_negative_membership(attmap_type, entries):
         assert k not in m
 
 
+@pytest.mark.parametrize(
+    "series", [Series(data) for data in [("a", 1), [("b", 2), ("c", 3)], []]])
+def test_add_pandas_series(series, attmap_type):
+    """ A pandas Series can be used as a simple container of entries to add. """
+    m = get_att_map(attmap_type)
+    raw_data = series.to_dict()
+    keys = set(raw_data.keys())
+    assert keys - set(m.keys()) == keys
+    m.add_entries(series)
+    assert raw_data == {k: m[k] for k in raw_data}
+
+
+@pytest.mark.parametrize("seed_data", [{}, {"a": 1}, {"b": 2, "c": 3}])
+@pytest.mark.parametrize("delkey", ["d", "e"])
+def test_del_unmapped_key(attmap_type, seed_data, delkey):
+    """ Attempt to remove unmapped key should not fail. """
+    m = get_att_map(attmap_type, entries=seed_data)
+    assert delkey not in m
+    try:
+        del m[delkey]
+    except KeyError as e:
+        pytest.fail("Attempt to remove unmapped key hit exception: {}".format(e))
+
+
 @pytest.mark.parametrize("f_extra_checks_pair",
     [(repr, []), (str, [lambda s, dt: s.startswith(dt.__name__)])])
 def test_text(attmap_type, entries, f_extra_checks_pair):
@@ -68,23 +92,50 @@ def test_text(attmap_type, entries, f_extra_checks_pair):
     for k, v in entries.items():
         m[k] = v
         added[k] = v
-        text = get_rep(m)
-        miss_keys, miss_vals = _missing_items(text, added)
-        assert [] == miss_keys
-        assert [] == miss_vals
 
-    n = sys.maxsize
+    text = get_rep(m)
+    lines = text.split("\n")
+    assert len(lines) == 1 + len(entries)
+    assert lines[0].startswith(attmap_type.__name__)
+
+    def _examine_results(ls, items):
+        def find_line(key, val):
+            matches = [l for l in ls if l.startswith(k) and "{}".format(v) in l]
+            if len(matches) == 0:
+                raise Exception("No matches for key={}, val={} among lines:\n{}".
+                                format(key, val, "\n".join(lines)))
+            elif len(matches) == 1:
+                return matches[0]
+            else:
+                raise Exception("Non-unique ({}) matched lines:\n{}".
+                                format(len(matches), "\n".join(matches)))
+        matched, missed = [], []
+        for k, v in items.items():
+            try:
+                matched.append(((k, v), find_line(k, v)))
+            except Exception as e:
+                missed.append(((k, v), str(e)))
+        return matched, missed
+
+    goods, bads = _examine_results(lines, added)
+    if bads:
+        pytest.fail("Errors/failures by key-value pair:\n{}".format(bads))
+    for (k, v), l in goods:
+        assert l.startswith("{}".format(k))
+        assert "{}".format(v) in l
+
     for k in entries:
         del m[k]
         del added[k]
         text = get_rep(m)
-        miss_keys, miss_vals = _missing_items(text, added)
-        assert [] == miss_keys
-        assert [] == miss_vals
-        assert len(text) < n
+        goods, bads = _examine_results(text.split("\n"), added)
+        if bads:
+            pytest.fail("Errors/failures by key-value pair:\n{}".format(bads))
+        for kv, l in goods:
+            assert l.startswith("{}".format(kv[0]))
+            assert "{}".format(kv[1]) in l
         for check in extra_checks:
             check(text, attmap_type)
-        n = len(text)
 
 
 class CheckNullTests:
@@ -104,16 +155,19 @@ class CheckNullTests:
     @staticmethod
     @pytest.fixture("function", params=[k for ((k, _), _) in DATA])
     def k(request):
+        """ Provide the requesting test case with a key into a mapping. """
         return request.param
 
     @staticmethod
     @pytest.fixture("function")
     def m(attmap_type):
+        """ Build an AttMap instance of the given subtype. """
         return get_att_map(attmap_type)
 
     @staticmethod
     @given(v=rand_non_null())
     def test_null_to_non_null(m, v):
+        """ Non-null value can overwrite null. """
         k = random_str_key()
         m[k] = None
         assert m.is_null(k) and not m.non_null(k)
@@ -123,6 +177,7 @@ class CheckNullTests:
     @staticmethod
     @given(v=rand_non_null())
     def test_non_null_to_null(m, v):
+        """ Null value can overwrite non-null. """
         k = random_str_key()
         m[k] = v
         assert not m.is_null(k) and m.non_null(k)
@@ -131,6 +186,7 @@ class CheckNullTests:
 
     @staticmethod
     def test_null_to_absent(m):
+        """ Null value for previously absent key is inserted. """
         k = random_str_key()
         m[k] = None
         assert m.is_null(k) and not m.non_null(k)
@@ -140,22 +196,9 @@ class CheckNullTests:
     @staticmethod
     @given(v=rand_non_null())
     def test_non_null_to_absent(m, v):
+        """ Non-null value for previously absent key is inserted. """
         k = random_str_key()
         m[k] = v
         assert not m.is_null(k) and m.non_null(k)
         del m[k]
         assert not m.is_null(k) and not m.non_null(k)
-
-
-def _missing_items(r, data):
-    """
-    Determine which keys and/or values are missing from Mapping representation.
-
-    :param str r: representation of the mapping
-    :param Mapping data: data expected to be represented in the provided text
-    :return list[str], list[str]: list of keys and of values, respectively, for
-        which are not represented in the given text
-    """
-    missing_keys = [k for k in data if repr(k) not in r]
-    missing_values = [v for v in data.values() if repr(v) not in r]
-    return missing_keys, missing_values

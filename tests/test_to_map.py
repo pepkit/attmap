@@ -33,16 +33,18 @@ def exp_num_raw(entries):
 
 
 @pytest.fixture(scope="function")
-def am(request, attmap_type, entries):
+def am(attmap_type, entries):
     """ Prepopulated attribute mapping of a particular subtype """
     return get_att_map(attmap_type, entries)
 
 
 def test_type_conversion_completeness(am, attmap_type, exp_num_raw):
     """ Each nested mapping should be converted. """
+    assert type(am) is attmap_type
     num_subtypes = _tally_types(am, AttMap)
     assert exp_num_raw == num_subtypes
     res = am.to_map()
+    print("Object under test: {}".format(res))
     assert 0 == _tally_types(res, attmap_type)
     assert exp_num_raw == _get_num_raw(res)
 
