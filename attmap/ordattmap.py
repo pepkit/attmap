@@ -2,11 +2,15 @@
 
 from collections import OrderedDict
 from .attmap import AttMap
+from .helpers import get_logger, safedel_message
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 __all__ = ["OrdAttMap"]
+
+
+_LOGGER = get_logger(__name__)
 
 
 class OrdAttMap(OrderedDict, AttMap):
@@ -17,6 +21,13 @@ class OrdAttMap(OrderedDict, AttMap):
 
     def __setitem__(self, key, value):
         super(OrdAttMap, self).__setitem__(key, self._finalize_value(value))
+
+    def __delitem__(self, key):
+        """ Make unmapped key deletion unexceptional. """
+        try:
+            super(OrdAttMap, self).__delitem__(key)
+        except KeyError:
+            _LOGGER.debug(safedel_message(key))
 
     def __eq__(self, other):
         return AttMap.__eq__(self, other) and list(self.keys()) == list(other.keys())

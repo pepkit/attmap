@@ -6,7 +6,7 @@ if sys.version_info < (3, 3):
 else:
     from collections.abc import Mapping
 
-from .helpers import copy, get_logger
+from .helpers import copy, get_logger, safedel_message
 from ._att_map_like import AttMapLike
 
 
@@ -26,7 +26,7 @@ class AttMap(AttMapLike):
         try:
             del self.__dict__[key]
         except KeyError:
-            _LOGGER.debug("No key {} to delete".format(key))
+            _LOGGER.debug(safedel_message(key))
 
     def __getitem__(self, item):
         return self.__dict__[item]

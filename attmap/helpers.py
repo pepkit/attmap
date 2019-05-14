@@ -91,3 +91,13 @@ def is_custom_map(obj):
     :return bool: whether the object is a Mapping other than dict
     """
     return isinstance(obj, Mapping) and type(obj) is not dict
+
+
+def safedel_message(key):
+    """
+    Create safe deletion log message.
+
+    :param hashable key: unmapped key for which deletion/removal was tried
+    :return str: message to log unmapped key deletion attempt.
+    """
+    return "No key {} to delete".format(key)

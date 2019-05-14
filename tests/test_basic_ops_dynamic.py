@@ -68,6 +68,18 @@ def test_add_pandas_series(series, attmap_type):
     assert raw_data == {k: m[k] for k in raw_data}
 
 
+@pytest.mark.parametrize("seed_data", [{}, {"a": 1}, {"b": 2, "c": 3}])
+@pytest.mark.parametrize("delkey", ["d", "e"])
+def test_del_unmapped_key(attmap_type, seed_data, delkey):
+    """ Attempt to remove unmapped key should not fail. """
+    m = get_att_map(attmap_type, entries=seed_data)
+    assert delkey not in m
+    try:
+        del m[delkey]
+    except KeyError as e:
+        pytest.fail("Attempt to remove unmapped key hit exception: {}".format(e))
+
+
 @pytest.mark.parametrize("f_extra_checks_pair",
     [(repr, []), (str, [lambda s, dt: s.startswith(dt.__name__)])])
 def test_text(attmap_type, entries, f_extra_checks_pair):
