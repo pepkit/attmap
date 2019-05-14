@@ -24,6 +24,9 @@ class OrdAttMap(OrderedDict, AttMap):
     def __ne__(self, other):
         return not self == other
 
+    def __repr__(self):
+        return AttMap.__repr__(self)
+
     def _new_empty_basic_map(self):
         return OrderedDict()
 
