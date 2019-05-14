@@ -24,14 +24,12 @@ class AttMapEcho(OrdPathExAttMap):
             return super(self.__class__, self).__getattr__(item, default)
         except (AttributeError, TypeError):
             # If not, triage and cope accordingly.
-            if item.startswith("_OrderedDict") or (item.startswith("__") and item.endswith("__")):
-                # Accommodate security-through-obscurity approach used by some libraries.
+            if item.startswith("_OrderedDict") or \
+                    (item.startswith("__") and item.endswith("__")):
+                # Accommodate security-through-obscurity approach of some libs.
                 error_reason = "Protected-looking attribute: {}".format(item)
                 raise AttributeError(error_reason)
-            if default is not None:
-                # For compatibility with ordinary getattr() call, allow default value.
-                return default
-            return item
+            return default if default is not None else item
 
     @property
     def _lower_type_bound(self):

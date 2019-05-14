@@ -32,3 +32,14 @@ def test_echo_is_type_dependent_and_access_dependent(
     assert key not in m
     with ExpectContext(expected, getter) as ctx:
         ctx(m, key)
+
+
+@pytest.mark.parametrize(
+    ["data", "name", "defval"],
+    [({}, "b", "arbval"), ({"a": 1}, "c", "random")])
+def test_echo_respects_default(data, name, defval):
+    assert name != defval    # Pretest so that assertions actually have meaning.
+    m = AttMapEcho(data)
+    assert name == getattr(m, name)
+    assert name == getattr(m, name, defval)
+    assert defval == m.__getattr__(name, defval)
