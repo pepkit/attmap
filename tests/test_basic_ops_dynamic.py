@@ -57,8 +57,7 @@ def test_negative_membership(attmap_type, entries):
 
 
 @pytest.mark.parametrize(
-    "series",
-    [Series(data) for data in [("a", 1), [("b", 2), ("c", 3)], []]])
+    "series", [Series(data) for data in [("a", 1), [("b", 2), ("c", 3)], []]])
 def test_add_pandas_series(series, attmap_type):
     """ A pandas Series can be used as a simple container of entries to add. """
     m = get_att_map(attmap_type)
