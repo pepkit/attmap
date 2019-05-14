@@ -139,13 +139,23 @@ def test_ordattmap_overrides_eq_exclusion(
 @pytest.mark.parametrize("that_type", [dict, OrderedDict, OrdAttMap])
 def test_ordattmap_overrides_repr_exclusion(hwy_dat_key, raw_hwy_dat, that_type):
     """ Verify ability to exclude key from __repr__. """
+
     class OrdSub(OrdAttMap):
         def _excl_from_repr(self, k, cls):
             return super(OrdSub, self)._excl_from_repr(k, cls) or k == hwy_dat_key
+
     msub = OrdSub(raw_hwy_dat)
     assert isinstance(msub, OrdAttMap)
     that = that_type(raw_hwy_dat)
-    assert msub.items() == that.items()
+
+    # Validate itemized equivalence (without regard for order).
+    this_keys = set(msub.keys())
+    that_keys = set(that.keys())
+    assert this_keys == that_keys
+    mismatches = [(k, msub[k], that[k]) for k in this_keys | that_keys
+                  if msub[k] != that[k]]
+    assert [] == mismatches
+
     assert hwy_dat_key in repr(that)
     assert hwy_dat_key not in repr(msub)
 
