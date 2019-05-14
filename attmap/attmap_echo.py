@@ -24,7 +24,7 @@ class AttMapEcho(OrdPathExAttMap):
             return super(self.__class__, self).__getattr__(item, default)
         except (AttributeError, TypeError):
             # If not, triage and cope accordingly.
-            if item.startswith("__") and item.endswith("__"):
+            if item.startswith("_OrderedDict") or (item.startswith("__") and item.endswith("__")):
                 # Accommodate security-through-obscurity approach used by some libraries.
                 error_reason = "Protected-looking attribute: {}".format(item)
                 raise AttributeError(error_reason)

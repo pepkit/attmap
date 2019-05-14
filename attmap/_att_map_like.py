@@ -34,7 +34,6 @@ class AttMapLike(MutableMapping):
             return super(AttMapLike, self).__getattribute__(item)
         except AttributeError:
             try:
-                # Ability to return requested item name itself is delegated.
                 return self.__getitem__(item)
             except KeyError:
                 # Requested item is unknown, but request was made via
