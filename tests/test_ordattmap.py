@@ -118,7 +118,7 @@ def test_ordattmap_deletion(hwy_dat_key, raw_hwy_dat, alter, check):
 @pytest.mark.parametrize("base_type", [OrdAttMap, OrdPathExAttMap])
 @pytest.mark.parametrize(
     ["that_type", "final_exp"],
-    [(dict, False), (OrderedDict, True), (OrdAttMap, True)])
+    [(dict, sys.version_info >= (3, 5)), (OrderedDict, True), (OrdAttMap, True)])
 def test_ordattmap_overrides_eq_exclusion(
         hwy_dat_key, raw_hwy_dat, base_type, that_type, final_exp):
     """ Verify ability to exclude key from comparisons. """
