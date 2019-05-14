@@ -9,8 +9,6 @@ import pytest
 import yaml
 
 from attmap import AttMap, AttMapEcho
-from .helpers import assert_entirely_equal
-
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -91,11 +89,13 @@ class AttributeConstructionDictTests:
 
     def test_null_construction(self):
         """ Null entries value creates empty AttMap. """
-        assert {} == AttMap(None)
+        assert AttMap({}) == AttMap(None)
 
     def test_empty_construction(self, empty_collection):
         """ Empty entries container create empty AttMap. """
-        assert {} == AttMap(empty_collection)
+        m = AttMap(empty_collection)
+        assert AttMap(None) == m
+        assert m != dict()
 
     @pytest.mark.parametrize(
             argnames="entries_gen,entries_provision_type",
@@ -124,32 +124,9 @@ class AttributeConstructionDictTests:
         else:
             raise ValueError("Unexpected entries type: {}".
                              format(entries_provision_type))
-        expected = entries_mapping
+        expected = AttMap(entries_mapping)
         observed = AttMap(entries)
         assert expected == observed
-
-    @pytest.mark.parametrize(
-            argnames="attval",
-            argvalues= [None, set(), [], {}, {"abc": 123}, (1, 'a'), "",
-                        "str", -1, 0, 1.0, np.nan] + [np.random.random(20)])
-    def test_ctor_non_nested(self, attval):
-        """ Test attr fetch, with dictionary syntax and with object syntax. """
-        # Set and retrieve attributes
-        attrd = AttMap({"attr": attval})
-        assert_entirely_equal(attrd["attr"], attval)
-        assert_entirely_equal(getattr(attrd, "attr"), attval)
-
-    @pytest.mark.parametrize(
-            argnames="attval",
-            argvalues=[None, set(), [], {}, {"abc": 123}, (1, 'a'), "",
-                       "str", -1, 0, 1.0, np.nan] + [np.random.random(20)])
-    def test_ctor_nested(self, attval):
-        """ Test AttMap nesting functionality. """
-        attrd = AttMap({"attr": attval})
-        attrd.attrd = AttMap({"attr": attval})
-        assert_entirely_equal(attrd.attrd["attr"], attval)
-        assert_entirely_equal(getattr(attrd.attrd, "attr"), attval)
-        assert_entirely_equal(attrd["attrd"].attr, attval)
 
     @staticmethod
     def _validate_mapping_function_implementation(entries_gen, name_comp_func):
@@ -274,7 +251,7 @@ class AttMapNullTests:
         ad = AttMap({"lone_attr": None})
         assert getattr(ad, name_fetch_func)("lone_attr") is None
         setter = getattr(ad, name_update_func)
-        non_null_value = {"was_null": "not_now"}
+        non_null_value = AttMap({"was_null": "not_now"})
         self._do_update(name_update_func, setter,
                         ("lone_attr", non_null_value))
         assert non_null_value == getattr(ad, name_fetch_func)("lone_attr")
@@ -400,6 +377,8 @@ class AttMapObjectSyntaxAccessTests:
         else:
             # A mapped attribute returns its known value.
             expected = self.ATTR_DICT_DATA[attr_to_request]
+            if isinstance(expected, dict):
+                expected = type(attrdict)(expected)
             observed = getattr(attrdict, attr_to_request)
             print("AD (below):\n{}".format(attrdict))
             assert expected == observed

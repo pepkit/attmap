@@ -89,10 +89,13 @@ def test_ordattmap_access(kvs, access):
 
 
 @given(kvs=kv_lists_strategy())
-@pytest.mark.parametrize("other_type", [dict, OrderedDict])
-def test_ordattmap_eq(kvs, other_type):
+@pytest.mark.parametrize(
+    ["other_type", "expected"],
+    [(dict, False), (OrderedDict, False), (OrdAttMap, True)])
+def test_ordattmap_eq(kvs, other_type, expected):
     """ Verify equality comparison behavior. """
-    assert OrdAttMap(kvs) == other_type(kvs)
+    obs = (OrdAttMap(kvs) == other_type(kvs))
+    assert obs == expected
 
 
 @pytest.mark.parametrize(["alter", "check"], [
@@ -120,10 +123,12 @@ def test_ordattmap_overrides_eq_exclusion(
     msub = OrdSub(raw_hwy_dat)
     assert isinstance(msub, OrdAttMap)
     that = that_type(raw_hwy_dat)
-    assert msub == that
+    assert msub != that
+    assert msub == OrdSub(raw_hwy_dat)
     msub[hwy_dat_key] = None
     assert list(msub.items()) != list(that.items())
-    assert msub == that
+    assert msub != that
+    assert msub == OrdSub(that.items())
 
 
 @pytest.mark.parametrize("that_type", [dict, OrderedDict, OrdAttMap])
@@ -135,7 +140,7 @@ def test_ordattmap_overrides_repr_exclusion(hwy_dat_key, raw_hwy_dat, that_type)
     msub = OrdSub(raw_hwy_dat)
     assert isinstance(msub, OrdAttMap)
     that = that_type(raw_hwy_dat)
-    assert msub == that
+    assert msub.items() == that.items()
     assert hwy_dat_key in repr(that)
     assert hwy_dat_key not in repr(msub)
 
