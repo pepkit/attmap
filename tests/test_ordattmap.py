@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from itertools import combinations
+import sys
 import pytest
 from hypothesis import given
 from hypothesis.strategies import *
@@ -78,6 +79,8 @@ def test_ordattmap_contains(kvs):
 @pytest.mark.parametrize("access", [lambda m, k: m[k], getattr])
 def test_ordattmap_access(kvs, access):
     """ Verify dual value access modes. """
+    if sys.version_info.major < 3:
+        kvs = [(k.encode("utf-8"), v) for k, v in kvs]
     m = OrdAttMap(kvs)
     bads = []
     for k, exp in kvs:
@@ -112,12 +115,14 @@ def test_ordattmap_deletion(hwy_dat_key, raw_hwy_dat, alter, check):
     assert check(orig, obs), "Expected {} but found {}".format(orig, obs)
 
 
-@pytest.mark.parametrize("this_type", [OrdAttMap, OrdPathExAttMap])
-@pytest.mark.parametrize("that_type", [dict, OrderedDict, OrdAttMap])
+@pytest.mark.parametrize("base_type", [OrdAttMap, OrdPathExAttMap])
+@pytest.mark.parametrize(
+    ["that_type", "final_exp"],
+    [(dict, False), (OrderedDict, True), (OrdAttMap, True)])
 def test_ordattmap_overrides_eq_exclusion(
-        hwy_dat_key, raw_hwy_dat, this_type, that_type):
+        hwy_dat_key, raw_hwy_dat, base_type, that_type, final_exp):
     """ Verify ability to exclude key from comparisons. """
-    class OrdSub(this_type):
+    class OrdSub(base_type):
         def _excl_from_eq(self, k):
             return super(OrdSub, self)._excl_from_eq(k) or k == hwy_dat_key
     msub = OrdSub(raw_hwy_dat)
@@ -128,7 +133,7 @@ def test_ordattmap_overrides_eq_exclusion(
     msub[hwy_dat_key] = None
     assert list(msub.items()) != list(that.items())
     assert msub != that
-    assert msub == OrdSub(that.items())
+    assert (msub == OrdSub(that.items())) is final_exp
 
 
 @pytest.mark.parametrize("that_type", [dict, OrderedDict, OrdAttMap])
