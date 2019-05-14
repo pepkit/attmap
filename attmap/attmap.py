@@ -45,10 +45,7 @@ class AttMap(AttMapLike):
 
     def __eq__(self, other):
         # TODO: check for equality across classes?
-        if not isinstance(other, Mapping):
-            return False
-        if len(self) != len(other):
-            # Ensure we don't have to worry about other containing self.
+        if (type(self) != type(other)) or (len(self) != len(other)):
             return False
         for k, v in self.items():
             if self._excl_from_eq(k):
