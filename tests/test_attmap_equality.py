@@ -48,4 +48,5 @@ def test_eq_with_scistack_value_types(attmap_type, obj1, obj2, expected):
     key = "obj"
     m1 = get_att_map(attmap_type, {key: obj1})
     m2 = get_att_map(attmap_type, {key: obj2})
+    print("m1: {}".format(m1))
     assert (m1 == m2) is expected

@@ -29,28 +29,28 @@ class AttMapLike(MutableMapping):
         """
         self.add_entries(entries)
 
-    @abc.abstractmethod
     def __getattr__(self, item, default=None):
-        pass
+        try:
+            return super(AttMapLike, self).__getattribute__(item)
+        except AttributeError:
+            try:
+                return self.__getitem__(item)
+            except KeyError:
+                # Requested item is unknown, but request was made via
+                # __getitem__ syntax, not attribute-access syntax.
+                raise AttributeError(item)
 
     @abc.abstractmethod
     def __setitem__(self, key, value):
         pass
 
+    @abc.abstractmethod
     def __getitem__(self, item):
-        try:
-            # Ability to return requested item name itself is delegated.
-            return self.__getattr__(item)
-        except AttributeError:
-            # Requested item is unknown, but request was made via
-            # __getitem__ syntax, not attribute-access syntax.
-            raise KeyError(item)
+        pass
 
+    @abc.abstractmethod
     def __delitem__(self, item):
-        try:
-            del self.__dict__[item]
-        except KeyError:
-            _LOGGER.debug("No item {} to delete".format(item))
+        pass
 
     @staticmethod
     def _cmp(a, b):

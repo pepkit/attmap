@@ -11,7 +11,7 @@ else:
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
-__all__ = ["get_data_lines", "is_custom_map"]
+__all__ = ["get_data_lines"]
 
 
 def copy(obj):

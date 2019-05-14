@@ -22,46 +22,30 @@ class AttMap(AttMapLike):
     facilitating attribute traversal (e.g., attmap.attr.attr).
     """
 
-    def __getattr__(self, item, default=None):
-        """
-        Fetch the value associated with the provided identifier.
-
-        :param int | str item: identifier for value to fetch
-        :return object: whatever value corresponds to the requested key/item
-        :raises AttributeError: if the requested item has not been set,
-            no default value is provided, and this instance is not configured
-            to return the requested key/item itself when it's missing; also,
-            if the requested item is unmapped and appears to be protected,
-            i.e. by flanking double underscores, then raise AttributeError
-            anyway. More specifically, respect attribute naming that appears
-            to be indicative of the intent of protection.
-        """
+    def __delitem__(self, key):
         try:
-            return super(AttMap, self).__getattribute__(item)
-        except (AttributeError, TypeError):
-            # Handle potential failure from non-string or property request.
-            pass
-        try:
-            # Route this dot notation request through the Mapping route.
-            return self.__dict__[item]
+            del self.__dict__[key]
         except KeyError:
-            # If not, triage and cope accordingly.
-            if item.startswith("__") and item.endswith("__"):
-                # Accommodate security-through-obscurity approach used by some libraries.
-                error_reason = "Protected-looking attribute: {}".format(item)
-                raise AttributeError(error_reason)
-            if default is not None:
-                # For compatibility with ordinary getattr() call, allow default value.
-                return default
-            # Throw up our hands in despair and resort to exception behavior.
-            raise AttributeError(item)
+            _LOGGER.debug("No key {} to delete".format(key))
+
+    def __getitem__(self, item):
+        return self.__dict__[item]
+
+    def __setitem__(self, key, value):
+        """
+        This is the key to making this a unique data type.
+
+        :param str key: name of the key/attribute for which to establish value
+        :param object value: value to which set the given key; if the value is
+            a mapping-like object, other keys' values may be combined.
+        """
+        # TODO: consider enforcement of type constraint, that value of different
+        # type may not overwrite existing.
+        self.__dict__[key] = self._finalize_value(value)
 
     def __eq__(self, other):
         # TODO: check for equality across classes?
-        if not isinstance(other, Mapping):
-            return False
-        if len(self) != len(other):
-            # Ensure we don't have to worry about other containing self.
+        if (type(self) != type(other)) or (len(self) != len(other)):
             return False
         for k, v in self.items():
             if self._excl_from_eq(k):
@@ -73,6 +57,9 @@ class AttMap(AttMapLike):
             except KeyError:
                 return False
         return True
+
+    def __ne__(self, other):
+        return not self == other
 
     @staticmethod
     def _cmp(a, b):
@@ -92,9 +79,6 @@ class AttMap(AttMapLike):
             # ValueError arises if, e.g., the pair of Series have
             # have nonidentical labels.
             return False
-
-    def __ne__(self, other):
-        return not self == other
 
     def _new_empty_basic_map(self):
         """ Return the empty collection builder for Mapping type simplification. """
@@ -139,23 +123,6 @@ class AttMap(AttMapLike):
         m_prime = self._lower_type_bound.__new__(self._lower_type_bound)
         m_prime.__init__(m)
         return m_prime
-
-    def __setitem__(self, key, value):
-        """
-        This is the key to making this a unique data type. Flag set at
-        time of construction determines whether it's possible for a null
-        value to squash a non-null value. The combination of that flag and
-        one indicating whether request for value for unset attribute should
-        return the attribute name itself determines if any attribute/key
-        may be set to a null value.
-
-        :param str key: name of the key/attribute for which to establish value
-        :param object value: value to which set the given key; if the value is
-            a mapping-like object, other keys' values may be combined.
-        """
-        # TODO: consider enforcement of type constraint, that value of different
-        # type may not overwrite existing.
-        self.__dict__[key] = self._finalize_value(value)
 
     @property
     def _lower_type_bound(self):
