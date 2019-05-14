@@ -30,7 +30,8 @@ class OrdAttMap(OrderedDict, AttMap):
             _LOGGER.debug(safedel_message(key))
 
     def __eq__(self, other):
-        return AttMap.__eq__(self, other) and list(self.keys()) == list(other.keys())
+        return AttMap.__eq__(self, other) and \
+               list(self.keys()) == list(other.keys())
 
     def __ne__(self, other):
         return not self == other

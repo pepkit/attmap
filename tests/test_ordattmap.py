@@ -118,19 +118,23 @@ def test_ordattmap_deletion(hwy_dat_key, raw_hwy_dat, alter, check):
 @pytest.mark.parametrize("base_type", [OrdAttMap, OrdPathExAttMap])
 @pytest.mark.parametrize(
     ["that_type", "final_exp"],
-    [(dict, sys.version_info >= (3, 5)), (OrderedDict, True), (OrdAttMap, True)])
+    [(dict, sys.version_info >= (3, 6)), (OrderedDict, True), (OrdAttMap, True)])
 def test_ordattmap_overrides_eq_exclusion(
         hwy_dat_key, raw_hwy_dat, base_type, that_type, final_exp):
     """ Verify ability to exclude key from comparisons. """
     class OrdSub(base_type):
         def _excl_from_eq(self, k):
-            return super(OrdSub, self)._excl_from_eq(k) or k == hwy_dat_key
+            print("Considering for exclusion: {}".format(k))
+            res = super(OrdSub, self)._excl_from_eq(k) or k == hwy_dat_key
+            print("Exclude: {}".format(res))
+            return res
     msub = OrdSub(raw_hwy_dat)
     assert isinstance(msub, OrdAttMap)
     that = that_type(raw_hwy_dat)
     assert msub != that
     assert msub == OrdSub(raw_hwy_dat)
     msub[hwy_dat_key] = None
+    assert msub[hwy_dat_key] is None
     assert list(msub.items()) != list(that.items())
     assert msub != that
     assert (msub == OrdSub(that.items())) is final_exp
