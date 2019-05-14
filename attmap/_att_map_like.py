@@ -52,10 +52,6 @@ class AttMapLike(MutableMapping):
     def __delitem__(self, item):
         pass
 
-    @staticmethod
-    def _cmp(a, b):
-        return a == b
-
     def __iter__(self):
         return iter([k for k in self.__dict__.keys()])
 
@@ -78,12 +74,12 @@ class AttMapLike(MutableMapping):
         :param Iterable[(object, object)] | Mapping | pandas.Series entries:
             collection of pairs of keys and values
         """
-        if not entries:
+        if entries is None:
             return
         # Permit mapping-likes and iterables/generators of pairs.
         if callable(entries):
             entries = entries()
-        elif "pandas.core.series.Series" in type(entries).__bases__:
+        elif any("pandas.core" in str(t) for t in type(entries).__bases__):
             entries = entries.to_dict()
         try:
             entries_iter = entries.items()
@@ -123,6 +119,12 @@ class AttMapLike(MutableMapping):
             self.items(), self._new_empty_basic_map())
 
     def _data_for_repr(self):
+        """
+        Hook for extracting the data used in the object's text representation.
+
+        :return Iterable[(hashable, object)]: collection of key-value pairs
+            to include in object's text representation
+        """
         return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
                       self.items())
 

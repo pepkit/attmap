@@ -1,9 +1,9 @@
 """ Test basic Mapping operations' responsiveness to underlying data change. """
 
-import sys
 from hypothesis import given
 import pytest
 from .helpers import get_att_map, random_str_key, rand_non_null
+from pandas import Series
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -54,6 +54,19 @@ def test_negative_membership(attmap_type, entries):
         assert k in m
         del m[k]
         assert k not in m
+
+
+@pytest.mark.parametrize(
+    "series",
+    [Series(data) for data in [("a", 1), [("b", 2), ("c", 3)], []]])
+def test_add_pandas_series(series, attmap_type):
+    """ A pandas Series can be used as a simple container of entries to add. """
+    m = get_att_map(attmap_type)
+    raw_data = series.to_dict()
+    keys = set(raw_data.keys())
+    assert keys - set(m.keys()) == keys
+    m.add_entries(series)
+    assert raw_data == {k: m[k] for k in raw_data}
 
 
 @pytest.mark.parametrize("f_extra_checks_pair",

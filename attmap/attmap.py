@@ -63,6 +63,7 @@ class AttMap(AttMapLike):
 
     @staticmethod
     def _cmp(a, b):
+        """ Hook to tailor value comparison in determination of map equality. """
         def same_type(obj1, obj2, typenames=None):
             t1, t2 = str(obj1.__class__), str(obj2.__class__)
             return (t1 in typenames and t2 in typenames) if typenames else t1 == t2
@@ -80,23 +81,6 @@ class AttMap(AttMapLike):
             # have nonidentical labels.
             return False
 
-    def _new_empty_basic_map(self):
-        """ Return the empty collection builder for Mapping type simplification. """
-        return dict()
-
-    @property
-    def _transformations(self):
-        """
-        Add path expansion behavior to more general attmap.
-
-        :return list[(function, function)]: pairs in which first component is a
-            predicate and second is a function to apply to a value if it
-            satisfies the predicate
-        """
-        newmap = lambda obj: isinstance(obj, Mapping) and \
-                             not isinstance(obj, self._lower_type_bound)
-        return [(newmap, self._metamorph_maplike)]
-
     def _finalize_value(self, v):
         """
         Before storing a value, apply any desired transformation.
@@ -108,6 +92,10 @@ class AttMap(AttMapLike):
             if p(v):
                 return f(v)
         return v
+
+    @property
+    def _lower_type_bound(self):
+        return AttMap
 
     def _metamorph_maplike(self, m):
         """
@@ -124,6 +112,19 @@ class AttMap(AttMapLike):
         m_prime.__init__(m)
         return m_prime
 
+    def _new_empty_basic_map(self):
+        """ Return the empty collection builder for Mapping type simplification. """
+        return dict()
+
     @property
-    def _lower_type_bound(self):
-        return AttMap
+    def _transformations(self):
+        """
+        Add path expansion behavior to more general attmap.
+
+        :return list[(function, function)]: pairs in which first component is a
+            predicate and second is a function to apply to a value if it
+            satisfies the predicate
+        """
+        newmap = lambda obj: isinstance(obj, Mapping) and \
+                             not isinstance(obj, self._lower_type_bound)
+        return [(newmap, self._metamorph_maplike)]
