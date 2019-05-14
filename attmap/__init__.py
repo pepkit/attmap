@@ -11,4 +11,4 @@ AttributeDict = AttMap
 AttributeDictEcho = AttMapEcho
 
 __all__ = ["AttMap", "AttMapEcho", "AttributeDict", "AttributeDictEcho",
-           "OrdAttMap", "OrdPathExAttMap", "get_data_lines", "is_custom_map"]
+           "OrdAttMap", "OrdPathExAttMap", "get_data_lines"]
