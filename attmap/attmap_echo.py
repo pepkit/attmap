@@ -33,9 +33,6 @@ class AttMapEcho(OrdPathExAttMap):
                 return default
             return item
 
-    #def __contains__(self, item):
-    #    return item in self.__dict__
-
     @property
     def _lower_type_bound(self):
         """ Most specific type to which an inserted value may be converted """
