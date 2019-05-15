@@ -16,7 +16,5 @@ class PathExAttMap(OrdAttMap):
     @property
     def _retrieval_mutations(self):
         """ Add path expansion behavior to more general attmap. """
-        # DEBUG
-        print("HIT!")
         return super(PathExAttMap, self)._retrieval_mutations + \
                [(lambda obj: isinstance(obj, str), expandpath)]

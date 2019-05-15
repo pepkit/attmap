@@ -141,7 +141,7 @@ class AttMapLike(MutableMapping):
 
         :return str: YAML text representation of this instance.
         """
-        return "\n".join(self.yaml_lines())
+        return "\n".join(self.get_yaml_lines())
 
     def _data_for_repr(self):
         """
