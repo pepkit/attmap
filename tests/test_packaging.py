@@ -9,7 +9,7 @@ __email__ = "vreuter@virginia.edu"
 
 @pytest.mark.parametrize(
     ["obj_name", "typecheck"],
-    [("AttMap", isclass), ("OrdAttMap", isclass), ("OrdPathExAttMap", isclass),
+    [("AttMap", isclass), ("OrdAttMap", isclass), ("PathExAttMap", isclass),
      ("AttMapEcho", isclass), ("get_data_lines", isfunction)])
 def test_top_level_exports(obj_name, typecheck):
     """ At package level, validate object availability and type. """

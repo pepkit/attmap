@@ -4,7 +4,7 @@ import copy
 import numpy as np
 from pandas import DataFrame as DF, Series
 import pytest
-from attmap import AttMap, OrdAttMap, OrdPathExAttMap, AttMapEcho
+from attmap import AttMap, OrdAttMap, PathExAttMap, AttMapEcho
 from .conftest import ALL_ATTMAPS
 from .helpers import get_att_map
 
@@ -56,10 +56,10 @@ def test_eq_with_scistack_value_types(attmap_type, obj1, obj2, expected):
 @pytest.mark.parametrize("data", [{}, {"a": 1}])
 @pytest.mark.parametrize(["this_type", "that_type", "exp"], [
     (AttMap, AttMap, True),
-    (AttMap, AttMapEcho, False), (AttMap, OrdAttMap, False), (AttMap, OrdPathExAttMap, False),
+    (AttMap, AttMapEcho, False), (AttMap, OrdAttMap, False), (AttMap, PathExAttMap, False),
     (OrdAttMap, OrdAttMap, True),
-    (OrdAttMap, OrdPathExAttMap, False), (OrdAttMap, AttMapEcho, False),
-    (OrdPathExAttMap, OrdPathExAttMap, True), (OrdPathExAttMap, AttMapEcho, False),
+    (OrdAttMap, PathExAttMap, False), (OrdAttMap, AttMapEcho, False),
+    (PathExAttMap, PathExAttMap, True), (PathExAttMap, AttMapEcho, False),
     (AttMapEcho, AttMapEcho, True)])
 def test_equality_is_strict_in_type(data, this_type, that_type, exp):
     """ Attmap equality requires exact type match. """

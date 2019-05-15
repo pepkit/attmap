@@ -8,7 +8,7 @@ __email__ = "vreuter@virginia.edu"
 
 
 ALL_ATTMAPS = [AttributeDict, AttributeDictEcho, AttMap, OrdAttMap, AttMapEcho,
-               OrdPathExAttMap]
+               PathExAttMap]
 
 
 @pytest.fixture(scope="function", params=ALL_ATTMAPS)
