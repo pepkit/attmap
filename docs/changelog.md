@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10] - 2019-05-15
+### Fixed
+- `OrdAttMap` and descendants now have data updated via `__setattr__` syntax.
+
 ## [0.9] - 2019-05-14
 ### Changed
 - `OrdPathAttExAttMap` is now `PathExAttMap`.

@@ -113,6 +113,16 @@ class AttMap(AttMapLike):
         """ Return the empty collection builder for Mapping type simplification. """
         return dict()
 
+    def _repr_pretty_(self, p, cycle):
+        """
+        IPython display; https://ipython.readthedocs.io/en/stable/api/generated/IPython.lib.pretty.html
+
+        :param IPython.lib.pretty.PrettyPrinter p: printer instance
+        :param bool cycle: whether a cyclic reference is detected
+        :return str: text representation of the instance
+        """
+        return p.text(repr(self) if not cycle else '...')
+
     @property
     def _transformations(self):
         """
