@@ -110,6 +110,8 @@ def test_PathExAttMap_substitution_is_selective(path, pres, repl, env, pam, fetc
     with TmpEnv(**env):
         pam[k] = path
         res = fetch(pam, k)
+        print("Inserted path: {}".format(path))
+        print("Retrieved path: {}".format(res))
         assert all(map(lambda s: s in res, pres))
         assert all(map(lambda s: s not in res, repl))
 

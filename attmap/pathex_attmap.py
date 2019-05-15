@@ -14,7 +14,9 @@ class PathExAttMap(OrdAttMap):
     """ Used in pepkit projects, with Mapping conversion and path expansion """
 
     @property
-    def _transformations(self):
+    def _retrieval_mutations(self):
         """ Add path expansion behavior to more general attmap. """
-        return super(PathExAttMap, self)._transformations + \
-            [(lambda obj: isinstance(obj, str), expandpath)]
+        # DEBUG
+        print("HIT!")
+        return super(PathExAttMap, self)._retrieval_mutations + \
+               [(lambda obj: isinstance(obj, str), expandpath)]
