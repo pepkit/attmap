@@ -1,5 +1,6 @@
 """ Tests for YAML representation of instances. """
 
+from collections import namedtuple
 import json
 import sys
 if sys.version_info < (3, 3):
@@ -16,6 +17,15 @@ __email__ = "vreuter@virginia.edu"
 
 ENTRIES = [("b", 2), ("a", [("d", 4), ("c", [("f", 6), ("g", 7)])])]
 EXPLINES = ["b: 2", "a:", "  d: 4", "  c:", "    f: 6", "    g: 7"]
+FmtLib = namedtuple("FmtLib", ["parse", "write"])
+YAML_NAME = yaml.__name__
+JSON_NAME = json.__name__
+FORMATTER_LIBRARIES = {
+    YAML_NAME: FmtLib(lambda f: yaml.load(f, yaml.SafeLoader),
+                   lambda m, f: f.write(m.to_yaml())),
+    JSON_NAME: FmtLib(lambda f: json.load(f),
+                   lambda m, f: json.dump(m.to_map(), f))
+}
 
 
 def pytest_generate_tests(metafunc):
@@ -60,19 +70,23 @@ def test_yaml(maptype, get_obs, parse_obs):
     check_lines(m, EXPLINES, get_obs, parse_obs, check=checks[maptype])
 
 
-@pytest.mark.parametrize(["write", "parse"], [
-    (lambda m, f: f.write(m.to_yaml()), lambda f: yaml.load(f, yaml.SafeLoader)),
-    (lambda m, f: json.dump(m.to_map(), f), lambda f: json.load(f))
-])
-def test_disk_roundtrip(maptype, tmpdir, write, parse):
+@pytest.mark.parametrize("fmtlib", [YAML_NAME, JSON_NAME])
+def test_disk_roundtrip(maptype, tmpdir, fmtlib):
     """ Verify ability to parse, write, and reconstitute attmap. """
     m = make_data(ENTRIES, maptype)
     fp = tmpdir.join("disked_attmap.out").strpath
+    fmtspec = FORMATTER_LIBRARIES[fmtlib]
+    parse, write = fmtspec.parse, fmtspec.write
     with open(fp, 'w') as f:
         write(m, f)
     with open(fp, 'r') as f:
         recons = parse(f)
     assert recons == m.to_dict()
+
+
+@pytest.mark.skip("not implemented")
+def test_disk_path_expansion():
+    pass
 
 
 def make_data(entries, datatype):
