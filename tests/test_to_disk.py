@@ -1,16 +1,27 @@
 """ Tests for YAML representation of instances. """
 
+import json
 import sys
 if sys.version_info < (3, 3):
     from collections import MutableMapping
 else:
     from collections.abc import MutableMapping
+import yaml
 from attmap import *
 import pytest
 from tests.conftest import ALL_ATTMAPS
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
+
+ENTRIES = [("b", 2), ("a", [("d", 4), ("c", [("f", 6), ("g", 7)])])]
+EXPLINES = ["b: 2", "a:", "  d: 4", "  c:", "    f: 6", "    g: 7"]
+
+
+def pytest_generate_tests(metafunc):
+    """ Dynamic test case generation and parameterization for this module """
+    if "maptype" in metafunc.fixturenames:
+        metafunc.parametrize("maptype", ALL_ATTMAPS)
 
 
 def check_lines(m, explines, obs_fun, parse, check):
@@ -30,28 +41,38 @@ def check_lines(m, explines, obs_fun, parse, check):
     assert check(explines, obs)
 
 
-
 @pytest.mark.parametrize(
     ["funcname", "exp"], [("get_yaml_lines", ["{}"]), ("to_yaml", "{}")])
-@pytest.mark.parametrize("maptype", ALL_ATTMAPS)
 def test_empty(funcname, exp, maptype):
     """ Verify behavior for YAML of empty attmap. """
-    assert getattr(maptype({}), funcname)() == exp
+    assert exp == getattr(maptype({}), funcname)()
 
 
 @pytest.mark.parametrize(
     ["get_obs", "parse_obs"],
     [("get_yaml_lines", lambda ls: ls), ("to_yaml", lambda ls: ls.split("\n"))])
-@pytest.mark.parametrize("maptype", ALL_ATTMAPS)
 def test_yaml(maptype, get_obs, parse_obs):
     """ Tests for attmap repr as YAML lines or full text chunk. """
     eq = lambda a, b: a == b
     seteq = lambda a, b: len(a) == len(b) and set(a) == set(b)
     checks = {OrdAttMap: eq, PathExAttMap: eq, AttMapEcho: eq, AttMap: seteq}
-    entries = [("b", 2), ("a", [("d", 4), ("c", [("f", 6), ("g", 7)])])]
-    explines = ["b: 2", "a:", "  d: 4", "  c:", "    f: 6", "    g: 7"]
-    m = make_data(entries, maptype)
-    check_lines(m, explines, get_obs, parse_obs, check=checks[maptype])
+    m = make_data(ENTRIES, maptype)
+    check_lines(m, EXPLINES, get_obs, parse_obs, check=checks[maptype])
+
+
+@pytest.mark.parametrize(["write", "parse"], [
+    (lambda m, f: f.write(m.to_yaml()), lambda f: yaml.load(f, yaml.SafeLoader)),
+    (lambda m, f: json.dump(m.to_map(), f), lambda f: json.load(f))
+])
+def test_disk_roundtrip(maptype, tmpdir, write, parse):
+    """ Verify ability to parse, write, and reconstitute attmap. """
+    m = make_data(ENTRIES, maptype)
+    fp = tmpdir.join("disked_attmap.out").strpath
+    with open(fp, 'w') as f:
+        write(m, f)
+    with open(fp, 'r') as f:
+        recons = parse(f)
+    assert recons == m.to_dict()
 
 
 def make_data(entries, datatype):
