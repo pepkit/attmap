@@ -21,6 +21,7 @@ class OrdAttMap(OrderedDict, AttMap):
         super(OrdAttMap, self).__init__(entries or {})
 
     def __iter__(self):
+        """ Include in the iteration keys/atts added with setattr style. """
         return itertools.chain(
             super(OrdAttMap, self).__iter__(),
             filter(lambda k: not self._is_od_member(k), self.__dict__.keys()))
@@ -30,6 +31,13 @@ class OrdAttMap(OrderedDict, AttMap):
         return iter(reversed(list(self.keys())))
 
     def __getitem__(self, item):
+        """
+        Attempt ordinary access, then access to attributes.
+
+        :param hashable item: key/attr for which to fetch value
+        :return object: value to which given key maps, perhaps modifed
+            according to the instance's finalization of retrieved values
+        """
         try:
             v = super(OrdAttMap, self).__getitem__(item)
         except KeyError:
@@ -37,6 +45,7 @@ class OrdAttMap(OrderedDict, AttMap):
         return self._finalize_value(v)
 
     def __setitem__(self, key, value):
+        """ Support hook for value transformation before storage. """
         super(OrdAttMap, self).__setitem__(key, self._final_for_store(value))
 
     def __delitem__(self, key):
@@ -47,6 +56,7 @@ class OrdAttMap(OrderedDict, AttMap):
             _LOGGER.debug(safedel_message(key))
 
     def __eq__(self, other):
+        """ Leverage base AttMap eq check, and check key order. """
         return AttMap.__eq__(self, other) and \
                list(self.keys()) == list(other.keys())
 
@@ -54,6 +64,7 @@ class OrdAttMap(OrderedDict, AttMap):
         return not self == other
 
     def __repr__(self):
+        """ Leverage base AttMap text representation. """
         return AttMap.__repr__(self)
 
     def keys(self):
@@ -88,11 +99,14 @@ class OrdAttMap(OrderedDict, AttMap):
 
     @staticmethod
     def _is_od_member(name):
+        """ Assess whether name appears to be a protected OrderedDict member. """
         return name.startswith("_OrderedDict")
 
     def _new_empty_basic_map(self):
+        """ For ordered maps, OrderedDict is the basic building block. """
         return OrderedDict()
 
     @property
     def _lower_type_bound(self):
+        """ OrdAttMap is the type to which nested maps are converted. """
         return OrdAttMap

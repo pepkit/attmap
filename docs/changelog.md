@@ -6,7 +6,7 @@
 - `to_dict` to convert any attmap (and nested maps) to base `dict`
 - `to_yaml` to represent any attmap as raw YAML text
 ### Changed
-- `PathExAttMap` defers expansion behavior to retrieval time
+- `PathExAttMap` defers expansion behavior to retrieval time.
 
 ## [0.10] - 2019-05-15
 ### Fixed
