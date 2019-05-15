@@ -1,9 +1,9 @@
 """ AttMap that echoes an unset key/attr """
 
-from .ordpathex_attmap import OrdPathExAttMap
+from .pathex_attmap import PathExAttMap
 
 
-class AttMapEcho(OrdPathExAttMap):
+class AttMapEcho(PathExAttMap):
     """ An AttMap that returns key/attr if it has no set value. """
 
     def __getattr__(self, item, default=None):

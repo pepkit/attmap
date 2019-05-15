@@ -6,7 +6,7 @@ import sys
 import pytest
 from hypothesis import given
 from hypothesis.strategies import *
-from attmap import AttMap, AttMapEcho, OrdAttMap, OrdPathExAttMap
+from attmap import AttMap, AttMapEcho, OrdAttMap, PathExAttMap
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -38,7 +38,7 @@ def kv_lists_strategy(pool=(integers, text, characters, uuids), **kwargs):
 
 @pytest.mark.parametrize(["cls", "exp"], [
     (OrdAttMap, True), (OrderedDict, True), (AttMap, True),
-    (OrdPathExAttMap, False), (AttMapEcho, False)])
+    (PathExAttMap, False), (AttMapEcho, False)])
 def test_subclassing(cls, exp):
     """ Verify that OrdAttMap type has expected type memberships. """
     assert exp is issubclass(OrdAttMap, cls)
@@ -46,7 +46,7 @@ def test_subclassing(cls, exp):
 
 @pytest.mark.parametrize(["cls", "exp"], [
     (OrdAttMap, True), (OrderedDict, True), (AttMap, True),
-    (OrdPathExAttMap, False), (AttMapEcho, False)])
+    (PathExAttMap, False), (AttMapEcho, False)])
 def test_type_membership(cls, exp):
     """ Verify that an OrdAttMap instance passes type checks as expected. """
     assert exp is isinstance(OrdAttMap(), cls)
@@ -115,7 +115,7 @@ def test_ordattmap_deletion(hwy_dat_key, raw_hwy_dat, alter, check):
     assert check(orig, obs), "Expected {} but found {}".format(orig, obs)
 
 
-@pytest.mark.parametrize("base_type", [OrdAttMap, OrdPathExAttMap])
+@pytest.mark.parametrize("base_type", [OrdAttMap, PathExAttMap])
 @pytest.mark.parametrize(
     ["that_type", "final_exp"],
     [(dict, sys.version_info >= (3, 6)), (OrderedDict, True), (OrdAttMap, True)])
@@ -166,7 +166,7 @@ def test_ordattmap_overrides_repr_exclusion(hwy_dat_key, raw_hwy_dat, that_type)
 
 @pytest.mark.parametrize(["that_type", "exp"], [
     (OrdAttMap, True), (AttMapEcho, False), (AttMap, False),
-    (OrdPathExAttMap, False), (OrderedDict, False), (dict, False)])
+    (PathExAttMap, False), (OrderedDict, False), (dict, False)])
 def test_ordattmap_repr(raw_hwy_dat, that_type, exp):
     """ Test __repr__ of OrdAttMap. """
     assert exp is (repr(OrdAttMap(raw_hwy_dat)) == repr(that_type(raw_hwy_dat)))
@@ -178,7 +178,7 @@ class BasicDataTests:
     BASIC_DATA = [("a", OrderedDict([("c", 3), ("b", 2)])), ("d", 4),
                   ("e", OrderedDict([("f", 6)]))]
     
-    @pytest.fixture(params=[OrdAttMap, OrdPathExAttMap])
+    @pytest.fixture(params=[OrdAttMap, PathExAttMap])
     def oam(self, request):
         """ Provide test case with a simple ordered attmap instance. """
         return request.param(self.BASIC_DATA)

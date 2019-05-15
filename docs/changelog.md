@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9] - 2019-05-14
+### Changed
+- `OrdPathAttExAttMap` is now `PathExAttMap`.
+
 ## [0.8] - 2019-05-13
 ### Added
 - `OrdAttMap` to create maps that preserve insertion order and otherwise behave like ordinary `AttMap`
