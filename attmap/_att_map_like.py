@@ -41,12 +41,6 @@ class AttMapLike(MutableMapping):
                 raise AttributeError(item)
         return self._finalize_value(v)
 
-    def _finalize_value(self, v):
-        for p, f in self._retrieval_mutations:
-            if p(v):
-                return f(v)
-        return v
-
     @abc.abstractmethod
     def __delitem__(self, item):
         pass
@@ -67,7 +61,8 @@ class AttMapLike(MutableMapping):
 
     def __repr__(self):
         base = self.__class__.__name__
-        data = self._simplify_keyvalue(self._data_for_repr())
+        data = self._simplify_keyvalue(
+            self._data_for_repr(), self._new_empty_basic_map)
         if data:
             return base + "\n" + "\n".join(
                 get_data_lines(data, lambda obj: repr(obj).strip("'")))
@@ -98,6 +93,14 @@ class AttMapLike(MutableMapping):
                 else self[k].add_entries(v)
         return self
 
+    def get_yaml_lines(self):
+        """
+        Get collection of lines that define YAML text rep. of this instance.
+
+        :return list[str]: YAML representation lines
+        """
+        return ["{}"] if 0 == len(self) else repr(self).split("\n")[1:]
+
     def is_null(self, item):
         """
         Conjunction of presence in underlying mapping and value being None
@@ -122,8 +125,23 @@ class AttMapLike(MutableMapping):
 
         :return dict[str, object]: this map's data, in a simpler container
         """
-        return self._simplify_keyvalue(
-            self.items(), self._new_empty_basic_map())
+        return self._simplify_keyvalue(self.items(), self._new_empty_basic_map)
+
+    def to_dict(self):
+        """
+        Return a builtin dict representation of this instance.
+
+        :return dict: builtin dict representation of this instance
+        """
+        return self._simplify_keyvalue(self.items(), dict)
+
+    def to_yaml(self):
+        """
+        Get text for YAML representation.
+
+        :return str: YAML text representation of this instance.
+        """
+        return "\n".join(self.yaml_lines())
 
     def _data_for_repr(self):
         """
@@ -155,6 +173,31 @@ class AttMapLike(MutableMapping):
         """
         return False
 
+    def _finalize_value(self, v):
+        """
+        Make any modifications to a retrieved value before returning it.
+
+        This hook accesses an instance's declaration of value mutations, or
+        transformations. That sequence may be empty (the base case), in which
+        case any value is simply always returned as-is.
+
+        If an instances does declare retrieval modifications, though, the
+        declaration should be an iterable of pairs, in which each element's
+        first component is a single-argument predicate function evaluated on
+        the given value, and the second component of each element is the
+        modification to apply if the predicate is satisfied.
+
+        At most one modification function will be called, and it would be the
+        first one for which the predicate was satisfied.
+
+        :param object v: a value to consider for modification
+        :return object: the finalized value
+        """
+        for p, f in self._retrieval_mutations:
+            if p(v):
+                return f(v)
+        return v
+
     @abc.abstractproperty
     def _lower_type_bound(self):
         """ Most specific type to which stored Mapping should be transformed """
@@ -170,24 +213,29 @@ class AttMapLike(MutableMapping):
         """
         Hook for item transformation(s) to be applied upon retrieval.
 
-        :return:
+        :return Iterable[(function(object) -> bool, function(object) -> object)]:
+            collection in which each element has a one-arg predicate function
+            and a one-arg transformation function, used to determine a
+            retrieved value's final form (i.e., transform it according to the
+            first predicate that it satisfies.)
         """
         return []
 
-    def _simplify_keyvalue(self, kvs, acc=None):
+    def _simplify_keyvalue(self, kvs, build, acc=None):
         """
         Simplify a collection of key-value pairs, "reducing" to simpler types.
 
         :param Iterable[(object, object)] kvs: collection of key-value pairs
+        :param callable build: how to build an empty collection
         :param Iterable acc: accumulating collection of simplified data
         :return Iterable: collection of simplified data
         """
-        acc = acc or self._new_empty_basic_map()
+        acc = acc or build()
         kvs = iter(kvs)
         try:
             k, v = next(kvs)
         except StopIteration:
             return acc
         acc[k] = self._simplify_keyvalue(
-            v.items(), self._new_empty_basic_map()) if is_custom_map(v) else v
-        return self._simplify_keyvalue(kvs, acc)
+            v.items(), build, build()) if is_custom_map(v) else v
+        return self._simplify_keyvalue(kvs, build, acc)
