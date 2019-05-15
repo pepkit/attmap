@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 import json
+import os
 import sys
 if sys.version_info < (3, 3):
     from collections import MutableMapping
@@ -75,6 +76,7 @@ def test_disk_roundtrip(maptype, tmpdir, fmtlib):
     """ Verify ability to parse, write, and reconstitute attmap. """
     m = make_data(ENTRIES, maptype)
     fp = tmpdir.join("disked_attmap.out").strpath
+    assert not os.path.exists(fp)
     fmtspec = FORMATTER_LIBRARIES[fmtlib]
     parse, write = fmtspec.parse, fmtspec.write
     with open(fp, 'w') as f:
@@ -85,8 +87,27 @@ def test_disk_roundtrip(maptype, tmpdir, fmtlib):
 
 
 @pytest.mark.skip("not implemented")
-def test_disk_path_expansion():
-    pass
+@pytest.mark.parametrize(["data", "env_var"], [
+    ({"arbkey": os.path.join("$HOME", "leaf.md")}, "HOME"),
+    ({"random": os.path.join("abc/$HOME/leaf.md")}, "HOME")
+])
+@pytest.mark.parametrize("fmtlib", [JSON_NAME, YAML_NAME])
+@pytest.mark.parametrize("maptype", ALL_ATTMAPS)
+def test_disk_path_expansion(tmpdir, data, env_var, fmtlib, maptype):
+    """ Paths are not expanded when map goes to disk. """
+    assert len(data) == 1, \
+        "To isolate focus, use just 1 item; got {} -- {}".format(len(data), data)
+    fmtspec = FORMATTER_LIBRARIES[fmtlib]
+    parse, write = fmtspec.parse, fmtspec.write
+    m = make_data(list(data.items()), maptype)
+    assert isinstance(m, maptype)
+    fp = tmpdir.join("disked_attmap.out").strpath
+    assert not os.path.exists(fp)
+    with open(fp, 'w') as f:
+        write(data, f)
+    with open(fp, 'r') as f:
+        res = parse(f)
+    assert res == data
 
 
 def make_data(entries, datatype):
