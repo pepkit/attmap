@@ -31,12 +31,13 @@ class OrdAttMap(OrderedDict, AttMap):
 
     def __getitem__(self, item):
         try:
-            return super(OrdAttMap, self).__getitem__(item)
+            v = super(OrdAttMap, self).__getitem__(item)
         except KeyError:
-            return AttMap.__getitem__(self, item)
+            v = AttMap.__getitem__(self, item)
+        return self._finalize_value(v)
 
     def __setitem__(self, key, value):
-        super(OrdAttMap, self).__setitem__(key, self._finalize_value(value))
+        super(OrdAttMap, self).__setitem__(key, self._final_for_store(value))
 
     def __delitem__(self, key):
         """ Make unmapped key deletion unexceptional. """

@@ -31,14 +31,21 @@ class AttMapLike(MutableMapping):
 
     def __getattr__(self, item, default=None):
         try:
-            return super(AttMapLike, self).__getattribute__(item)
+            v = super(AttMapLike, self).__getattribute__(item)
         except AttributeError:
             try:
-                return self.__getitem__(item)
+                v = self.__getitem__(item)
             except KeyError:
                 # Requested item is unknown, but request was made via
                 # __getitem__ syntax, not attribute-access syntax.
                 raise AttributeError(item)
+        return self._finalize_value(v)
+
+    def _finalize_value(self, v):
+        for p, f in self._retrieval_mutations:
+            if p(v):
+                return f(v)
+        return v
 
     @abc.abstractmethod
     def __setitem__(self, key, value):
@@ -157,6 +164,15 @@ class AttMapLike(MutableMapping):
     def _new_empty_basic_map(self):
         """ Return the empty collection builder for Mapping type simplification. """
         pass
+
+    @property
+    def _retrieval_mutations(self):
+        """
+        Hook for item transformation(s) to be applied upon retrieval.
+
+        :return:
+        """
+        return []
 
     def _simplify_keyvalue(self, kvs, acc=None):
         """

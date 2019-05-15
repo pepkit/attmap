@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+### Changed
+- `PathExAttMap` defers expansion behavior to retrieval time
 
 ## [0.10] - 2019-05-15
 ### Fixed
