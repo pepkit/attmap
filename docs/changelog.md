@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.9] - 2019-05-15
+## [0.9] - 2019-05-14
 ### Changed
 - `OrdPathAttExAttMap` is now `PathExAttMap`.
 
