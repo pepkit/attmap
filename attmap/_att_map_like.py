@@ -48,7 +48,7 @@ class AttMapLike(MutableMapping):
         return v
 
     @abc.abstractmethod
-    def __setitem__(self, key, value):
+    def __delitem__(self, item):
         pass
 
     @abc.abstractmethod
@@ -56,7 +56,7 @@ class AttMapLike(MutableMapping):
         pass
 
     @abc.abstractmethod
-    def __delitem__(self, item):
+    def __setitem__(self, key, value):
         pass
 
     def __iter__(self):
