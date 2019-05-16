@@ -24,4 +24,6 @@ def _excl_from_repr(self, k, cls):
 where `BaseOmissionType` is a proxy for the name of some type of values that may 
 be stored in your mapping but that you prefer to not display in its text representation.
 
-The two kinds of exclusion criteria may be combined as desired.
+The two kinds of exclusion criteria may be combined as desired. 
+Note that it's often advisable to invoke the superclass version of the method, 
+but to achieve the intended effect this may be skipped.
