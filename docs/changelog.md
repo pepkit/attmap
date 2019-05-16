@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.11] - 2019-05-16
 ### Added
 - `get_yaml_lines` to get collection of YAML-ready lines from any attmap
 - `to_dict` to convert any attmap (and nested maps) to base `dict`
