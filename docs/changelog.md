@@ -4,7 +4,10 @@
 ### Added
 - Export base `AttMapLike`.
 ### Changed
+- By default, add trailing newline to YAML rendition of an attmap instance; [Issue 48](https://github.com/pepkit/attmap/issues/48)
 - Better API docs
+### Fixed
+- Do not replace double slash in URL with single slash. See [Issue 46](https://github.com/pepkit/attmap/issues/46)
 
 ## [0.11] - 2019-05-16
 ### Added
