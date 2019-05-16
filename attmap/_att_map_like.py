@@ -11,6 +11,8 @@ from .helpers import is_custom_map, get_data_lines, get_logger
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
+__all__ = ["AttMapLike"]
+
 
 _LOGGER = get_logger(__name__)
 
@@ -134,13 +136,14 @@ class AttMapLike(MutableMapping):
         """
         return self._simplify_keyvalue(self.items(), dict)
 
-    def to_yaml(self):
+    def to_yaml(self, trailing_newline=True):
         """
         Get text for YAML representation.
 
+        :param bool trailing_newline: whether to add trailing newline
         :return str: YAML text representation of this instance.
         """
-        return "\n".join(self.get_yaml_lines())
+        return "\n".join(self.get_yaml_lines()) + ("\n" if trailing_newline else "")
 
     def _data_for_repr(self):
         """

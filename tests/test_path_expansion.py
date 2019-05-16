@@ -129,3 +129,13 @@ def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
     with TmpEnv(**env):
         m[k] = path
         assert path == fetch(m, k)
+
+
+@pytest.mark.parametrize(["path", "expected"], [
+    ("http://localhost", "http://localhost"),
+    ("http://lh/$HOME/page.html", "http://lh/{}/page.html".format(os.environ["HOME"]))])
+@pytest.mark.parametrize("fetch", [lambda m, k: m[k], lambda m, k: getattr(m, k)])
+def test_url_expansion(path, expected, fetch):
+    key = "arbitrary"
+    m = PathExAttMap({key: path})
+    assert expected == fetch(m, key)

@@ -53,7 +53,7 @@ def check_lines(m, explines, obs_fun, parse, check):
 
 
 @pytest.mark.parametrize(
-    ["funcname", "exp"], [("get_yaml_lines", ["{}"]), ("to_yaml", "{}")])
+    ["funcname", "exp"], [("get_yaml_lines", ["{}"]), ("to_yaml", "{}\n")])
 def test_empty(funcname, exp, maptype):
     """ Verify behavior for YAML of empty attmap. """
     assert exp == getattr(maptype({}), funcname)()
@@ -61,7 +61,7 @@ def test_empty(funcname, exp, maptype):
 
 @pytest.mark.parametrize(
     ["get_obs", "parse_obs"],
-    [("get_yaml_lines", lambda ls: ls), ("to_yaml", lambda ls: ls.split("\n"))])
+    [("get_yaml_lines", lambda ls: ls), ("to_yaml", lambda ls: ls.split("\n")[:-1])])
 def test_yaml(maptype, get_obs, parse_obs):
     """ Tests for attmap repr as YAML lines or full text chunk. """
     eq = lambda a, b: a == b
@@ -84,6 +84,15 @@ def test_disk_roundtrip(maptype, tmpdir, fmtlib):
     with open(fp, 'r') as f:
         recons = parse(f)
     assert recons == m.to_dict()
+
+
+@pytest.mark.parametrize(
+    ["args", "exp_newl_end"],
+    [(tuple(), True), ((False, ), False), ((True, ),  True)])
+def test_yaml_newline(args, exp_newl_end, maptype):
+    """ Map to_yaml adds newline by default but respect argument. """
+    data = {"randkey": "arbval"}
+    assert maptype(data).to_yaml(*args).endswith("\n") is exp_newl_end
 
 
 @pytest.mark.parametrize(["data", "env_var", "fmtlib", "exp_res"], [
