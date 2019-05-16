@@ -1,1 +1,1 @@
-ubiquerg>=0.0.5
+ubiquerg>=0.2.1
