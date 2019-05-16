@@ -8,7 +8,7 @@ __email__ = "vreuter@virginia.edu"
 __all__ = ["AttMapEcho", "EchoAttMap"]
 
 
-class AttMapEcho(PathExAttMap):
+class EchoAttMap(PathExAttMap):
     """ An AttMap that returns key/attr if it has no set value. """
 
     def __getattr__(self, item, default=None, expand=True):
@@ -45,4 +45,4 @@ class AttMapEcho(PathExAttMap):
         return AttMapEcho
 
 
-EchoAttMap = AttMapEcho
+AttMapEcho = EchoAttMap
