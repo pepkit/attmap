@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11] - 2019-05-16
+### Added
+- `get_yaml_lines` to get collection of YAML-ready lines from any attmap
+- `to_dict` to convert any attmap (and nested maps) to base `dict`
+- `to_yaml` to represent any attmap as raw YAML text
+### Changed
+- `PathExAttMap` defers expansion behavior to retrieval time.
+
 ## [0.10] - 2019-05-15
 ### Fixed
 - `OrdAttMap` and descendants now have data updated via `__setattr__` syntax.

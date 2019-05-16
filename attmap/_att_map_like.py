@@ -41,7 +41,7 @@ class AttMapLike(MutableMapping):
                 raise AttributeError(item)
 
     @abc.abstractmethod
-    def __setitem__(self, key, value):
+    def __delitem__(self, item):
         pass
 
     @abc.abstractmethod
@@ -49,7 +49,7 @@ class AttMapLike(MutableMapping):
         pass
 
     @abc.abstractmethod
-    def __delitem__(self, item):
+    def __setitem__(self, key, value):
         pass
 
     def __iter__(self):
@@ -60,7 +60,8 @@ class AttMapLike(MutableMapping):
 
     def __repr__(self):
         base = self.__class__.__name__
-        data = self._simplify_keyvalue(self._data_for_repr())
+        data = self._simplify_keyvalue(
+            self._data_for_repr(), self._new_empty_basic_map)
         if data:
             return base + "\n" + "\n".join(
                 get_data_lines(data, lambda obj: repr(obj).strip("'")))
@@ -91,6 +92,14 @@ class AttMapLike(MutableMapping):
                 else self[k].add_entries(v)
         return self
 
+    def get_yaml_lines(self):
+        """
+        Get collection of lines that define YAML text rep. of this instance.
+
+        :return list[str]: YAML representation lines
+        """
+        return ["{}"] if 0 == len(self) else repr(self).split("\n")[1:]
+
     def is_null(self, item):
         """
         Conjunction of presence in underlying mapping and value being None
@@ -115,8 +124,23 @@ class AttMapLike(MutableMapping):
 
         :return dict[str, object]: this map's data, in a simpler container
         """
-        return self._simplify_keyvalue(
-            self.items(), self._new_empty_basic_map())
+        return self._simplify_keyvalue(self.items(), self._new_empty_basic_map)
+
+    def to_dict(self):
+        """
+        Return a builtin dict representation of this instance.
+
+        :return dict: builtin dict representation of this instance
+        """
+        return self._simplify_keyvalue(self.items(), dict)
+
+    def to_yaml(self):
+        """
+        Get text for YAML representation.
+
+        :return str: YAML text representation of this instance.
+        """
+        return "\n".join(self.get_yaml_lines())
 
     def _data_for_repr(self):
         """
@@ -158,20 +182,21 @@ class AttMapLike(MutableMapping):
         """ Return the empty collection builder for Mapping type simplification. """
         pass
 
-    def _simplify_keyvalue(self, kvs, acc=None):
+    def _simplify_keyvalue(self, kvs, build, acc=None):
         """
         Simplify a collection of key-value pairs, "reducing" to simpler types.
 
         :param Iterable[(object, object)] kvs: collection of key-value pairs
+        :param callable build: how to build an empty collection
         :param Iterable acc: accumulating collection of simplified data
         :return Iterable: collection of simplified data
         """
-        acc = acc or self._new_empty_basic_map()
+        acc = acc or build()
         kvs = iter(kvs)
         try:
             k, v = next(kvs)
         except StopIteration:
             return acc
         acc[k] = self._simplify_keyvalue(
-            v.items(), self._new_empty_basic_map()) if is_custom_map(v) else v
-        return self._simplify_keyvalue(kvs, acc)
+            v.items(), build, build()) if is_custom_map(v) else v
+        return self._simplify_keyvalue(kvs, build, acc)

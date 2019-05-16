@@ -41,7 +41,7 @@ class AttMap(AttMapLike):
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
-        self.__dict__[key] = self._finalize_value(value)
+        self.__dict__[key] = self._final_for_store(value)
 
     def __eq__(self, other):
         # TODO: check for equality across classes?
@@ -78,14 +78,14 @@ class AttMap(AttMapLike):
             # have nonidentical labels.
             return False
 
-    def _finalize_value(self, v):
+    def _final_for_store(self, v):
         """
         Before storing a value, apply any desired transformation.
 
         :param object v: value to potentially transform before storing
         :return object: finalized value
         """
-        for p, f in self._transformations:
+        for p, f in self._insertion_mutations:
             if p(v):
                 return f(v)
         return v
@@ -124,9 +124,9 @@ class AttMap(AttMapLike):
         return p.text(repr(self) if not cycle else '...')
 
     @property
-    def _transformations(self):
+    def _insertion_mutations(self):
         """
-        Add path expansion behavior to more general attmap.
+        Hook for item transformation(s) to be applied upon insertion.
 
         :return list[(function, function)]: pairs in which first component is a
             predicate and second is a function to apply to a value if it
