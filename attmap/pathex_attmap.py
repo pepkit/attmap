@@ -14,6 +14,15 @@ class PathExAttMap(OrdAttMap):
     """ Used in pepkit projects, with Mapping conversion and path expansion """
 
     def __getattr__(self, item, default=None, expand=True):
+        """
+        Get attribute, accessing stored key-value pairs as needed.
+
+        :param str item: name of attribute/key
+        :param object default: value to return if requested attr/key is missing
+        :param bool expand: whether to attempt path expansion of string value
+        :return object: value bound to requested name
+        :raise AttributeError: if requested item is unavailable
+        """
         try:
             v = super(PathExAttMap, self).__getattribute__(item)
         except AttributeError:
@@ -27,24 +36,45 @@ class PathExAttMap(OrdAttMap):
             return expandpath(v) if expand else v
 
     def __getitem__(self, item, expand=True):
+        """
+        Fetch the value of given key.
+
+        :param hashable item: key for which to fetch value
+        :param bool expand: whether to expand string value as path
+        :return object: value mapped to given key, if available
+        :raise KeyError: if the requested key is unmapped.
+        """
         v = super(PathExAttMap, self).__getitem__(item)
         return self._finalize_value(v) if expand else v
 
     def items(self, expand=False):
+        """
+        Produce list of key-value pairs, optionally expanding paths.
+
+        :param bool expand: whether to expand paths
+        :return Iterable[object]: stored key-value pairs, optionally expanded
+        """
         return [(k, self.__getitem__(k, expand)) for k in self]
 
     def values(self, expand=False):
+        """
+        Produce list of values, optionally expanding paths.
+
+        :param bool expand: whether to expand paths
+        :return Iterable[object]: stored values, optionally expanded
+        """
         return [self.__getitem__(k, expand) for k in self]
 
-    def _data_for_repr(self):
+    def _data_for_repr(self, expand=False):
         """
         Hook for extracting the data used in the object's text representation.
 
+        :param bool expand: whether to expand paths
         :return Iterable[(hashable, object)]: collection of key-value pairs
             to include in object's text representation
         """
         return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
-                      self.items(expand=False))
+                      self.items(expand))
 
     def to_map(self, expand=False):
         """
