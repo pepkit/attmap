@@ -23,12 +23,16 @@ def get_base_check(*bases):
     return lambda obj: obj.__bases__ == bases
 
 
+ECHO_TEST_FUNS = [isclass, get_base_check(PathExAttMap)]
+
+
 @pytest.mark.parametrize(["obj_name", "typecheck"], itertools.chain(*[
     [("AttMapLike", f) for f in [isclass, lambda obj: obj.__metaclass__ == ABCMeta]],
     [("AttMap", f) for f in [isclass, get_base_check(AttMapLike)]],
     [("OrdAttMap", f) for f in [isclass, get_base_check(OrderedDict, AttMap)]],
     [("PathExAttMap", f) for f in [isclass, get_base_check(OrdAttMap)]],
-    [("AttMapEcho", f) for f in [isclass, get_base_check(PathExAttMap)]],
+    [("AttMapEcho", f) for f in ECHO_TEST_FUNS],
+    [("EchoAttMap", f) for f in ECHO_TEST_FUNS],
     [("get_data_lines", isfunction)]
 ]))
 def test_top_level_exports(obj_name, typecheck):

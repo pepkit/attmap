@@ -1,6 +1,8 @@
 # Changelog
 
 ## [0.12.1] - 2019-05-16
+### Added
+- `EchoAttMap` as alias for `AttMapEcho`; see [Issue 38](https://github.com/pepkit/attmap/issues/38)
 ### Fixed
 - In any `OrdAttMap, for membership (`__contains__`) consider items added via attribute syntax.
 - Prevent duplicate key/attr iteration in any `OrdAttMap`.
