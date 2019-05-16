@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.12] - 2019-05-16
+## Unreleased
 ### Added
 - Export base `AttMapLike`.
 ### Changed
