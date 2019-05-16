@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.12] - 2019-05-16
+### Added
+- Export base `AttMapLike`.
+### Changed
+- Better API docs
+
 ## [0.11] - 2019-05-16
 ### Added
 - `get_yaml_lines` to get collection of YAML-ready lines from any attmap

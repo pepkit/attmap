@@ -11,6 +11,8 @@ from .helpers import is_custom_map, get_data_lines, get_logger
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
+__all__ = ["AttMapLike"]
+
 
 _LOGGER = get_logger(__name__)
 
