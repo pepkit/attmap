@@ -19,11 +19,13 @@ _SUB_PY3 = sys.version_info.major < 3
 class OrdAttMap(OrderedDict, AttMap):
     """ Insertion-ordered mapping with dot notation access """
 
-    def __contains__(self, item):
-        return super(OrdAttMap, self).__contains__(item) or item in self.__dict__
-
     def __init__(self, entries=None):
         super(OrdAttMap, self).__init__(entries or {})
+
+    def __setattr__(self, name, value):
+        super(OrdAttMap, self).__setattr__(name, value)
+        if not name.startswith("__"):
+            self.__setitem__(name, value, finalize=False)
 
     def __getitem__(self, item):
         """
@@ -38,9 +40,10 @@ class OrdAttMap(OrderedDict, AttMap):
         except KeyError:
             return AttMap.__getitem__(self, item)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value, finalize=True):
         """ Support hook for value transformation before storage. """
-        super(OrdAttMap, self).__setitem__(key, self._final_for_store(value))
+        super(OrdAttMap, self).__setitem__(
+            key, self._final_for_store(value) if finalize else value)
 
     def __delitem__(self, key):
         """ Make unmapped key deletion unexceptional. """
@@ -60,14 +63,6 @@ class OrdAttMap(OrderedDict, AttMap):
     def __repr__(self):
         """ Leverage base AttMap text representation. """
         return AttMap.__repr__(self)
-
-    def __iter__(self):
-        """ Include in the iteration keys/atts added with setattr style. """
-        from_item = list(super(OrdAttMap, self).__iter__())
-        dat_set = set(from_item)
-        from_attr = [k for k in self.__dict__.keys()
-                     if not self._is_od_member(k) and k not in dat_set]
-        return itertools.chain(from_item, from_attr)
 
     def __reversed__(self):
         _LOGGER.warning("Reverse iteration as implemented may be inefficient")
