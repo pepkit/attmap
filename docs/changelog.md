@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.12.1] - 2019-05-16
+### Fixed
+- In any `OrdAttMap, for membership (`__contains__`) consider items added via attribute syntax.
+- Prevent duplicate key/attr iteration in any `OrdAttMap`.
+
 ## [0.12] - 2019-05-16
 ### Added
 - Export base `AttMapLike`.
