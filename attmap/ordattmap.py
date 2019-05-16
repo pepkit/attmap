@@ -24,7 +24,7 @@ class OrdAttMap(OrderedDict, AttMap):
 
     def __setattr__(self, name, value):
         super(OrdAttMap, self).__setattr__(name, value)
-        if not name.startswith("__"):
+        if not (self._is_od_member(name) or name.startswith("__")):
             self.__setitem__(name, value, finalize=False)
 
     def __getitem__(self, item):
