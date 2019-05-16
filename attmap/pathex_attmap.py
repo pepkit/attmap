@@ -30,6 +30,38 @@ class PathExAttMap(OrdAttMap):
         v = super(PathExAttMap, self).__getitem__(item)
         return self._finalize_value(v) if expand else v
 
+    def items(self, expand=False):
+        return [(k, self.__getitem__(k, expand)) for k in self]
+
+    def values(self, expand=False):
+        return [self.__getitem__(k, expand) for k in self]
+
+    def _data_for_repr(self):
+        """
+        Hook for extracting the data used in the object's text representation.
+
+        :return Iterable[(hashable, object)]: collection of key-value pairs
+            to include in object's text representation
+        """
+        return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
+                      self.items(expand=False))
+
+    def to_map(self, expand=False):
+        """
+        Convert this instance to a dict.
+
+        :return dict[str, object]: this map's data, in a simpler container
+        """
+        return self._simplify_keyvalue(self.items(expand), self._new_empty_basic_map)
+
+    def to_dict(self, expand=False):
+        """
+        Return a builtin dict representation of this instance.
+
+        :return dict: builtin dict representation of this instance
+        """
+        return self._simplify_keyvalue(self.items(expand), dict)
+
     def _finalize_value(self, v):
         """
         Make any modifications to a retrieved value before returning it.

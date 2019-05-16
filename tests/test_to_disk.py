@@ -88,13 +88,13 @@ def test_disk_roundtrip(maptype, tmpdir, fmtlib):
 
 @pytest.mark.parametrize(["data", "env_var", "fmtlib", "exp_res"], [
     ({"arbkey": os.path.join("$HOME", "leaf.md")}, "HOME", JSON_NAME,
-     ["{{arbkey: {}}}".format(os.path.join("$HOME", "leaf.md"))]),
+     ["{{\"arbkey\": \"{}\"}}".format(os.path.join("$HOME", "leaf.md"))]),
     ({"arbkey": os.path.join("$HOME", "leaf.md")}, "HOME", YAML_NAME,
-     ["arbkey:", "  " + os.path.join("$HOME", "leaf.md")]),
+     ["arbkey: " + os.path.join("$HOME", "leaf.md")]),
     ({"random": os.path.join("abc", "$HOME", "leaf.md")}, "HOME", JSON_NAME,
-     ["{{random: {}}}".format(os.path.join("abc", "$HOME", "leaf.md"))]),
+     ["{{\"random\": \"{}\"}}".format(os.path.join("abc", "$HOME", "leaf.md"))]),
     ({"random": os.path.join("abc", "$HOME", "leaf.md")}, "HOME", YAML_NAME,
-     ["random:", "  " + os.path.join("abc", "$HOME", "leaf.md")])
+     ["random: " + os.path.join("abc", "$HOME", "leaf.md")])
 ])
 def test_disk_path_expansion(tmpdir, data, env_var, fmtlib, exp_res, maptype):
     """ Paths are not expanded when map goes to disk. """
