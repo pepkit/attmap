@@ -31,17 +31,19 @@ class AttMap(AttMapLike):
     def __getitem__(self, item):
         return self.__dict__[item]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value, finalize=True):
         """
         This is the key to making this a unique data type.
 
         :param str key: name of the key/attribute for which to establish value
         :param object value: value to which set the given key; if the value is
             a mapping-like object, other keys' values may be combined.
+        :param bool finalize: whether to attempt a transformation of the value
+            to store before storing it
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
-        self.__dict__[key] = self._final_for_store(value)
+        self.__dict__[key] = self._final_for_store(value) if finalize else value
 
     def __eq__(self, other):
         # TODO: check for equality across classes?
@@ -85,9 +87,8 @@ class AttMap(AttMapLike):
         :param object v: value to potentially transform before storing
         :return object: finalized value
         """
-        for p, f in self._insertion_mutations:
-            if p(v):
-                return f(v)
+        if isinstance(v, Mapping) and not isinstance(v, self._lower_type_bound):
+            v = self._metamorph_maplike(v)
         return v
 
     @property
@@ -105,9 +106,7 @@ class AttMap(AttMapLike):
         if not isinstance(m, Mapping):
             raise TypeError("Cannot integrate a non-Mapping: {}\nType: {}".
                             format(m, type(m)))
-        m_prime = self._lower_type_bound.__new__(self._lower_type_bound)
-        m_prime.__init__(m)
-        return m_prime
+        return m.to_map() if isinstance(m, AttMapLike) else self._lower_type_bound(m.items())
 
     def _new_empty_basic_map(self):
         """ Return the empty collection builder for Mapping type simplification. """
@@ -122,16 +121,3 @@ class AttMap(AttMapLike):
         :return str: text representation of the instance
         """
         return p.text(repr(self) if not cycle else '...')
-
-    @property
-    def _insertion_mutations(self):
-        """
-        Hook for item transformation(s) to be applied upon insertion.
-
-        :return list[(function, function)]: pairs in which first component is a
-            predicate and second is a function to apply to a value if it
-            satisfies the predicate
-        """
-        newmap = lambda obj: isinstance(obj, Mapping) and \
-                             not isinstance(obj, self._lower_type_bound)
-        return [(newmap, self._metamorph_maplike)]
