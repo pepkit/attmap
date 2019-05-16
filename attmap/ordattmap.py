@@ -39,10 +39,9 @@ class OrdAttMap(OrderedDict, AttMap):
             according to the instance's finalization of retrieved values
         """
         try:
-            v = super(OrdAttMap, self).__getitem__(item)
+            return super(OrdAttMap, self).__getitem__(item)
         except KeyError:
-            v = AttMap.__getitem__(self, item)
-        return self._finalize_value(v)
+            return AttMap.__getitem__(self, item)
 
     def __setitem__(self, key, value):
         """ Support hook for value transformation before storage. """

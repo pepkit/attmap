@@ -29,7 +29,7 @@ class AttMap(AttMapLike):
             _LOGGER.debug(safedel_message(key))
 
     def __getitem__(self, item):
-        return self._finalize_value(self.__dict__[item])
+        return self.__dict__[item]
 
     def __setitem__(self, key, value):
         """

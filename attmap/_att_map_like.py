@@ -31,15 +31,14 @@ class AttMapLike(MutableMapping):
 
     def __getattr__(self, item, default=None):
         try:
-            v = super(AttMapLike, self).__getattribute__(item)
+            return super(AttMapLike, self).__getattribute__(item)
         except AttributeError:
             try:
-                v = self.__getitem__(item)
+                return self.__getitem__(item)
             except KeyError:
                 # Requested item is unknown, but request was made via
                 # __getitem__ syntax, not attribute-access syntax.
                 raise AttributeError(item)
-        return self._finalize_value(v)
 
     @abc.abstractmethod
     def __delitem__(self, item):
@@ -173,31 +172,6 @@ class AttMapLike(MutableMapping):
         """
         return False
 
-    def _finalize_value(self, v):
-        """
-        Make any modifications to a retrieved value before returning it.
-
-        This hook accesses an instance's declaration of value mutations, or
-        transformations. That sequence may be empty (the base case), in which
-        case any value is simply always returned as-is.
-
-        If an instances does declare retrieval modifications, though, the
-        declaration should be an iterable of pairs, in which each element's
-        first component is a single-argument predicate function evaluated on
-        the given value, and the second component of each element is the
-        modification to apply if the predicate is satisfied.
-
-        At most one modification function will be called, and it would be the
-        first one for which the predicate was satisfied.
-
-        :param object v: a value to consider for modification
-        :return object: the finalized value
-        """
-        for p, f in self._retrieval_mutations:
-            if p(v):
-                return f(v)
-        return v
-
     @abc.abstractproperty
     def _lower_type_bound(self):
         """ Most specific type to which stored Mapping should be transformed """
@@ -207,19 +181,6 @@ class AttMapLike(MutableMapping):
     def _new_empty_basic_map(self):
         """ Return the empty collection builder for Mapping type simplification. """
         pass
-
-    @property
-    def _retrieval_mutations(self):
-        """
-        Hook for item transformation(s) to be applied upon retrieval.
-
-        :return Iterable[(function(object) -> bool, function(object) -> object)]:
-            collection in which each element has a one-arg predicate function
-            and a one-arg transformation function, used to determine a
-            retrieved value's final form (i.e., transform it according to the
-            first predicate that it satisfies.)
-        """
-        return []
 
     def _simplify_keyvalue(self, kvs, build, acc=None):
         """

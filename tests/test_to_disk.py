@@ -86,28 +86,39 @@ def test_disk_roundtrip(maptype, tmpdir, fmtlib):
     assert recons == m.to_dict()
 
 
-@pytest.mark.skip("not implemented")
-@pytest.mark.parametrize(["data", "env_var"], [
-    ({"arbkey": os.path.join("$HOME", "leaf.md")}, "HOME"),
-    ({"random": os.path.join("abc/$HOME/leaf.md")}, "HOME")
+@pytest.mark.parametrize(["data", "env_var", "fmtlib", "exp_res"], [
+    ({"arbkey": os.path.join("$HOME", "leaf.md")}, "HOME", JSON_NAME,
+     ["{{arbkey: {}}}".format(os.path.join("$HOME", "leaf.md"))]),
+    ({"arbkey": os.path.join("$HOME", "leaf.md")}, "HOME", YAML_NAME,
+     ["arbkey:", "  " + os.path.join("$HOME", "leaf.md")]),
+    ({"random": os.path.join("abc", "$HOME", "leaf.md")}, "HOME", JSON_NAME,
+     ["{{random: {}}}".format(os.path.join("abc", "$HOME", "leaf.md"))]),
+    ({"random": os.path.join("abc", "$HOME", "leaf.md")}, "HOME", YAML_NAME,
+     ["random:", "  " + os.path.join("abc", "$HOME", "leaf.md")])
 ])
-@pytest.mark.parametrize("fmtlib", [JSON_NAME, YAML_NAME])
-@pytest.mark.parametrize("maptype", ALL_ATTMAPS)
-def test_disk_path_expansion(tmpdir, data, env_var, fmtlib, maptype):
+def test_disk_path_expansion(tmpdir, data, env_var, fmtlib, exp_res, maptype):
     """ Paths are not expanded when map goes to disk. """
+
+    # Pretests
     assert len(data) == 1, \
         "To isolate focus, use just 1 item; got {} -- {}".format(len(data), data)
+    assert os.environ.get(env_var) is not None, \
+        "Null or missing env var: {}".format(env_var)
+
+    # Create the mapping.
+    m = make_data(list(data.items()), maptype)
+    assert type(m) is maptype
+
+    # Set write/parse strategies.
     fmtspec = FORMATTER_LIBRARIES[fmtlib]
     parse, write = fmtspec.parse, fmtspec.write
-    m = make_data(list(data.items()), maptype)
-    assert isinstance(m, maptype)
+
     fp = tmpdir.join("disked_attmap.out").strpath
     assert not os.path.exists(fp)
     with open(fp, 'w') as f:
-        write(data, f)
+        write(m, f)
     with open(fp, 'r') as f:
-        res = parse(f)
-    assert res == data
+        assert exp_res == [l.strip("\n") for l in f.readlines()]
 
 
 def make_data(entries, datatype):
