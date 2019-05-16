@@ -72,4 +72,4 @@ Thumbs.db
 build/
 dist/
 attmap.egg-info/
-
+docs/autodoc_build

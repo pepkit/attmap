@@ -8,6 +8,7 @@ nav:
     - Home: README.md
   - Reference:
     - API: autodoc_build/attmap.md
+    - Howto: howto.md
     - Support: support.md
     - Contributing: contributing.md
     - Changelog: changelog.md
