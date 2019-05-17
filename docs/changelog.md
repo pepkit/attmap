@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## [0.12.1] - 2019-05-17
 ### Added
 - `EchoAttMap` as alias for `AttMapEcho`; see [Issue 38](https://github.com/pepkit/attmap/issues/38)
