@@ -89,8 +89,8 @@ class AttMapLike(MutableMapping):
         except AttributeError:
             entries_iter = entries
         for k, v in entries_iter:
-            self[k] = v if k not in self or not \
-                (isinstance(v, Mapping) and isinstance(self[k], AttMapLike)) \
+            self[k] = v if (k not in self or not isinstance(v, Mapping)
+                            or not isinstance(self[k], Mapping)) \
                 else self[k].add_entries(v)
         return self
 
