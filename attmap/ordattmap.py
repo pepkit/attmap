@@ -1,7 +1,6 @@
 """ Ordered attmap """
 
 from collections import OrderedDict
-import itertools
 import sys
 from .attmap import AttMap
 from .helpers import get_logger, safedel_message
