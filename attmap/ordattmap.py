@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 import itertools
+import sys
 from .attmap import AttMap
 from .helpers import get_logger, safedel_message
 
@@ -12,6 +13,7 @@ __all__ = ["OrdAttMap"]
 
 
 _LOGGER = get_logger(__name__)
+_SUB_PY3 = sys.version_info.major < 3
 
 
 class OrdAttMap(OrderedDict, AttMap):
@@ -20,15 +22,10 @@ class OrdAttMap(OrderedDict, AttMap):
     def __init__(self, entries=None):
         super(OrdAttMap, self).__init__(entries or {})
 
-    def __iter__(self):
-        """ Include in the iteration keys/atts added with setattr style. """
-        return itertools.chain(
-            super(OrdAttMap, self).__iter__(),
-            filter(lambda k: not self._is_od_member(k), self.__dict__.keys()))
-
-    def __reversed__(self):
-        _LOGGER.warning("Reverse iteration as implemented may be inefficient")
-        return iter(reversed(list(self.keys())))
+    def __setattr__(self, name, value):
+        super(OrdAttMap, self).__setattr__(name, value)
+        if not (self._is_od_member(name) or name.startswith("__")):
+            self[name] = value
 
     def __getitem__(self, item):
         """
@@ -65,6 +62,10 @@ class OrdAttMap(OrderedDict, AttMap):
     def __repr__(self):
         """ Leverage base AttMap text representation. """
         return AttMap.__repr__(self)
+
+    def __reversed__(self):
+        _LOGGER.warning("Reverse iteration as implemented may be inefficient")
+        return iter(reversed(list(self.keys())))
 
     def keys(self):
         return [k for k in self]

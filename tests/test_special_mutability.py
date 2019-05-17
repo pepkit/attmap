@@ -8,8 +8,8 @@ __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
-ALL_ATTMAPS = [AttributeDict, AttributeDictEcho]
-NULLABLE_ATTMAPS = ALL_ATTMAPS
+OLD_ATTMAPS = [AttributeDict, AttributeDictEcho]
+NULLABLE_ATTMAPS = OLD_ATTMAPS
 
 
 @pytest.fixture(scope="function", params=["arbitrary", "random"])
@@ -22,7 +22,7 @@ class UniversalMutabilityTests:
     """ Tests of attmap behavior with respect to mutability """
 
     @staticmethod
-    @pytest.fixture(scope="function", params=ALL_ATTMAPS)
+    @pytest.fixture(scope="function", params=OLD_ATTMAPS)
     def m(request):
         """ Provide a test case with a fresh empty data object. """
         return get_att_map(request.param)

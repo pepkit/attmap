@@ -21,9 +21,7 @@ ATOMIC_STRATEGIES = [
 def get_att_map(cls, entries=None):
     """ Create a fresh, empty data object. """
     assert issubclass(cls, AttMapLike)
-    m = cls.__new__(cls)
-    m.__init__(entries or {})
-    return m
+    return cls(entries or {})
 
 
 def raises_keyerr(k, m):
