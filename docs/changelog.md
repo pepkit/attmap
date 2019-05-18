@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.2] - 2019-05-18
+### Fixed
+- Tweaked map type conversion upon value insertion
+
 ## [0.12.1] - 2019-05-17
 ### Added
 - `EchoAttMap` as alias for `AttMapEcho`; see [Issue 38](https://github.com/pepkit/attmap/issues/38)
@@ -7,6 +11,7 @@
 - In any `OrdAttMap, for membership (`__contains__`) consider items added via attribute syntax.
 - Prevent duplicate key/attr iteration in any `OrdAttMap`.
 - Allow item and attribute syntax to equivalently mutate a map; see [Issue 50](https://github.com/pepkit/attmap/issues/50)
+- Type conversion and merger of inserted mappings
 
 ## [0.12] - 2019-05-16
 ### Added

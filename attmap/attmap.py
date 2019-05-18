@@ -43,7 +43,7 @@ class AttMap(AttMapLike):
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
-        self.__dict__[key] = self._final_for_store(value) if finalize else value
+        self.__dict__[key] = self._final_for_store(value)
 
     def __eq__(self, other):
         # TODO: check for equality across classes?
@@ -103,10 +103,11 @@ class AttMap(AttMapLike):
         :return Mapping: a (perhaps more specialized) version of the given map
         :raise TypeError: if the given value isn't a Mapping
         """
+        _LOGGER.debug("Transforming map-like: {}".format(m))
         if not isinstance(m, Mapping):
             raise TypeError("Cannot integrate a non-Mapping: {}\nType: {}".
                             format(m, type(m)))
-        return m.to_map() if isinstance(m, AttMapLike) else self._lower_type_bound(m.items())
+        return self._lower_type_bound(m.items())
 
     def _new_empty_basic_map(self):
         """ Return the empty collection builder for Mapping type simplification. """
