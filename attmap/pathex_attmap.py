@@ -113,3 +113,7 @@ class PathExAttMap(OrdAttMap):
         :return object: the finalized value
         """
         return expandpath(v) if isinstance(v, str) else v
+
+    @property
+    def _lower_type_bound(self):
+        return PathExAttMap
