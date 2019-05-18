@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## [0.12.2] - 2019-05-18
+### Fixed
+- Tweaked map type conversion upon value insertion
 
 ## [0.12.1] - 2019-05-17
 ### Added
