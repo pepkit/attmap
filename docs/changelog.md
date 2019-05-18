@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.3] - 2019-05-18
+### Changed
+- `PathExAttMap` now decleares itself as lower type bound.
+
 ## [0.12.2] - 2019-05-18
 ### Fixed
 - Tweaked map type conversion upon value insertion
