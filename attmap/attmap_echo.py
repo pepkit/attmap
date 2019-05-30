@@ -29,7 +29,7 @@ class EchoAttMap(PathExAttMap):
             to be indicative of the intent of protection.
         """
         try:
-            return super(self.__class__, self).__getattr__(item, default, expand)
+            return super(EchoAttMap, self).__getattr__(item, default, expand)
         except (AttributeError, TypeError):
             # If not, triage and cope accordingly.
             if self._is_od_member(item) or \
