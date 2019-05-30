@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.4] - 2019-05-30
+### Fixed
+- Avoid infinite recursion when an `EchoAttMap` subtype calls up to the superclass constructor: [Issue 55](https://github.com/pepkit/attmap/issues/55).
+
 ## [0.12.3] - 2019-05-18
 ### Changed
 - `PathExAttMap` now decleares itself as lower type bound.

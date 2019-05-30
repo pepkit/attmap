@@ -6,7 +6,7 @@ import random
 import string
 import pytest
 from attmap import *
-from ubiquerg import expandpath
+from ubiquerg import expandpath, TmpEnv
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -21,27 +21,6 @@ _RVS = _ARB_VAR_NAMES + _ENV_VAR_NAMES
 def pam():
     """ Provide a test case with a clean/fresh map. """
     return PathExAttMap()
-
-
-class TmpEnv(object):
-    """ Temporary environment variable setting. """
-    def __init__(self, overwrite=False, **kwargs):
-        if not overwrite:
-            already_set = [k for k in kwargs if os.getenv(k)]
-            if already_set:
-                msg = "{} variable(s) already set: {}".\
-                    format(len(already_set), ", ".join(already_set))
-                raise ValueError(msg)
-        self._kvs = kwargs
-
-    def __enter__(self):
-        for k, v in self._kvs.items():
-            os.environ[k] = v
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        for k in self._kvs:
-            del os.environ[k]
 
 
 def get_path_env_pair(perm):
