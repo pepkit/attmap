@@ -6,10 +6,10 @@ pypi_name: attmap
 nav:
   - Introduction:
     - Home: README.md
+    - Excluding attributes: exclude_from_repr.md
   - Reference:
-    - Maptypes: types.md
+    - Class inheritance hierarchy: maptypes.md
     - API: autodoc_build/attmap.md
-    - Howto: howto.md
     - Support: support.md
     - Contributing: contributing.md
     - Changelog: changelog.md
