@@ -1,6 +1,8 @@
 # Changelog
 
 ## [0.12.5] - 2019-06-06
+### Changed
+- By default, represent empty `Mapping` value as `null` in YAML rendition.
 ### Fixed
 - Expand paths (in `PathExAttMap`) for text values stored and fetched with attribute` syntax or `.get`.
 

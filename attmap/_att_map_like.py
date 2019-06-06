@@ -96,15 +96,18 @@ class AttMapLike(MutableMapping):
                 else self[k].add_entries(v)
         return self
 
-    def get_yaml_lines(self):
+    def get_yaml_lines(self, conversions=(
+            (lambda obj: isinstance(obj, Mapping) and 0 == len(obj), None), )):
         """
         Get collection of lines that define YAML text rep. of this instance.
 
+        :param Iterable[(function(object) -> bool, object)] conversions:
+            collection of pairs in which first component is predicate function
+            and second is what to replace a value with if it satisfies the predicate
         :return list[str]: YAML representation lines
         """
         if 0 == len(self):
             return ["{}"]
-        conversions = [(lambda obj: isinstance(obj, Mapping) and 0 == len(obj), None)]
         data = self._simplify_keyvalue(
             self._data_for_repr(), self._new_empty_basic_map,
             conversions=conversions)
