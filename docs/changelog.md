@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.12.5] - 2019-06-06
 ### Fixed
 - Path expansion (in `PathExAttMap`) for dot notation access, as in key-like access
 
