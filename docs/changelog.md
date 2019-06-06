@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Path expansion (in `PathExAttMap`) for dot notation access, as in key-like access
+
 ## [0.12.4] - 2019-05-30
 ### Fixed
 - Avoid infinite recursion when an `EchoAttMap` subtype calls up to the superclass constructor: [Issue 55](https://github.com/pepkit/attmap/issues/55).

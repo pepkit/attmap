@@ -115,6 +115,12 @@ def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
     ("http://lh/$HOME/page.html", "http://lh/{}/page.html".format(os.environ["HOME"]))])
 @pytest.mark.parametrize("fetch", [lambda m, k: m[k], lambda m, k: getattr(m, k)])
 def test_url_expansion(path, expected, fetch):
+    """ URL expansion considers env vars but doesn't ruin slashes. """
     key = "arbitrary"
     m = PathExAttMap({key: path})
     assert expected == fetch(m, key)
+
+
+@pytest.mark.skip("not implemented")
+def test_multiple_syntax_path_expansion():
+    pass
