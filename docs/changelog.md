@@ -2,7 +2,7 @@
 
 ## [0.12.5] - 2019-06-06
 ### Fixed
-- Expand paths (in `PathExAttMap`) for text values stored and fetched with attribute syntax.
+- Expand paths (in `PathExAttMap`) for text values stored and fetched with attribute` syntax or `.get`.
 
 ## [0.12.4] - 2019-05-30
 ### Fixed
