@@ -51,6 +51,12 @@ class PathExAttMap(OrdAttMap):
         v = super(PathExAttMap, self).__getitem__(item)
         return _safely_expand(v) if expand else v
 
+    def get(self, k, default=None, expand=True):
+        try:
+            return self.__getitem__(k, expand)
+        except KeyError:
+            return default
+
     def items(self, expand=False):
         """
         Produce list of key-value pairs, optionally expanding paths.

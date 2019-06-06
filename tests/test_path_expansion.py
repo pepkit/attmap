@@ -129,7 +129,7 @@ def test_url_expansion(path, expected, fetch):
     [(i, list(p)) for p in itertools.permutations(c) for i in range(k + 1)]
     for k in range(0, 4) for c in itertools.combinations(["a", "b", "c"], k)]))
 @pytest.mark.parametrize("store", [setattr, lambda m, k, v: m.__setitem__(k, v)])
-@pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
+@pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k], lambda m, k: m.get(k)])
 def test_multiple_syntax_path_expansion(varname, path_parts, var_idx, tmpdir, store, fetch):
     """ Test the different combinations of setting and retrieving an env var path. """
     key = "arbitrary"
