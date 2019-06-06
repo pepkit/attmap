@@ -2,7 +2,7 @@
 
 ## [0.12.5] - 2019-06-06
 ### Fixed
-- Path expansion (in `PathExAttMap`) for dot notation access, as in key-like access
+- Expand paths (in `PathExAttMap`) for text values stored and fetched with attribute syntax.
 
 ## [0.12.4] - 2019-05-30
 ### Fixed
