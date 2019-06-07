@@ -61,9 +61,11 @@ class AttMapLike(MutableMapping):
         return sum(1 for _ in iter(self))
 
     def __repr__(self):
+        return self._render(self._simplify_keyvalue(
+            self._data_for_repr(), self._new_empty_basic_map))
+
+    def _render(self, data):
         base = self.__class__.__name__
-        data = self._simplify_keyvalue(
-            self._data_for_repr(), self._new_empty_basic_map)
         if data:
             return base + "\n" + "\n".join(
                 get_data_lines(data, lambda obj: repr(obj).strip("'")))
@@ -94,13 +96,22 @@ class AttMapLike(MutableMapping):
                 else self[k].add_entries(v)
         return self
 
-    def get_yaml_lines(self):
+    def get_yaml_lines(self, conversions=(
+            (lambda obj: isinstance(obj, Mapping) and 0 == len(obj), None), )):
         """
         Get collection of lines that define YAML text rep. of this instance.
 
+        :param Iterable[(function(object) -> bool, object)] conversions:
+            collection of pairs in which first component is predicate function
+            and second is what to replace a value with if it satisfies the predicate
         :return list[str]: YAML representation lines
         """
-        return ["{}"] if 0 == len(self) else repr(self).split("\n")[1:]
+        if 0 == len(self):
+            return ["{}"]
+        data = self._simplify_keyvalue(
+            self._data_for_repr(), self._new_empty_basic_map,
+            conversions=conversions)
+        return self._render(data).split("\n")[1:]
 
     def is_null(self, item):
         """
@@ -185,7 +196,7 @@ class AttMapLike(MutableMapping):
         """ Return the empty collection builder for Mapping type simplification. """
         pass
 
-    def _simplify_keyvalue(self, kvs, build, acc=None):
+    def _simplify_keyvalue(self, kvs, build, acc=None, conversions=None):
         """
         Simplify a collection of key-value pairs, "reducing" to simpler types.
 
@@ -200,6 +211,12 @@ class AttMapLike(MutableMapping):
             k, v = next(kvs)
         except StopIteration:
             return acc
-        acc[k] = self._simplify_keyvalue(
-            v.items(), build, build()) if is_custom_map(v) else v
-        return self._simplify_keyvalue(kvs, build, acc)
+        if is_custom_map(v):
+            v = self._simplify_keyvalue(v.items(), build, build())
+        if isinstance(v, Mapping):
+            for pred, proxy in (conversions or []):
+                if pred(v):
+                    v = proxy
+                    break
+        acc[k] = v
+        return self._simplify_keyvalue(kvs, build, acc, conversions)

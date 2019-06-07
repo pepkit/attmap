@@ -1,5 +1,6 @@
 """ Tests for path expansion behavior """
 
+import copy
 import itertools
 import os
 import random
@@ -7,6 +8,7 @@ import string
 import pytest
 from attmap import *
 from ubiquerg import expandpath, TmpEnv
+
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -115,6 +117,32 @@ def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
     ("http://lh/$HOME/page.html", "http://lh/{}/page.html".format(os.environ["HOME"]))])
 @pytest.mark.parametrize("fetch", [lambda m, k: m[k], lambda m, k: getattr(m, k)])
 def test_url_expansion(path, expected, fetch):
+    """ URL expansion considers env vars but doesn't ruin slashes. """
     key = "arbitrary"
     m = PathExAttMap({key: path})
     assert expected == fetch(m, key)
+
+
+@pytest.mark.parametrize(
+    "varname", ["THIS_SHOULD_NOT_BE_SET", "REALLY_IMPROBABLE_ENV_VAR"])
+@pytest.mark.parametrize(["var_idx", "path_parts"], itertools.chain(*[
+    [(i, list(p)) for p in itertools.permutations(c) for i in range(k + 1)]
+    for k in range(0, 4) for c in itertools.combinations(["a", "b", "c"], k)]))
+@pytest.mark.parametrize("store", [setattr, lambda m, k, v: m.__setitem__(k, v)])
+@pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k], lambda m, k: m.get(k)])
+def test_multiple_syntax_path_expansion(varname, path_parts, var_idx, tmpdir, store, fetch):
+    """ Test the different combinations of setting and retrieving an env var path. """
+    key = "arbitrary"
+    parts = copy.copy(path_parts)
+    env_var = "$" + varname
+    env_var_val = "set-via-env-var"
+    parts.insert(var_idx, env_var)
+    final_parts = [tmpdir.strpath] + parts
+    print("FINAL PARTS: {}".format(final_parts))
+    path = os.path.join(*final_parts)
+    m = PathExAttMap()
+    store(m, key, path)
+    with TmpEnv(**{varname: env_var_val}):
+        assert env_var_val == os.getenv(varname)
+        assert path != expandpath(path)
+        assert expandpath(path) == fetch(m, key)

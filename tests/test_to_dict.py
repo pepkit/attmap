@@ -10,7 +10,6 @@ __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
-@pytest.mark.para
 @pytest.mark.parametrize("entries", [
     {}, {"a": 1}, {"b": {"c": 3}}, {"A": [1, 2]},
     {"B": 1, "C": np.arange(3)}, {"E": Series(["a", "b"])}])

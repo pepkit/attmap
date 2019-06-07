@@ -71,5 +71,6 @@ Thumbs.db
 # Build-related stuff
 build/
 dist/
+site/
 attmap.egg-info/
 docs/autodoc_build

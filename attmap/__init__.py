@@ -14,3 +14,6 @@ AttributeDictEcho = AttMapEcho
 __all__ = ["AttMapLike", "AttMap", "AttMapEcho", "AttributeDict",
            "AttributeDictEcho", "EchoAttMap", "OrdAttMap", "PathExAttMap",
            "get_data_lines"]
+__aliases__ = {"AttMap": ["AttributeDict"],
+               "AttMapEcho": ["AttributeDictEcho"],
+               "EchoAttMap": ["AttMapEcho"]}
