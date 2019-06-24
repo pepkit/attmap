@@ -41,7 +41,7 @@ class OrdAttMap(OrderedDict, AttMap):
 
     def __setitem__(self, key, value):
         """ Support hook for value transformation before storage. """
-        super(OrdAttMap, self).__setitem__(key, self._final_for_store(value))
+        super(OrdAttMap, self).__setitem__(key, self._final_for_store(key, value))
 
     def __delitem__(self, key):
         """ Make unmapped key deletion unexceptional. """

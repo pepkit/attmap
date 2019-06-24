@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.6] - 2019-06-24
+### Added
+- Hook in value storage finalization for use of the key, not just the value
+
 ## [0.12.5] - 2019-06-06
 ### Changed
 - By default, represent empty `Mapping` value as `null` in YAML rendition.

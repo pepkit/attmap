@@ -43,7 +43,7 @@ class AttMap(AttMapLike):
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
-        self.__dict__[key] = self._final_for_store(value)
+        self.__dict__[key] = self._final_for_store(key, value)
 
     def __eq__(self, other):
         # TODO: check for equality across classes?
@@ -80,10 +80,11 @@ class AttMap(AttMapLike):
             # have nonidentical labels.
             return False
 
-    def _final_for_store(self, v):
+    def _final_for_store(self, k, v):
         """
         Before storing a value, apply any desired transformation.
 
+        :param hashable k: key for which to store value
         :param object v: value to potentially transform before storing
         :return object: finalized value
         """
