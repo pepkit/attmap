@@ -39,9 +39,10 @@ class OrdAttMap(OrderedDict, AttMap):
         except KeyError:
             return AttMap.__getitem__(self, item)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value, finalize=True):
         """ Support hook for value transformation before storage. """
-        super(OrdAttMap, self).__setitem__(key, self._final_for_store(key, value))
+        super(OrdAttMap, self).__setitem__(
+            key, self._final_for_store(key, value) if finalize else value)
 
     def __delitem__(self, key):
         """ Make unmapped key deletion unexceptional. """

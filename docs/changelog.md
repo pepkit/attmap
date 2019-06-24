@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.7] - 2019-06-25
+### Added
+- Hook for calling value finalization in signature for `OrdAttMap`'s `__setitem__` implementation
+
 ## [0.12.6] - 2019-06-24
 ### Added
 - Hook in value storage finalization for use of the key, not just the value
