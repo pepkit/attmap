@@ -31,15 +31,13 @@ class AttMap(AttMapLike):
     def __getitem__(self, item):
         return self.__dict__[item]
 
-    def __setitem__(self, key, value, finalize=True):
+    def __setitem__(self, key, value):
         """
         This is the key to making this a unique data type.
 
         :param str key: name of the key/attribute for which to establish value
         :param object value: value to which set the given key; if the value is
             a mapping-like object, other keys' values may be combined.
-        :param bool finalize: whether to attempt a transformation of the value
-            to store before storing it
         """
         # TODO: consider enforcement of type constraint, that value of different
         # type may not overwrite existing.
