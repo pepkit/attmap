@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.8] - 2019-07-17
+### Fixed
+- Bug with setting values via attribute-style setters.
+
 ## [0.12.7] - 2019-06-25
 ### Added
 - Hook for calling value finalization in signature for `OrdAttMap`'s `__setitem__` implementation
