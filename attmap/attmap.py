@@ -43,6 +43,9 @@ class AttMap(AttMapLike):
         # type may not overwrite existing.
         self.__dict__[key] = self._final_for_store(key, value)
 
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
+
     def __eq__(self, other):
         # TODO: check for equality across classes?
         if (type(self) != type(other)) or (len(self) != len(other)):
