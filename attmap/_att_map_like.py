@@ -54,9 +54,6 @@ class AttMapLike(MutableMapping):
     def __setitem__(self, key, value):
         pass
 
-    @abc.abstractmethod
-    def __setattr__(self, key, value):
-        pass
 
     def __iter__(self):
         return iter([k for k in self.__dict__.keys()])

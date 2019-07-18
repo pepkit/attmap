@@ -22,9 +22,16 @@ class OrdAttMap(OrderedDict, AttMap):
         super(OrdAttMap, self).__init__(entries or {})
 
     def __setattr__(self, name, value):
-        super(OrdAttMap, self).__setattr__(name, value)
         if not (self._is_od_member(name) or name.startswith("__")):
             self[name] = value
+        else:
+            super(OrdAttMap, self).__setattr__(name, value)
+
+    def __getattr__(self, item):
+        if not (self._is_od_member(item) or item.startswith("__")):
+            return self[item]
+        else:
+            super(OrdAttMap, self).__getattr__(item)
 
     def __getitem__(self, item):
         """
