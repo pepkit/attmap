@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.12.8] - 2019-07-17
+## [0.12.8] - 2019-07-30
 ### Fixed
 - Bug with setting values via attribute-style setters.
 
