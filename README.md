@@ -5,5 +5,5 @@
 
 Key-value Mapping supporting nesting and attribute-style access
 
-Originally motivated by and designed for the [`pepkit` family projects](https://pepkit.github.io/)
+Originally motivated by and designed for the [pepkit family projects](https://pepkit.github.io/).
 

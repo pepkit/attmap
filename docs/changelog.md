@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.9] - 2019-07-30
+### Added
+- New feature to allow not printing the object type on reprs.
+
 ## [0.12.8] - 2019-07-30
 ### Fixed
 - Bug with setting values via attribute-style setters.
