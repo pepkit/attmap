@@ -65,13 +65,18 @@ class AttMapLike(MutableMapping):
         return self._render(self._simplify_keyvalue(
             self._data_for_repr(), self._new_empty_basic_map))
 
-    def _render(self, data):
-        base = self.__class__.__name__
+    def _render(self, data, exclude_class_list=[]):
+        class_name = self.__class__.__name__
+        if class_name in exclude_class_list:
+            base = ""
+        else: 
+            base = class_name + "\n"
+
         if data:
-            return base + "\n" + "\n".join(
+            return base + "\n".join(
                 get_data_lines(data, lambda obj: repr(obj).strip("'")))
         else:
-            return base + ": {}"
+            return class_name + ": {}"
 
     def add_entries(self, entries):
         """
