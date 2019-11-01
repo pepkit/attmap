@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.11] - 2019-11-01
+### Added
+- distribute license with the package
+
 ## [0.12.10] - 2019-10-31
 ### Added
 - license file
