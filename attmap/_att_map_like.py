@@ -70,14 +70,13 @@ class AttMapLike(MutableMapping):
             Calls the ordinary repr on every object but list, which is
             converted to a block style string instead.
 
-            :param obj: object to convert to string representation
+            :param object obj: object to convert to string representation
             :param str prefix: string to prepend to each list line in block
             :return str: custom object representation
             """
-            if isinstance(obj, list):
-                if len(obj) > 0:
-                    return "\n{} - ".format(prefix) + \
-                           "\n{} - ".format(prefix).join([str(i) for i in obj])
+            if isinstance(obj, list) and len(obj) > 0:
+                return "\n{} - ".format(prefix) + \
+                       "\n{} - ".format(prefix).join([str(i) for i in obj])
             return repr(obj).strip("'")
 
         class_name = self.__class__.__name__
