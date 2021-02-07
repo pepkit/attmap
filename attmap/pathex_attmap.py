@@ -112,5 +112,5 @@ def _safely_expand(x, to_dict=False):
     if isinstance(x, str):
         return expandpath(x)
     if to_dict and isinstance(x, Mapping):
-        return {k: _safely_expand(v) for k, v in x.items()}
+        return {k: _safely_expand(v, to_dict) for k, v in x.items()}
     return x
