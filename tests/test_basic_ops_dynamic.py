@@ -153,12 +153,6 @@ class CheckNullTests:
         return dict([kv for kv, _ in self.DATA])
 
     @staticmethod
-    @pytest.fixture(scope="function", params=[k for ((k, _), _) in DATA])
-    def k(request):
-        """ Provide the requesting test case with a key into a mapping. """
-        return request.param
-
-    @staticmethod
     @pytest.fixture(scope="function")
     def m(attmap_type):
         """ Build an AttMap instance of the given subtype. """
