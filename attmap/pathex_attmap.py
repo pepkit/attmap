@@ -1,6 +1,10 @@
 """ Canonical behavior for attmap in pepkit projects """
 
-from collections import Mapping
+import sys
+if sys.version_info < (3,4):
+    from collections import Mapping
+else:
+    from collections.abc import Mapping
 from .ordattmap import OrdAttMap
 from ubiquerg import expandpath
 
