@@ -1,6 +1,9 @@
 # Changelog
 
-## [0.13.0] - 2020-08-xx
+## [0.13.0] - 2021-02-
+### Added
+- block style representation support
+- recursive value expansion in `PathExAttMap`
 
 ## [0.12.11] - 2019-11-01
 ### Added
