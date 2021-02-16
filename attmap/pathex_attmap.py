@@ -1,5 +1,10 @@
 """ Canonical behavior for attmap in pepkit projects """
 
+import sys
+if sys.version_info < (3,4):
+    from collections import Mapping
+else:
+    from collections.abc import Mapping
 from .ordattmap import OrdAttMap
 from ubiquerg import expandpath
 
@@ -39,7 +44,7 @@ class PathExAttMap(OrdAttMap):
         else:
             return _safely_expand(v) if expand else v
 
-    def __getitem__(self, item, expand=True):
+    def __getitem__(self, item, expand=True, to_dict=False):
         """
         Fetch the value of given key.
 
@@ -49,7 +54,7 @@ class PathExAttMap(OrdAttMap):
         :raise KeyError: if the requested key is unmapped.
         """
         v = super(PathExAttMap, self).__getitem__(item)
-        return _safely_expand(v) if expand else v
+        return _safely_expand(v, to_dict) if expand else v
 
     def get(self, k, default=None, expand=True):
         try:
@@ -57,14 +62,14 @@ class PathExAttMap(OrdAttMap):
         except KeyError:
             return default
 
-    def items(self, expand=False):
+    def items(self, expand=False, to_dict=False):
         """
         Produce list of key-value pairs, optionally expanding paths.
 
         :param bool expand: whether to expand paths
         :return Iterable[object]: stored key-value pairs, optionally expanded
         """
-        return [(k, self.__getitem__(k, expand)) for k in self]
+        return [(k, self.__getitem__(k, expand, to_dict)) for k in self]
 
     def values(self, expand=False):
         """
@@ -100,12 +105,16 @@ class PathExAttMap(OrdAttMap):
 
         :return dict: builtin dict representation of this instance
         """
-        return self._simplify_keyvalue(self.items(expand), dict)
+        return self._simplify_keyvalue(self.items(expand, to_dict=True), dict)
 
     @property
     def _lower_type_bound(self):
         return PathExAttMap
 
 
-def _safely_expand(x):
-    return expandpath(x) if isinstance(x, str) else x
+def _safely_expand(x, to_dict=False):
+    if isinstance(x, str):
+        return expandpath(x)
+    if to_dict and isinstance(x, Mapping):
+        return {k: _safely_expand(v, to_dict) for k, v in x.items()}
+    return x
