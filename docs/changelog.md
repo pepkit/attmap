@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.13.0] - 2021-02-22
+### Added
+- block style YAML representation support for lists
+- recursive value expansion in `PathExAttMap`
+
 ## [0.12.11] - 2019-11-01
 ### Added
 - distribute license with the package

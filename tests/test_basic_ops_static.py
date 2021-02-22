@@ -68,7 +68,7 @@ class CheckNullTests:
         return dict([kv for kv, _ in self.DATA])
 
     @staticmethod
-    @pytest.fixture("function", params=[k for ((k, _), _) in DATA])
+    @pytest.fixture(scope="function", params=[k for ((k, _), _) in DATA])
     def k(request):
         """ Key to test """
         return request.param

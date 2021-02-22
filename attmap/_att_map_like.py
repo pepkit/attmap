@@ -54,7 +54,6 @@ class AttMapLike(MutableMapping):
     def __setitem__(self, key, value):
         pass
 
-
     def __iter__(self):
         return iter([k for k in self.__dict__.keys()])
 
@@ -66,6 +65,20 @@ class AttMapLike(MutableMapping):
             self._data_for_repr(), self._new_empty_basic_map))
 
     def _render(self, data, exclude_class_list=[]):
+        def _custom_repr(obj, prefix=""):
+            """
+            Calls the ordinary repr on every object but list, which is
+            converted to a block style string instead.
+
+            :param object obj: object to convert to string representation
+            :param str prefix: string to prepend to each list line in block
+            :return str: custom object representation
+            """
+            if isinstance(obj, list) and len(obj) > 0:
+                return "\n{} - ".format(prefix) + \
+                       "\n{} - ".format(prefix).join([str(i) for i in obj])
+            return repr(obj).strip("'")
+
         class_name = self.__class__.__name__
         if class_name in exclude_class_list:
             base = ""
@@ -73,8 +86,7 @@ class AttMapLike(MutableMapping):
             base = class_name + "\n"
 
         if data:
-            return base + "\n".join(
-                get_data_lines(data, lambda obj: repr(obj).strip("'")))
+            return base + "\n".join(get_data_lines(data, _custom_repr))
         else:
             return class_name + ": {}"
 
@@ -211,6 +223,7 @@ class AttMapLike(MutableMapping):
         :param Iterable acc: accumulating collection of simplified data
         :return Iterable: collection of simplified data
         """
+
         acc = acc or build()
         kvs = iter(kvs)
         try:

@@ -31,8 +31,10 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
     Get text representation lines for a mapping's data.
 
     :param Mapping data: collection of data for which to get repr lines
-    :param function(object) -> str fun_key: function to render key as text
-    :param function(object) -> str fun_val: function to render value as text
+    :param function(object, prefix) -> str fun_key: function to render key
+        as text
+    :param function(object, prefix) -> str fun_val: function to render value
+        as text
     :param int space_per_level: number of spaces per level of nesting
     :return Iterable[str]: collection of lines
     """
@@ -52,7 +54,7 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
             return space(lev) + ktext
         else:
             return space(lev) + "{} {}".format(
-                ktext, "null" if val is None else fun_val(val))
+                ktext, "null" if val is None else fun_val(val, space(lev)))
 
     def go(kvs, curr_lev, acc):
         try:
