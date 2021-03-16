@@ -75,9 +75,8 @@ class AttMapLike(MutableMapping):
             :return str: custom object representation
             """
             if isinstance(obj, list) and len(obj) > 0:
-                return "\n{} - ".format(prefix) + \
-                       "\n{} - ".format(prefix).join([str(i) for i in obj])
-            return repr(obj).strip("'")
+                return f"\n{prefix} - " + f"\n{prefix} - ".join([str(i) for i in obj])
+            return obj.strip("'") if hasattr(obj, "strip") else str(obj)
 
         class_name = self.__class__.__name__
         if class_name in exclude_class_list:
