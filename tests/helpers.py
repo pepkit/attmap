@@ -2,8 +2,10 @@
 
 import random
 import string
-from attmap._att_map_like import AttMapLike
+
 from hypothesis.strategies import *
+
+from attmap._att_map_like import AttMapLike
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -13,8 +15,19 @@ __email__ = "vreuter@virginia.edu"
 # Note the arrangement by relative (increasing) complexity, as advised by the
 # hypothesis docs: https://hypothesis.readthedocs.io/en/latest/data.html#hypothesis.strategies.one_of
 ATOMIC_STRATEGIES = [
-    booleans, binary, floats, integers, text, characters, uuids,
-    emails, timedeltas, times, dates, datetimes, complex_numbers
+    booleans,
+    binary,
+    floats,
+    integers,
+    text,
+    characters,
+    uuids,
+    emails,
+    timedeltas,
+    times,
+    dates,
+    datetimes,
+    complex_numbers,
 ]
 
 

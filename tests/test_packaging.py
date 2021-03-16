@@ -1,10 +1,12 @@
 """ Validate what's available directly on the top-level import. """
 
+import itertools
 from abc import ABCMeta
 from collections import OrderedDict
 from inspect import isclass, isfunction
-import itertools
+
 import pytest
+
 import attmap
 from attmap import *
 
@@ -26,15 +28,23 @@ def get_base_check(*bases):
 ECHO_TEST_FUNS = [isclass, get_base_check(PathExAttMap)]
 
 
-@pytest.mark.parametrize(["obj_name", "typecheck"], itertools.chain(*[
-    [("AttMapLike", f) for f in [isclass, lambda obj: obj.__metaclass__ == ABCMeta]],
-    [("AttMap", f) for f in [isclass, get_base_check(AttMapLike)]],
-    [("OrdAttMap", f) for f in [isclass, get_base_check(OrderedDict, AttMap)]],
-    [("PathExAttMap", f) for f in [isclass, get_base_check(OrdAttMap)]],
-    [("AttMapEcho", f) for f in ECHO_TEST_FUNS],
-    [("EchoAttMap", f) for f in ECHO_TEST_FUNS],
-    [("get_data_lines", isfunction)]
-]))
+@pytest.mark.parametrize(
+    ["obj_name", "typecheck"],
+    itertools.chain(
+        *[
+            [
+                ("AttMapLike", f)
+                for f in [isclass, lambda obj: obj.__metaclass__ == ABCMeta]
+            ],
+            [("AttMap", f) for f in [isclass, get_base_check(AttMapLike)]],
+            [("OrdAttMap", f) for f in [isclass, get_base_check(OrderedDict, AttMap)]],
+            [("PathExAttMap", f) for f in [isclass, get_base_check(OrdAttMap)]],
+            [("AttMapEcho", f) for f in ECHO_TEST_FUNS],
+            [("EchoAttMap", f) for f in ECHO_TEST_FUNS],
+            [("get_data_lines", isfunction)],
+        ]
+    ),
+)
 def test_top_level_exports(obj_name, typecheck):
     """ At package level, validate object availability and type. """
     mod = attmap

@@ -1,19 +1,26 @@
 """ Tests absent the mutable operations, of basic Mapping operations """
 
 import pytest
+
 from .helpers import get_att_map
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
-ENTRY_DATA = [(), ("a", 1), ("b", [1, "2", 3]),
-              ("c", {1: 2}), ("d", {"e": 0, "F": "G"})]
+ENTRY_DATA = [
+    (),
+    ("a", 1),
+    ("b", [1, "2", 3]),
+    ("c", {1: 2}),
+    ("d", {"e": 0, "F": "G"}),
+]
 
 
 @pytest.fixture(
     scope="function",
-    params=[{}, {"a": 1}, {"b": [1, "2", 3]}, {"c": {1: 2}}, {"d": {"F": "G"}}])
+    params=[{}, {"a": 1}, {"b": [1, "2", 3]}, {"c": {1: 2}}, {"d": {"F": "G"}}],
+)
 def entries(request):
     """ Data to store as entries in an attmap. """
     return request.param
@@ -57,10 +64,19 @@ def test_str(attmap_type, entries):
 class CheckNullTests:
     """ Test accuracy of the null value test methods. """
 
-    DATA = [(("truly_null", None), True)] + [(kv, False) for kv in [
-        ("empty_list", []), ("empty_text", ""), ("empty_map", {}),
-        ("empty_int", 0), ("empty_float", 0), ("bad_num", float("nan")),
-        ("pos_inf", float("inf")), ("neg_inf", float("-inf"))]]
+    DATA = [(("truly_null", None), True)] + [
+        (kv, False)
+        for kv in [
+            ("empty_list", []),
+            ("empty_text", ""),
+            ("empty_map", {}),
+            ("empty_int", 0),
+            ("empty_float", 0),
+            ("bad_num", float("nan")),
+            ("pos_inf", float("inf")),
+            ("neg_inf", float("-inf")),
+        ]
+    ]
 
     @pytest.fixture(scope="function")
     def entries(self):

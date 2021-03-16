@@ -16,25 +16,19 @@ __email__ = "vreuter@virginia.edu"
 
 # Provide some basic atomic-type data for models tests.
 _BASE_KEYS = ("epigenomics", "H3K", "ac", "EWS", "FLI1")
-_BASE_VALUES = \
-    ("topic", "residue", "acetylation", "RNA binding protein", "FLI1")
+_BASE_VALUES = ("topic", "residue", "acetylation", "RNA binding protein", "FLI1")
 _ENTRIES_PROVISION_MODES = ["gen", "dict", "zip", "list", "items"]
 _SEASON_HIERARCHY = {
     "spring": {"February": 28, "March": 31, "April": 30, "May": 31},
     "summer": {"June": 30, "July": 31, "August": 31},
     "fall": {"September": 30, "October": 31, "November": 30},
-    "winter": {"December": 31, "January": 31}
+    "winter": {"December": 31, "January": 31},
 }
 
 ADDITIONAL_NON_NESTED = {"West Complex": {"CPHG": 6}, "BIG": {"MR-4": 6}}
-ADDITIONAL_NESTED = {"JPA": {"West Complex": {"CPHG": 6}},
-                     "Lane": {"BIG": {"MR-4": 6}}}
-ADDITIONAL_VALUES_BY_NESTING = {
-    False: ADDITIONAL_NON_NESTED,
-    True: ADDITIONAL_NESTED
-}
-COMPARISON_FUNCTIONS = ["__eq__", "__ne__", "__len__",
-                        "keys", "values", "items"]
+ADDITIONAL_NESTED = {"JPA": {"West Complex": {"CPHG": 6}}, "Lane": {"BIG": {"MR-4": 6}}}
+ADDITIONAL_VALUES_BY_NESTING = {False: ADDITIONAL_NON_NESTED, True: ADDITIONAL_NESTED}
+COMPARISON_FUNCTIONS = ["__eq__", "__ne__", "__len__", "keys", "values", "items"]
 
 
 def pytest_generate_tests(metafunc):
@@ -43,9 +37,10 @@ def pytest_generate_tests(metafunc):
         # Test case strives to validate expected behavior on empty container.
         collection_types = [tuple, list, set, dict]
         metafunc.parametrize(
-                "empty_collection",
-                argvalues=[ctype() for ctype in collection_types],
-                ids=[ctype.__name__ for ctype in collection_types])
+            "empty_collection",
+            argvalues=[ctype() for ctype in collection_types],
+            ids=[ctype.__name__ for ctype in collection_types],
+        )
 
 
 def basic_entries():
@@ -98,16 +93,18 @@ class AttributeConstructionDictTests:
         assert m != dict()
 
     @pytest.mark.parametrize(
-            argnames="entries_gen,entries_provision_type",
-            argvalues=itertools.product([basic_entries, nested_entries],
-                                        _ENTRIES_PROVISION_MODES),
-            ids=["{entries}-{mode}".format(entries=gen.__name__, mode=mode)
-                 for gen, mode in
-                 itertools.product([basic_entries, nested_entries],
-                                    _ENTRIES_PROVISION_MODES)]
+        argnames="entries_gen,entries_provision_type",
+        argvalues=itertools.product(
+            [basic_entries, nested_entries], _ENTRIES_PROVISION_MODES
+        ),
+        ids=[
+            "{entries}-{mode}".format(entries=gen.__name__, mode=mode)
+            for gen, mode in itertools.product(
+                [basic_entries, nested_entries], _ENTRIES_PROVISION_MODES
+            )
+        ],
     )
-    def test_construction_modes_supported(
-            self, entries_gen, entries_provision_type):
+    def test_construction_modes_supported(self, entries_gen, entries_provision_type):
         """ Construction wants key-value pairs; wrapping doesn't matter. """
         entries_mapping = dict(entries_gen())
         if entries_provision_type == "dict":
@@ -122,8 +119,9 @@ class AttributeConstructionDictTests:
         elif entries_provision_type == "gen":
             entries = entries_gen
         else:
-            raise ValueError("Unexpected entries type: {}".
-                             format(entries_provision_type))
+            raise ValueError(
+                "Unexpected entries type: {}".format(entries_provision_type)
+            )
         expected = AttMap(entries_mapping)
         observed = AttMap(entries)
         assert expected == observed
@@ -132,11 +130,10 @@ class AttributeConstructionDictTests:
     def _validate_mapping_function_implementation(entries_gen, name_comp_func):
         data = dict(entries_gen())
         attrdict = AttMap(data)
-        if __name__ == '__main__':
+        if __name__ == "__main__":
             if name_comp_func in ["__eq__", "__ne__"]:
                 are_equal = getattr(attrdict, name_comp_func).__call__(data)
-                assert are_equal if name_comp_func == "__eq__" \
-                        else (not are_equal)
+                assert are_equal if name_comp_func == "__eq__" else (not are_equal)
             else:
                 raw_dict_comp_func = getattr(data, name_comp_func)
                 attrdict_comp_func = getattr(attrdict, name_comp_func)
@@ -161,16 +158,14 @@ class AttMapUpdateTests:
 
     """
 
-    _TOTALLY_ARBITRARY_VALUES = [
-        "abc", 123,
-        (4, "text", ("nes", "ted")), list("-101")
-    ]
+    _TOTALLY_ARBITRARY_VALUES = ["abc", 123, (4, "text", ("nes", "ted")), list("-101")]
     _GETTERS = ["__getattr__", "__getitem__"]
     _SETTERS = ["__setattr__", "__setitem__"]
 
     @pytest.mark.parametrize(
-            argnames="setter_name,getter_name,is_novel",
-            argvalues=itertools.product(_SETTERS, _GETTERS, (False, True)))
+        argnames="setter_name,getter_name,is_novel",
+        argvalues=itertools.product(_SETTERS, _GETTERS, (False, True)),
+    )
     def test_set_get_atomic(self, setter_name, getter_name, is_novel):
         """ For new and existing items, validate set/get behavior. """
 
@@ -204,16 +199,17 @@ class AttMapUpdateTests:
 
 
 class AttMapCollisionTests:
-    """ Tests for proper merging and type conversion of mappings. 
-     AttMap converts a mapping being inserted as a value to an 
-     AttMap. """
+    """Tests for proper merging and type conversion of mappings.
+    AttMap converts a mapping being inserted as a value to an
+    AttMap."""
 
     @pytest.mark.parametrize(
-            argnames="name_update_func",
-            argvalues=["add_entries", "__setattr__", "__setitem__"])
+        argnames="name_update_func",
+        argvalues=["add_entries", "__setattr__", "__setitem__"],
+    )
     def test_squash_existing(self, name_update_func):
-        """ When a value that's a mapping is assigned to existing key with 
-        non-mapping value, the new value overwrites the old. """
+        """When a value that's a mapping is assigned to existing key with
+        non-mapping value, the new value overwrites the old."""
         ad = AttMap({"MR": 4})
         assert 4 == ad.MR
         assert 4 == ad["MR"]
@@ -229,11 +225,11 @@ class AttMapCollisionTests:
 
 
 @pytest.mark.parametrize(
-        argnames="name_update_func",
-        argvalues=["add_entries", "__setattr__", "__setitem__"])
+    argnames="name_update_func", argvalues=["add_entries", "__setattr__", "__setitem__"]
+)
 @pytest.mark.parametrize(
-        argnames="name_fetch_func",
-        argvalues=["__getattr__", "__getitem__"])
+    argnames="name_fetch_func", argvalues=["__getattr__", "__getitem__"]
+)
 class AttMapNullTests:
     """ AttMap has configurable behavior regarding null values. """
 
@@ -252,8 +248,7 @@ class AttMapNullTests:
         assert getattr(ad, name_fetch_func)("lone_attr") is None
         setter = getattr(ad, name_update_func)
         non_null_value = AttMap({"was_null": "not_now"})
-        self._do_update(name_update_func, setter,
-                        ("lone_attr", non_null_value))
+        self._do_update(name_update_func, setter, ("lone_attr", non_null_value))
         assert non_null_value == getattr(ad, name_fetch_func)("lone_attr")
 
     @staticmethod
@@ -281,8 +276,8 @@ class AttMapItemAccessTests:
 
     def test_numeric_key(self):
         """ Attribute request must be string. """
-        ad = AttMap({1: 'a'})
-        assert 'a' == ad[1]
+        ad = AttMap({1: "a"})
+        assert "a" == ad[1]
         with pytest.raises(TypeError):
             getattr(ad, 1)
 
@@ -290,19 +285,31 @@ class AttMapItemAccessTests:
 class AttMapSerializationTests:
     """ Tests for AttMap serialization. """
 
-    DATA_PAIRS = [('a', 1), ('b', False), ('c', range(5)),
-                  ('d', {'A': None, 'T': []}),
-                  ('e', AttMap({'G': 1, 'C': [False, None]})),
-                  ('f', [AttMap({"DNA": "deoxyribose", "RNA": "ribose"}),
-                         AttMap({"DNA": "thymine", "RNA": "uracil"})])]
+    DATA_PAIRS = [
+        ("a", 1),
+        ("b", False),
+        ("c", range(5)),
+        ("d", {"A": None, "T": []}),
+        ("e", AttMap({"G": 1, "C": [False, None]})),
+        (
+            "f",
+            [
+                AttMap({"DNA": "deoxyribose", "RNA": "ribose"}),
+                AttMap({"DNA": "thymine", "RNA": "uracil"}),
+            ],
+        ),
+    ]
 
     @pytest.mark.parametrize(
-            argnames="data",
-            argvalues=itertools.combinations(DATA_PAIRS, 2),
-            ids=lambda data: " data = {}".format(str(data)))
+        argnames="data",
+        argvalues=itertools.combinations(DATA_PAIRS, 2),
+        ids=lambda data: " data = {}".format(str(data)),
+    )
     @pytest.mark.parametrize(
-            argnames="data_type", argvalues=[list, dict],
-            ids=lambda data_type: " data_type = {}".format(data_type))
+        argnames="data_type",
+        argvalues=[list, dict],
+        ids=lambda data_type: " data_type = {}".format(data_type),
+    )
     def test_pickle_restoration(self, tmpdir, data, data_type):
         """ Pickled and restored AttMap objects are identical. """
 
@@ -319,11 +326,11 @@ class AttMapSerializationTests:
 
         # Serialize AttMap and write to disk.
         filepath = os.path.join(dirpath, filename)
-        with open(filepath, 'wb') as pkl:
+        with open(filepath, "wb") as pkl:
             pickle.dump(original_attrdict, pkl)
 
         # Validate equivalence between original and restored versions.
-        with open(filepath, 'rb') as pkl:
+        with open(filepath, "rb") as pkl:
             restored_attrdict = AttMap(pickle.load(pkl))
         assert restored_attrdict == original_attrdict
 
@@ -332,8 +339,13 @@ class AttMapObjectSyntaxAccessTests:
     """ Test behavior of dot attribute access / identity setting. """
 
     DEFAULT_VALUE = "totally-arbitrary"
-    NORMAL_ITEM_ARG_VALUES = \
-            ["__getattr__", "__getitem__", "__dict__", "__repr__", "__str__"]
+    NORMAL_ITEM_ARG_VALUES = [
+        "__getattr__",
+        "__getitem__",
+        "__dict__",
+        "__repr__",
+        "__str__",
+    ]
     PICKLE_ITEM_ARG_VALUES = ["__getstate__", "__setstate__"]
     ATTR_DICT_DATA = {"a": 0, "b": range(1, 3), "c": {"CO": 70, "WA": 5}}
     UNMAPPED = ["arb-att-1", "random-attribute-2"]
@@ -342,19 +354,24 @@ class AttMapObjectSyntaxAccessTests:
     def attrdict(self, request):
         """ Provide a test case with an AttMap. """
         d = self.ATTR_DICT_DATA
-        return AttMapEcho(d) if request.getfixturevalue("return_identity") \
-            else AttMap(d)
+        return (
+            AttMapEcho(d) if request.getfixturevalue("return_identity") else AttMap(d)
+        )
 
     @pytest.mark.parametrize(
-            argnames="return_identity", argvalues=[False, True],
-            ids=lambda ret_id: " identity setting={} ".format(ret_id))
+        argnames="return_identity",
+        argvalues=[False, True],
+        ids=lambda ret_id: " identity setting={} ".format(ret_id),
+    )
     @pytest.mark.parametrize(
-            argnames="attr_to_request",
-            argvalues=NORMAL_ITEM_ARG_VALUES + PICKLE_ITEM_ARG_VALUES +
-                      UNMAPPED + list(ATTR_DICT_DATA.keys()),
-            ids=lambda attr: " requested={} ".format(attr))
-    def test_attribute_access(
-            self, return_identity, attr_to_request, attrdict):
+        argnames="attr_to_request",
+        argvalues=NORMAL_ITEM_ARG_VALUES
+        + PICKLE_ITEM_ARG_VALUES
+        + UNMAPPED
+        + list(ATTR_DICT_DATA.keys()),
+        ids=lambda attr: " requested={} ".format(attr),
+    )
+    def test_attribute_access(self, return_identity, attr_to_request, attrdict):
         """ Access behavior depends on request and behavior toggle. """
         if attr_to_request == "__dict__":
             # The underlying mapping is still accessible.
@@ -365,8 +382,11 @@ class AttMapObjectSyntaxAccessTests:
         elif attr_to_request in self.PICKLE_ITEM_ARG_VALUES:
             # We don't tinker with the pickle-relevant attributes.
             with pytest.raises(AttributeError):
-                print("Should have failed, but got result: {}".
-                      format(getattr(attrdict, attr_to_request)))
+                print(
+                    "Should have failed, but got result: {}".format(
+                        getattr(attrdict, attr_to_request)
+                    )
+                )
         elif attr_to_request in self.UNMAPPED:
             # Unmapped request behavior depends on parameterization.
             if return_identity:
@@ -404,7 +424,8 @@ class NullityTests:
 
     @pytest.mark.parametrize(
         argnames=["k", "v"],
-        argvalues=list(zip(_KEYNAMES, ["sampleA", "WGBS", "random"])))
+        argvalues=list(zip(_KEYNAMES, ["sampleA", "WGBS", "random"])),
+    )
     def test_non_null(self, k, v):
         """ AD is sensitive to value updates """
         ad = AttMap()
@@ -420,8 +441,9 @@ class SampleYamlTests:
     """ AttMap metadata only appear in YAML if non-default. """
 
     @staticmethod
-    def _yaml_data(sample, filepath, section_to_change=None,
-                   attr_to_change=None, newval=None):
+    def _yaml_data(
+        sample, filepath, section_to_change=None, attr_to_change=None, newval=None
+    ):
         """
         Serialize a Sample, possibly tweaking it first, write, and parse.
 
@@ -436,15 +458,14 @@ class SampleYamlTests:
         if section_to_change:
             getattr(sample, section_to_change)[attr_to_change] = newval
         sample.to_yaml(filepath)
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             data = yaml.safe_load(f)
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             lines = f.readlines()
         return lines, data
 
 
-@pytest.mark.parametrize(
-    ["func", "exp"], [(repr, "AttMap: {}"), (str, "AttMap: {}")])
+@pytest.mark.parametrize(["func", "exp"], [(repr, "AttMap: {}"), (str, "AttMap: {}")])
 def test_text_repr_empty(func, exp):
     """ Empty AttMap is correctly represented as text. """
     assert exp == func(AttMap())

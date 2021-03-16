@@ -1,7 +1,8 @@
 """ Ordered attmap """
 
-from collections import OrderedDict
 import sys
+from collections import OrderedDict
+
 from .attmap import AttMap
 from .helpers import get_logger, safedel_message
 
@@ -49,7 +50,8 @@ class OrdAttMap(OrderedDict, AttMap):
     def __setitem__(self, key, value, finalize=True):
         """ Support hook for value transformation before storage. """
         super(OrdAttMap, self).__setitem__(
-            key, self._final_for_store(key, value) if finalize else value)
+            key, self._final_for_store(key, value) if finalize else value
+        )
 
     def __delitem__(self, key):
         """ Make unmapped key deletion unexceptional. """
@@ -60,8 +62,7 @@ class OrdAttMap(OrderedDict, AttMap):
 
     def __eq__(self, other):
         """ Leverage base AttMap eq check, and check key order. """
-        return AttMap.__eq__(self, other) and \
-               list(self.keys()) == list(other.keys())
+        return AttMap.__eq__(self, other) and list(self.keys()) == list(other.keys())
 
     def __ne__(self, other):
         return not self == other
@@ -84,8 +85,9 @@ class OrdAttMap(OrderedDict, AttMap):
         return [(k, self[k]) for k in self]
 
     def clear(self):
-        raise NotImplementedError("Clearance isn't implemented for {}".
-                                  format(self.__class__.__name__))
+        raise NotImplementedError(
+            "Clearance isn't implemented for {}".format(self.__class__.__name__)
+        )
 
     __marker = object()
 
@@ -101,8 +103,9 @@ class OrdAttMap(OrderedDict, AttMap):
                 return default
 
     def popitem(self, last=True):
-        raise NotImplementedError("popitem isn't supported on a {}".
-                                  format(self.__class__.__name__))
+        raise NotImplementedError(
+            "popitem isn't supported on a {}".format(self.__class__.__name__)
+        )
 
     @staticmethod
     def _is_od_member(name):

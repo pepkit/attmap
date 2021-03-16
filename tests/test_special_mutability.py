@@ -1,7 +1,9 @@
 """ Tests for mutability of AttributeDict """
 
-from attmap import AttributeDict, AttributeDictEcho
 import pytest
+
+from attmap import AttributeDict, AttributeDictEcho
+
 from .helpers import get_att_map
 
 __author__ = "Vince Reuter"
@@ -33,7 +35,7 @@ class UniversalMutabilityTests:
         m[arb_key] = None
         assert arb_key in m
         assert m[arb_key] is None
-    
+
     def test_empty_mapping_can_replace_nonempty(self, m, arb_key):
         """ Regardless of specific type, an empty map can replace nonempty. """
         assert arb_key not in m

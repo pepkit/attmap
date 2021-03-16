@@ -1,6 +1,7 @@
 """ Tests for subclassing EchoAttMap """
 
 import pytest
+
 from attmap import EchoAttMap
 
 __author__ = "Vince Reuter"
@@ -9,6 +10,7 @@ __email__ = "vreuter@virginia.edu"
 
 class _SubEcho(EchoAttMap):
     """ Dummy class to derive from EchoAttMap """
+
     def __init__(self, entries=None):
         super(_SubEcho, self).__init__(entries)
 

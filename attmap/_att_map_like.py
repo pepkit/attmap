@@ -2,11 +2,13 @@
 
 import abc
 import sys
+
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
 else:
     from collections.abc import Mapping, MutableMapping
-from .helpers import is_custom_map, get_data_lines, get_logger
+
+from .helpers import get_data_lines, get_logger, is_custom_map
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -61,8 +63,9 @@ class AttMapLike(MutableMapping):
         return sum(1 for _ in iter(self))
 
     def __repr__(self):
-        return self._render(self._simplify_keyvalue(
-            self._data_for_repr(), self._new_empty_basic_map))
+        return self._render(
+            self._simplify_keyvalue(self._data_for_repr(), self._new_empty_basic_map)
+        )
 
     def _render(self, data, exclude_class_list=[]):
         def _custom_repr(obj, prefix=""):
@@ -81,7 +84,7 @@ class AttMapLike(MutableMapping):
         class_name = self.__class__.__name__
         if class_name in exclude_class_list:
             base = ""
-        else: 
+        else:
             base = class_name + "\n"
 
         if data:
@@ -108,13 +111,21 @@ class AttMapLike(MutableMapping):
         except AttributeError:
             entries_iter = entries
         for k, v in entries_iter:
-            self[k] = v if (k not in self or not isinstance(v, Mapping)
-                            or not isinstance(self[k], Mapping)) \
+            self[k] = (
+                v
+                if (
+                    k not in self
+                    or not isinstance(v, Mapping)
+                    or not isinstance(self[k], Mapping)
+                )
                 else self[k].add_entries(v)
+            )
         return self
 
-    def get_yaml_lines(self, conversions=(
-            (lambda obj: isinstance(obj, Mapping) and 0 == len(obj), None), )):
+    def get_yaml_lines(
+        self,
+        conversions=((lambda obj: isinstance(obj, Mapping) and 0 == len(obj), None),),
+    ):
         """
         Get collection of lines that define YAML text rep. of this instance.
 
@@ -126,8 +137,8 @@ class AttMapLike(MutableMapping):
         if 0 == len(self):
             return ["{}"]
         data = self._simplify_keyvalue(
-            self._data_for_repr(), self._new_empty_basic_map,
-            conversions=conversions)
+            self._data_for_repr(), self._new_empty_basic_map, conversions=conversions
+        )
         return self._render(data).split("\n")[1:]
 
     def is_null(self, item):
@@ -180,8 +191,9 @@ class AttMapLike(MutableMapping):
         :return Iterable[(hashable, object)]: collection of key-value pairs
             to include in object's text representation
         """
-        return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
-                      self.items())
+        return filter(
+            lambda kv: not self._excl_from_repr(kv[0], self.__class__), self.items()
+        )
 
     def _excl_from_eq(self, k):
         """
@@ -232,7 +244,7 @@ class AttMapLike(MutableMapping):
         if is_custom_map(v):
             v = self._simplify_keyvalue(v.items(), build, build())
         if isinstance(v, Mapping):
-            for pred, proxy in (conversions or []):
+            for pred, proxy in conversions or []:
                 if pred(v):
                     v = proxy
                     break

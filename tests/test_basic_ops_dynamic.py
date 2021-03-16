@@ -1,16 +1,16 @@
 """ Test basic Mapping operations' responsiveness to underlying data change. """
 
-from hypothesis import given
 import pytest
-from .helpers import get_att_map, random_str_key, rand_non_null
+from hypothesis import given
 from pandas import Series
+
+from .helpers import get_att_map, rand_non_null, random_str_key
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
 
 
-@pytest.fixture(
-    scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": (1, 2)}])
+@pytest.fixture(scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": (1, 2)}])
 def entries(request):
     """ Data to store as entries in an attmap. """
     return request.param
@@ -38,6 +38,7 @@ def test_length_increase(attmap_type, entries):
 def test_positive_membership(attmap_type, entries):
     """ Each key is a member; a nonmember should be flagged as such """
     import random
+
     m = get_att_map(attmap_type)
     assert not any(k in m for k in entries)
     for k in entries:
@@ -57,7 +58,8 @@ def test_negative_membership(attmap_type, entries):
 
 
 @pytest.mark.parametrize(
-    "series", [Series(data) for data in [("a", 1), [("b", 2), ("c", 3)], []]])
+    "series", [Series(data) for data in [("a", 1), [("b", 2), ("c", 3)], []]]
+)
 def test_add_pandas_series(series, attmap_type):
     """ A pandas Series can be used as a simple container of entries to add. """
     m = get_att_map(attmap_type)
@@ -81,8 +83,10 @@ def test_del_unmapped_key(attmap_type, seed_data, delkey):
 
 
 @pytest.mark.xfail(reason="attmap text representations have changed.")
-@pytest.mark.parametrize("f_extra_checks_pair",
-    [(repr, []), (str, [lambda s, dt: s.startswith(dt.__name__)])])
+@pytest.mark.parametrize(
+    "f_extra_checks_pair",
+    [(repr, []), (str, [lambda s, dt: s.startswith(dt.__name__)])],
+)
 def test_text(attmap_type, entries, f_extra_checks_pair):
     """ Formal text representation of an attmap responds to data change. """
 
@@ -103,13 +107,20 @@ def test_text(attmap_type, entries, f_extra_checks_pair):
         def find_line(key, val):
             matches = [l for l in ls if l.startswith(k) and "{}".format(v) in l]
             if len(matches) == 0:
-                raise Exception("No matches for key={}, val={} among lines:\n{}".
-                                format(key, val, "\n".join(lines)))
+                raise Exception(
+                    "No matches for key={}, val={} among lines:\n{}".format(
+                        key, val, "\n".join(lines)
+                    )
+                )
             elif len(matches) == 1:
                 return matches[0]
             else:
-                raise Exception("Non-unique ({}) matched lines:\n{}".
-                                format(len(matches), "\n".join(matches)))
+                raise Exception(
+                    "Non-unique ({}) matched lines:\n{}".format(
+                        len(matches), "\n".join(matches)
+                    )
+                )
+
         matched, missed = [], []
         for k, v in items.items():
             try:
@@ -142,11 +153,16 @@ def test_text(attmap_type, entries, f_extra_checks_pair):
 class CheckNullTests:
     """ Test accuracy of the null value test methods. """
 
-    DATA = [(("truly_null", None), True)] + \
-           [(kv, False) for kv in [
-               ("empty_list", []), ("empty_text", ""), ("empty_int", 0),
-               ("empty_float", 0), ("empty_map", {})
-           ]]
+    DATA = [(("truly_null", None), True)] + [
+        (kv, False)
+        for kv in [
+            ("empty_list", []),
+            ("empty_text", ""),
+            ("empty_int", 0),
+            ("empty_float", 0),
+            ("empty_map", {}),
+        ]
+    ]
 
     @pytest.fixture(scope="function")
     def entries(self):
@@ -169,7 +185,6 @@ class CheckNullTests:
         assert m.is_null(k) and not m.non_null(k)
         m[k] = v
         assert not m.is_null(k) and m.non_null(k)
-
 
     @pytest.mark.skip(reason="test appears broken")
     @staticmethod

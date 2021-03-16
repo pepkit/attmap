@@ -1,11 +1,13 @@
 """ Tests for ordered AttMap behavior """
 
+import sys
 from collections import OrderedDict
 from itertools import combinations
-import sys
+
 import pytest
 from hypothesis import given
 from hypothesis.strategies import *
+
 from attmap import AttMap, AttMapEcho, OrdAttMap, PathExAttMap
 
 __author__ = "Vince Reuter"
@@ -14,8 +16,13 @@ __email__ = "vreuter@virginia.edu"
 
 def pytest_generate_tests(metafunc):
     """ Test case generation and parameterization for this module """
-    hwy_dat = [("Big Sur", 1), ("Jasper", 93), ("Sneffels", 62),
-               ("Robson", 16), ("Garibaldi", 99)]
+    hwy_dat = [
+        ("Big Sur", 1),
+        ("Jasper", 93),
+        ("Sneffels", 62),
+        ("Robson", 16),
+        ("Garibaldi", 99),
+    ]
     keyhook, dathook = "hwy_dat_key", "raw_hwy_dat"
     if dathook in metafunc.fixturenames:
         metafunc.parametrize(dathook, [hwy_dat])
@@ -32,21 +39,36 @@ def kv_lists_strategy(pool=(integers, text, characters, uuids), **kwargs):
     """
     kwds = {"min_size": 1, "unique_by": lambda kv: kv[0]}
     kwds.update(kwargs)
-    return one_of(*[lists(tuples(ks(), vs()), **kwds)
-                    for ks, vs in combinations(pool, 2)])
+    return one_of(
+        *[lists(tuples(ks(), vs()), **kwds) for ks, vs in combinations(pool, 2)]
+    )
 
 
-@pytest.mark.parametrize(["cls", "exp"], [
-    (OrdAttMap, True), (OrderedDict, True), (AttMap, True),
-    (PathExAttMap, False), (AttMapEcho, False)])
+@pytest.mark.parametrize(
+    ["cls", "exp"],
+    [
+        (OrdAttMap, True),
+        (OrderedDict, True),
+        (AttMap, True),
+        (PathExAttMap, False),
+        (AttMapEcho, False),
+    ],
+)
 def test_subclassing(cls, exp):
     """ Verify that OrdAttMap type has expected type memberships. """
     assert exp is issubclass(OrdAttMap, cls)
 
 
-@pytest.mark.parametrize(["cls", "exp"], [
-    (OrdAttMap, True), (OrderedDict, True), (AttMap, True),
-    (PathExAttMap, False), (AttMapEcho, False)])
+@pytest.mark.parametrize(
+    ["cls", "exp"],
+    [
+        (OrdAttMap, True),
+        (OrderedDict, True),
+        (AttMap, True),
+        (PathExAttMap, False),
+        (AttMapEcho, False),
+    ],
+)
 def test_type_membership(cls, exp):
     """ Verify that an OrdAttMap instance passes type checks as expected. """
     assert exp is isinstance(OrdAttMap(), cls)
@@ -93,17 +115,21 @@ def test_ordattmap_access(kvs, access):
 
 @given(kvs=kv_lists_strategy())
 @pytest.mark.parametrize(
-    ["other_type", "expected"],
-    [(dict, False), (OrderedDict, False), (OrdAttMap, True)])
+    ["other_type", "expected"], [(dict, False), (OrderedDict, False), (OrdAttMap, True)]
+)
 def test_ordattmap_eq(kvs, other_type, expected):
     """ Verify equality comparison behavior. """
-    obs = (OrdAttMap(kvs) == other_type(kvs))
+    obs = OrdAttMap(kvs) == other_type(kvs)
     assert obs == expected
 
 
-@pytest.mark.parametrize(["alter", "check"], [
-    (lambda m, k: m.__delitem__(k), lambda _1, _2: True),
-    (lambda m, k: m.pop(k), lambda x, o: x == o)])
+@pytest.mark.parametrize(
+    ["alter", "check"],
+    [
+        (lambda m, k: m.__delitem__(k), lambda _1, _2: True),
+        (lambda m, k: m.pop(k), lambda x, o: x == o),
+    ],
+)
 def test_ordattmap_deletion(hwy_dat_key, raw_hwy_dat, alter, check):
     """ Validate key deletion behavior of OrdAttMap. """
     m = OrdAttMap(raw_hwy_dat)
@@ -118,16 +144,20 @@ def test_ordattmap_deletion(hwy_dat_key, raw_hwy_dat, alter, check):
 @pytest.mark.parametrize("base_type", [OrdAttMap, PathExAttMap])
 @pytest.mark.parametrize(
     ["that_type", "final_exp"],
-    [(dict, sys.version_info >= (3, 6)), (OrderedDict, True), (OrdAttMap, True)])
+    [(dict, sys.version_info >= (3, 6)), (OrderedDict, True), (OrdAttMap, True)],
+)
 def test_ordattmap_overrides_eq_exclusion(
-        hwy_dat_key, raw_hwy_dat, base_type, that_type, final_exp):
+    hwy_dat_key, raw_hwy_dat, base_type, that_type, final_exp
+):
     """ Verify ability to exclude key from comparisons. """
+
     class OrdSub(base_type):
         def _excl_from_eq(self, k):
             print("Considering for exclusion: {}".format(k))
             res = super(OrdSub, self)._excl_from_eq(k) or k == hwy_dat_key
             print("Exclude: {}".format(res))
             return res
+
     msub = OrdSub(raw_hwy_dat)
     assert isinstance(msub, OrdAttMap)
     that = that_type(raw_hwy_dat)
@@ -156,17 +186,26 @@ def test_ordattmap_overrides_repr_exclusion(hwy_dat_key, raw_hwy_dat, that_type)
     this_keys = set(msub.keys())
     that_keys = set(that.keys())
     assert this_keys == that_keys
-    mismatches = [(k, msub[k], that[k]) for k in this_keys | that_keys
-                  if msub[k] != that[k]]
+    mismatches = [
+        (k, msub[k], that[k]) for k in this_keys | that_keys if msub[k] != that[k]
+    ]
     assert [] == mismatches
 
     assert hwy_dat_key in repr(that)
     assert hwy_dat_key not in repr(msub)
 
 
-@pytest.mark.parametrize(["that_type", "exp"], [
-    (OrdAttMap, True), (AttMapEcho, False), (AttMap, False),
-    (PathExAttMap, False), (OrderedDict, False), (dict, False)])
+@pytest.mark.parametrize(
+    ["that_type", "exp"],
+    [
+        (OrdAttMap, True),
+        (AttMapEcho, False),
+        (AttMap, False),
+        (PathExAttMap, False),
+        (OrderedDict, False),
+        (dict, False),
+    ],
+)
 def test_ordattmap_repr(raw_hwy_dat, that_type, exp):
     """ Test __repr__ of OrdAttMap. """
     assert exp is (repr(OrdAttMap(raw_hwy_dat)) == repr(that_type(raw_hwy_dat)))
@@ -175,30 +214,41 @@ def test_ordattmap_repr(raw_hwy_dat, that_type, exp):
 class BasicDataTests:
     """ Tests for some OrdAttMap behaviors on some very basic data. """
 
-    BASIC_DATA = [("a", OrderedDict([("c", 3), ("b", 2)])), ("d", 4),
-                  ("e", OrderedDict([("f", 6)]))]
-    
+    BASIC_DATA = [
+        ("a", OrderedDict([("c", 3), ("b", 2)])),
+        ("d", 4),
+        ("e", OrderedDict([("f", 6)])),
+    ]
+
     @pytest.fixture(params=[OrdAttMap, PathExAttMap])
     def oam(self, request):
         """ Provide test case with a simple ordered attmap instance. """
         return request.param(self.BASIC_DATA)
-    
-    @pytest.mark.parametrize(["get_value", "expected"], [
-        (lambda m: type(m), OrderedDict),
-        (lambda m: m["a"], OrderedDict([("c", 3), ("b", 2)])),
-        (lambda m: m["d"], 4),
-        (lambda m: m["e"], OrderedDict([("f", 6)]))
-    ])
+
+    @pytest.mark.parametrize(
+        ["get_value", "expected"],
+        [
+            (lambda m: type(m), OrderedDict),
+            (lambda m: m["a"], OrderedDict([("c", 3), ("b", 2)])),
+            (lambda m: m["d"], 4),
+            (lambda m: m["e"], OrderedDict([("f", 6)])),
+        ],
+    )
     def test_ordattmap_simplification_to_map(self, oam, get_value, expected):
         """ Test the nested type simplification behavior for ordered attmap.  """
         assert expected == get_value(oam.to_map())
 
-    @pytest.mark.parametrize(["lineno", "expected"], [
-        (1, "a:"),
-        (2, "  c: 3"), (3, "  b: 2"),
-        (4, "d: 4"), (5, "e:"),
-        (6, "  f: 6")
-    ])
+    @pytest.mark.parametrize(
+        ["lineno", "expected"],
+        [
+            (1, "a:"),
+            (2, "  c: 3"),
+            (3, "  b: 2"),
+            (4, "d: 4"),
+            (5, "e:"),
+            (6, "  f: 6"),
+        ],
+    )
     def test_ordattmap_repr(self, oam, lineno, expected):
         """ Test the ordering and indentation of ordered attmap repr. """
         obstext = repr(oam)

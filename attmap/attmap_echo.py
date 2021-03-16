@@ -32,8 +32,9 @@ class EchoAttMap(PathExAttMap):
             return super(EchoAttMap, self).__getattr__(item, default, expand)
         except (AttributeError, TypeError):
             # If not, triage and cope accordingly.
-            if self._is_od_member(item) or \
-                    (item.startswith("__") and item.endswith("__")):
+            if self._is_od_member(item) or (
+                item.startswith("__") and item.endswith("__")
+            ):
                 # Accommodate security-through-obscurity approach of some libs.
                 error_reason = "Protected-looking attribute: {}".format(item)
                 raise AttributeError(error_reason)

@@ -5,10 +5,11 @@ import itertools
 import os
 import random
 import string
-import pytest
-from attmap import *
-from ubiquerg import expandpath, TmpEnv
 
+import pytest
+from ubiquerg import TmpEnv, expandpath
+
+from attmap import *
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -34,9 +35,12 @@ def get_path_env_pair(perm):
         joined and env-var-adjusted ($ sign added) path, and the second is
         a mapping from env var name to value
     """
+
     def get_random_var():
-        return "".join(random.choice(string.ascii_uppercase)
-                       for _ in range(random.randint(3, 10)))
+        return "".join(
+            random.choice(string.ascii_uppercase) for _ in range(random.randint(3, 10))
+        )
+
     parts, subs = [], {}
     for p in perm:
         if p.upper() == p:
@@ -46,9 +50,15 @@ def get_path_env_pair(perm):
     return os.path.join(*parts), subs
 
 
-@pytest.mark.parametrize(["path", "env"],
-    [get_path_env_pair(p) for p in itertools.chain(*[
-        itertools.permutations(_RVS, k) for k in range(1, len(_RVS))])])
+@pytest.mark.parametrize(
+    ["path", "env"],
+    [
+        get_path_env_pair(p)
+        for p in itertools.chain(
+            *[itertools.permutations(_RVS, k) for k in range(1, len(_RVS))]
+        )
+    ],
+)
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
 def test_PathExAttMap_expands_available_variables(pam, path, env, fetch):
     """ Insertion of text encoding environment variables should expand. """
@@ -69,21 +79,36 @@ def build_selective_substitution_space():
         and fourth is binding between temp env var and value expected to
         replace it
     """
+
     def part(vs):
         return set(_RVS) - vs, vs
-    partitions = [part(set(c)) for c in itertools.chain(*[
-        itertools.combinations(_ENV_VAR_NAMES, k)
-        for k in range(1, len(_ENV_VAR_NAMES))])]
-    get_sub = lambda: "".join(
-        random.choice(string.ascii_lowercase) for _ in range(20))
-    paths = [os.path.join(*perm) for perm in itertools.permutations(
-        ["$" + v if v.upper() == v else v for v in _RVS], len(_RVS))]
-    return [(path, pres, repl, {ev: get_sub() for ev in repl})
-            for path in paths for pres, repl in partitions]
+
+    partitions = [
+        part(set(c))
+        for c in itertools.chain(
+            *[
+                itertools.combinations(_ENV_VAR_NAMES, k)
+                for k in range(1, len(_ENV_VAR_NAMES))
+            ]
+        )
+    ]
+    get_sub = lambda: "".join(random.choice(string.ascii_lowercase) for _ in range(20))
+    paths = [
+        os.path.join(*perm)
+        for perm in itertools.permutations(
+            ["$" + v if v.upper() == v else v for v in _RVS], len(_RVS)
+        )
+    ]
+    return [
+        (path, pres, repl, {ev: get_sub() for ev in repl})
+        for path in paths
+        for pres, repl in partitions
+    ]
 
 
 @pytest.mark.parametrize(
-    ["path", "pres", "repl", "env"], build_selective_substitution_space())
+    ["path", "pres", "repl", "env"], build_selective_substitution_space()
+)
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
 def test_PathExAttMap_substitution_is_selective(path, pres, repl, env, pam, fetch):
     """ Values that are environment variables are replaced; others aren't. """
@@ -97,12 +122,21 @@ def test_PathExAttMap_substitution_is_selective(path, pres, repl, env, pam, fetc
         assert all(map(lambda s: s not in res, repl))
 
 
-@pytest.mark.parametrize("path", itertools.chain(*[
-    itertools.permutations(["$" + p for p in _ENV_VAR_NAMES] + _ARB_VAR_NAMES, k)
-    for k in range(1, len(_ENV_VAR_NAMES) + len(_ARB_VAR_NAMES) + 1)]))
+@pytest.mark.parametrize(
+    "path",
+    itertools.chain(
+        *[
+            itertools.permutations(
+                ["$" + p for p in _ENV_VAR_NAMES] + _ARB_VAR_NAMES, k
+            )
+            for k in range(1, len(_ENV_VAR_NAMES) + len(_ARB_VAR_NAMES) + 1)
+        ]
+    ),
+)
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
-@pytest.mark.parametrize("env",
-    [{ev: "".join(string.ascii_lowercase for _ in range(20)) for ev in _RVS}])
+@pytest.mark.parametrize(
+    "env", [{ev: "".join(string.ascii_lowercase for _ in range(20)) for ev in _RVS}]
+)
 def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
     """ Only a PathExAttMap eagerly attempts expansion of text as a path. """
     m = AttMap()
@@ -112,9 +146,16 @@ def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
         assert path == fetch(m, k)
 
 
-@pytest.mark.parametrize(["path", "expected"], [
-    ("http://localhost", "http://localhost"),
-    ("http://lh/$HOME/page.html", "http://lh/{}/page.html".format(os.environ["HOME"]))])
+@pytest.mark.parametrize(
+    ["path", "expected"],
+    [
+        ("http://localhost", "http://localhost"),
+        (
+            "http://lh/$HOME/page.html",
+            "http://lh/{}/page.html".format(os.environ["HOME"]),
+        ),
+    ],
+)
 @pytest.mark.parametrize("fetch", [lambda m, k: m[k], lambda m, k: getattr(m, k)])
 def test_url_expansion(path, expected, fetch):
     """ URL expansion considers env vars but doesn't ruin slashes. """
@@ -124,13 +165,23 @@ def test_url_expansion(path, expected, fetch):
 
 
 @pytest.mark.parametrize(
-    "varname", ["THIS_SHOULD_NOT_BE_SET", "REALLY_IMPROBABLE_ENV_VAR"])
-@pytest.mark.parametrize(["var_idx", "path_parts"], itertools.chain(*[
-    [(i, list(p)) for p in itertools.permutations(c) for i in range(k + 1)]
-    for k in range(0, 4) for c in itertools.combinations(["a", "b", "c"], k)]))
+    "varname", ["THIS_SHOULD_NOT_BE_SET", "REALLY_IMPROBABLE_ENV_VAR"]
+)
+@pytest.mark.parametrize(
+    ["var_idx", "path_parts"],
+    itertools.chain(
+        *[
+            [(i, list(p)) for p in itertools.permutations(c) for i in range(k + 1)]
+            for k in range(0, 4)
+            for c in itertools.combinations(["a", "b", "c"], k)
+        ]
+    ),
+)
 @pytest.mark.parametrize("store", [setattr, lambda m, k, v: m.__setitem__(k, v)])
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k], lambda m, k: m.get(k)])
-def test_multiple_syntax_path_expansion(varname, path_parts, var_idx, tmpdir, store, fetch):
+def test_multiple_syntax_path_expansion(
+    varname, path_parts, var_idx, tmpdir, store, fetch
+):
     """ Test the different combinations of setting and retrieving an env var path. """
     key = "arbitrary"
     parts = copy.copy(path_parts)
