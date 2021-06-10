@@ -60,7 +60,7 @@ class AttMap(AttMapLike):
 
     @staticmethod
     def _cmp(a, b):
-        """ Hook to tailor value comparison in determination of map equality. """
+        """Hook to tailor value comparison in determination of map equality."""
 
         def same_type(obj1, obj2, typenames=None):
             t1, t2 = str(obj1.__class__), str(obj2.__class__)
@@ -105,7 +105,6 @@ class AttMap(AttMapLike):
         :return Mapping: a (perhaps more specialized) version of the given map
         :raise TypeError: if the given value isn't a Mapping
         """
-        _LOGGER.debug("Transforming map-like: {}".format(m))
         if not isinstance(m, Mapping):
             raise TypeError(
                 "Cannot integrate a non-Mapping: {}\nType: {}".format(m, type(m))
@@ -113,7 +112,7 @@ class AttMap(AttMapLike):
         return self._lower_type_bound(m.items())
 
     def _new_empty_basic_map(self):
-        """ Return the empty collection builder for Mapping type simplification. """
+        """Return the empty collection builder for Mapping type simplification."""
         return dict()
 
     def _repr_pretty_(self, p, cycle):
