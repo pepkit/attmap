@@ -2,9 +2,6 @@
 
 import abc
 import sys
-from typing import Generator, Iterator
-
-import pandas
 
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
