@@ -12,12 +12,12 @@ __email__ = "vreuter@virginia.edu"
 
 @pytest.fixture(scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": (1, 2)}])
 def entries(request):
-    """ Data to store as entries in an attmap. """
+    """Data to store as entries in an attmap."""
     return request.param
 
 
 def test_length_decrease(attmap_type, entries):
-    """ Length/size of an attmap should match number of entries. """
+    """Length/size of an attmap should match number of entries."""
     m = get_att_map(attmap_type, entries)
     assert len(entries) == len(m)
     ks = list(entries.keys())
@@ -27,7 +27,7 @@ def test_length_decrease(attmap_type, entries):
 
 
 def test_length_increase(attmap_type, entries):
-    """ Length/size of an attmap should match number of entries. """
+    """Length/size of an attmap should match number of entries."""
     m = get_att_map(attmap_type)
     for (i, (k, v)) in enumerate(entries.items()):
         assert i == len(m)
@@ -36,7 +36,7 @@ def test_length_increase(attmap_type, entries):
 
 
 def test_positive_membership(attmap_type, entries):
-    """ Each key is a member; a nonmember should be flagged as such """
+    """Each key is a member; a nonmember should be flagged as such"""
     import random
 
     m = get_att_map(attmap_type)
@@ -49,7 +49,7 @@ def test_positive_membership(attmap_type, entries):
 
 
 def test_negative_membership(attmap_type, entries):
-    """ Object key status responds to underlying data change. """
+    """Object key status responds to underlying data change."""
     m = get_att_map(attmap_type, entries)
     for k in entries:
         assert k in m
@@ -61,7 +61,7 @@ def test_negative_membership(attmap_type, entries):
     "series", [Series(data) for data in [("a", 1), [("b", 2), ("c", 3)], []]]
 )
 def test_add_pandas_series(series, attmap_type):
-    """ A pandas Series can be used as a simple container of entries to add. """
+    """A pandas Series can be used as a simple container of entries to add."""
     m = get_att_map(attmap_type)
     raw_data = series.to_dict()
     keys = set(raw_data.keys())
@@ -73,7 +73,7 @@ def test_add_pandas_series(series, attmap_type):
 @pytest.mark.parametrize("seed_data", [{}, {"a": 1}, {"b": 2, "c": 3}])
 @pytest.mark.parametrize("delkey", ["d", "e"])
 def test_del_unmapped_key(attmap_type, seed_data, delkey):
-    """ Attempt to remove unmapped key should not fail. """
+    """Attempt to remove unmapped key should not fail."""
     m = get_att_map(attmap_type, entries=seed_data)
     assert delkey not in m
     try:
@@ -88,7 +88,7 @@ def test_del_unmapped_key(attmap_type, seed_data, delkey):
     [(repr, []), (str, [lambda s, dt: s.startswith(dt.__name__)])],
 )
 def test_text(attmap_type, entries, f_extra_checks_pair):
-    """ Formal text representation of an attmap responds to data change. """
+    """Formal text representation of an attmap responds to data change."""
 
     get_rep, extra_checks = f_extra_checks_pair
     m = get_att_map(attmap_type)
@@ -151,7 +151,7 @@ def test_text(attmap_type, entries, f_extra_checks_pair):
 
 
 class CheckNullTests:
-    """ Test accuracy of the null value test methods. """
+    """Test accuracy of the null value test methods."""
 
     DATA = [(("truly_null", None), True)] + [
         (kv, False)
@@ -166,20 +166,20 @@ class CheckNullTests:
 
     @pytest.fixture(scope="function")
     def entries(self):
-        """ Provide some basic entries for a test case's attmap. """
+        """Provide some basic entries for a test case's attmap."""
         return dict([kv for kv, _ in self.DATA])
 
     @staticmethod
     @pytest.fixture(scope="function")
     def m(attmap_type):
-        """ Build an AttMap instance of the given subtype. """
+        """Build an AttMap instance of the given subtype."""
         return get_att_map(attmap_type)
 
     @pytest.mark.skip(reason="test appears broken")
     @staticmethod
     @given(v=rand_non_null())
     def test_null_to_non_null(m, v):
-        """ Non-null value can overwrite null. """
+        """Non-null value can overwrite null."""
         k = random_str_key()
         m[k] = None
         assert m.is_null(k) and not m.non_null(k)
@@ -190,7 +190,7 @@ class CheckNullTests:
     @staticmethod
     @given(v=rand_non_null())
     def test_non_null_to_null(m, v):
-        """ Null value can overwrite non-null. """
+        """Null value can overwrite non-null."""
         k = random_str_key()
         m[k] = v
         assert not m.is_null(k) and m.non_null(k)
@@ -199,7 +199,7 @@ class CheckNullTests:
 
     @staticmethod
     def test_null_to_absent(m):
-        """ Null value for previously absent key is inserted. """
+        """Null value for previously absent key is inserted."""
         k = random_str_key()
         m[k] = None
         assert m.is_null(k) and not m.non_null(k)
@@ -210,7 +210,7 @@ class CheckNullTests:
     @staticmethod
     @given(v=rand_non_null())
     def test_non_null_to_absent(m, v):
-        """ Non-null value for previously absent key is inserted. """
+        """Non-null value for previously absent key is inserted."""
         k = random_str_key()
         m[k] = v
         assert not m.is_null(k) and m.non_null(k)

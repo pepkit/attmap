@@ -30,7 +30,7 @@ def exec_get_item(m, k):
     ],
 )
 def test_echo_is_type_dependent_and_access_dependent(maptype, getter, key, expected):
-    """ Retrieval of missing key/attr echoes it iff the type and access mode permit. """
+    """Retrieval of missing key/attr echoes it iff the type and access mode permit."""
     m = maptype()
     assert key not in m
     with ExpectContext(expected, getter) as ctx:

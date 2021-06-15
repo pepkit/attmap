@@ -22,4 +22,3 @@ plugins:
       autodoc_package: attmap
       autodoc_build: "docs/autodoc_build"
       no_top_level: true
-

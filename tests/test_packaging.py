@@ -46,7 +46,7 @@ ECHO_TEST_FUNS = [isclass, get_base_check(PathExAttMap)]
     ),
 )
 def test_top_level_exports(obj_name, typecheck):
-    """ At package level, validate object availability and type. """
+    """At package level, validate object availability and type."""
     mod = attmap
     try:
         obj = getattr(mod, obj_name)

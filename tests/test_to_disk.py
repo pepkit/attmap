@@ -33,7 +33,7 @@ FORMATTER_LIBRARIES = {
 
 
 def pytest_generate_tests(metafunc):
-    """ Dynamic test case generation and parameterization for this module """
+    """Dynamic test case generation and parameterization for this module"""
     if "maptype" in metafunc.fixturenames:
         metafunc.parametrize("maptype", ALL_ATTMAPS)
 
@@ -59,7 +59,7 @@ def check_lines(m, explines, obs_fun, parse, check):
     ["funcname", "exp"], [("get_yaml_lines", ["{}"]), ("to_yaml", "{}\n")]
 )
 def test_empty(funcname, exp, maptype):
-    """ Verify behavior for YAML of empty attmap. """
+    """Verify behavior for YAML of empty attmap."""
     assert exp == getattr(maptype({}), funcname)()
 
 
@@ -68,7 +68,7 @@ def test_empty(funcname, exp, maptype):
     [("get_yaml_lines", lambda ls: ls), ("to_yaml", lambda ls: ls.split("\n")[:-1])],
 )
 def test_yaml(maptype, get_obs, parse_obs):
-    """ Tests for attmap repr as YAML lines or full text chunk. """
+    """Tests for attmap repr as YAML lines or full text chunk."""
     eq = lambda a, b: a == b
     seteq = lambda a, b: len(a) == len(b) and set(a) == set(b)
     checks = {OrdAttMap: eq, PathExAttMap: eq, AttMapEcho: eq, AttMap: seteq}
@@ -78,7 +78,7 @@ def test_yaml(maptype, get_obs, parse_obs):
 
 @pytest.mark.parametrize("fmtlib", [YAML_NAME, JSON_NAME])
 def test_disk_roundtrip(maptype, tmpdir, fmtlib):
-    """ Verify ability to parse, write, and reconstitute attmap. """
+    """Verify ability to parse, write, and reconstitute attmap."""
     m = make_data(ENTRIES, maptype)
     fp = tmpdir.join("disked_attmap.out").strpath
     assert not os.path.exists(fp)
@@ -95,7 +95,7 @@ def test_disk_roundtrip(maptype, tmpdir, fmtlib):
     ["args", "exp_newl_end"], [(tuple(), True), ((False,), False), ((True,), True)]
 )
 def test_yaml_newline(args, exp_newl_end, maptype):
-    """ Map to_yaml adds newline by default but respect argument. """
+    """Map to_yaml adds newline by default but respect argument."""
     data = {"randkey": "arbval"}
     assert maptype(data).to_yaml(*args).endswith("\n") is exp_newl_end
 
@@ -130,7 +130,7 @@ def test_yaml_newline(args, exp_newl_end, maptype):
     ],
 )
 def test_disk_path_expansion(tmpdir, data, env_var, fmtlib, exp_res, maptype):
-    """ Paths are not expanded when map goes to disk. """
+    """Paths are not expanded when map goes to disk."""
 
     # Pretests
     assert len(data) == 1, "To isolate focus, use just 1 item; got {} -- {}".format(

@@ -32,7 +32,7 @@ ATOMIC_STRATEGIES = [
 
 
 def get_att_map(cls, entries=None):
-    """ Create a fresh, empty data object. """
+    """Create a fresh, empty data object."""
     assert issubclass(cls, AttMapLike)
     return cls(entries or {})
 

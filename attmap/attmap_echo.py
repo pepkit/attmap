@@ -9,7 +9,7 @@ __all__ = ["AttMapEcho", "EchoAttMap"]
 
 
 class EchoAttMap(PathExAttMap):
-    """ An AttMap that returns key/attr if it has no set value. """
+    """An AttMap that returns key/attr if it has no set value."""
 
     def __getattr__(self, item, default=None, expand=True):
         """
@@ -42,7 +42,7 @@ class EchoAttMap(PathExAttMap):
 
     @property
     def _lower_type_bound(self):
-        """ Most specific type to which an inserted value may be converted """
+        """Most specific type to which an inserted value may be converted"""
         return AttMapEcho
 
 

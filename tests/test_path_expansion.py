@@ -22,7 +22,7 @@ _RVS = _ARB_VAR_NAMES + _ENV_VAR_NAMES
 
 @pytest.fixture(scope="function")
 def pam():
-    """ Provide a test case with a clean/fresh map. """
+    """Provide a test case with a clean/fresh map."""
     return PathExAttMap()
 
 
@@ -61,7 +61,7 @@ def get_path_env_pair(perm):
 )
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
 def test_PathExAttMap_expands_available_variables(pam, path, env, fetch):
-    """ Insertion of text encoding environment variables should expand. """
+    """Insertion of text encoding environment variables should expand."""
     k = random.choice(string.ascii_lowercase)
     with TmpEnv(**env):
         pam[k] = path
@@ -111,7 +111,7 @@ def build_selective_substitution_space():
 )
 @pytest.mark.parametrize("fetch", [getattr, lambda m, k: m[k]])
 def test_PathExAttMap_substitution_is_selective(path, pres, repl, env, pam, fetch):
-    """ Values that are environment variables are replaced; others aren't. """
+    """Values that are environment variables are replaced; others aren't."""
     k = random.choice(string.ascii_lowercase)
     with TmpEnv(**env):
         pam[k] = path
@@ -138,7 +138,7 @@ def test_PathExAttMap_substitution_is_selective(path, pres, repl, env, pam, fetc
     "env", [{ev: "".join(string.ascii_lowercase for _ in range(20)) for ev in _RVS}]
 )
 def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
-    """ Only a PathExAttMap eagerly attempts expansion of text as a path. """
+    """Only a PathExAttMap eagerly attempts expansion of text as a path."""
     m = AttMap()
     k = random.choice(string.ascii_letters)
     with TmpEnv(**env):
@@ -158,7 +158,7 @@ def test_non_PathExAttMap_preserves_all_variables(path, fetch, env):
 )
 @pytest.mark.parametrize("fetch", [lambda m, k: m[k], lambda m, k: getattr(m, k)])
 def test_url_expansion(path, expected, fetch):
-    """ URL expansion considers env vars but doesn't ruin slashes. """
+    """URL expansion considers env vars but doesn't ruin slashes."""
     key = "arbitrary"
     m = PathExAttMap({key: path})
     assert expected == fetch(m, key)
@@ -182,7 +182,7 @@ def test_url_expansion(path, expected, fetch):
 def test_multiple_syntax_path_expansion(
     varname, path_parts, var_idx, tmpdir, store, fetch
 ):
-    """ Test the different combinations of setting and retrieving an env var path. """
+    """Test the different combinations of setting and retrieving an env var path."""
     key = "arbitrary"
     parts = copy.copy(path_parts)
     env_var = "$" + varname

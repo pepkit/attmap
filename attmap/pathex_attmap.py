@@ -19,7 +19,7 @@ __all__ = ["PathExAttMap"]
 
 
 class PathExAttMap(OrdAttMap):
-    """ Used in pepkit projects, with Mapping conversion and path expansion """
+    """Used in pepkit projects, with Mapping conversion and path expansion"""
 
     def __getattribute__(self, item, expand=True):
         res = super(PathExAttMap, self).__getattribute__(item)

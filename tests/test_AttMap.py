@@ -32,7 +32,7 @@ COMPARISON_FUNCTIONS = ["__eq__", "__ne__", "__len__", "keys", "values", "items"
 
 
 def pytest_generate_tests(metafunc):
-    """ Centralize dynamic test case parameterization. """
+    """Centralize dynamic test case parameterization."""
     if "empty_collection" in metafunc.fixturenames:
         # Test case strives to validate expected behavior on empty container.
         collection_types = [tuple, list, set, dict]
@@ -44,13 +44,13 @@ def pytest_generate_tests(metafunc):
 
 
 def basic_entries():
-    """ AttMap data that lack nested structure. """
+    """AttMap data that lack nested structure."""
     for k, v in zip(_BASE_KEYS, _BASE_VALUES):
         yield k, v
 
 
 def nested_entries():
-    """ AttributeDict data with some nesting going on. """
+    """AttributeDict data with some nesting going on."""
     for k, v in _SEASON_HIERARCHY.items():
         yield k, v
 
@@ -58,7 +58,7 @@ def nested_entries():
 @pytest.mark.parametrize("base", ["random", "irrelevant", "arbitrary"])
 @pytest.mark.parametrize("protect", [False, True])
 def test_echo_is_conditional(base, protect):
-    """ Protected member isn't echoed. """
+    """Protected member isn't echoed."""
     m = AttMapEcho({})
     if protect:
         with pytest.raises(AttributeError):
@@ -83,11 +83,11 @@ class AttributeConstructionDictTests:
     # data and fixtures specific to this class.
 
     def test_null_construction(self):
-        """ Null entries value creates empty AttMap. """
+        """Null entries value creates empty AttMap."""
         assert AttMap({}) == AttMap(None)
 
     def test_empty_construction(self, empty_collection):
-        """ Empty entries container create empty AttMap. """
+        """Empty entries container create empty AttMap."""
         m = AttMap(empty_collection)
         assert AttMap(None) == m
         assert m != dict()
@@ -105,7 +105,7 @@ class AttributeConstructionDictTests:
         ],
     )
     def test_construction_modes_supported(self, entries_gen, entries_provision_type):
-        """ Construction wants key-value pairs; wrapping doesn't matter. """
+        """Construction wants key-value pairs; wrapping doesn't matter."""
         entries_mapping = dict(entries_gen())
         if entries_provision_type == "dict":
             entries = entries_mapping
@@ -167,7 +167,7 @@ class AttMapUpdateTests:
         argvalues=itertools.product(_SETTERS, _GETTERS, (False, True)),
     )
     def test_set_get_atomic(self, setter_name, getter_name, is_novel):
-        """ For new and existing items, validate set/get behavior. """
+        """For new and existing items, validate set/get behavior."""
 
         # Establish the AttMap for the test case.
         data = dict(basic_entries())
@@ -231,10 +231,10 @@ class AttMapCollisionTests:
     argnames="name_fetch_func", argvalues=["__getattr__", "__getitem__"]
 )
 class AttMapNullTests:
-    """ AttMap has configurable behavior regarding null values. """
+    """AttMap has configurable behavior regarding null values."""
 
     def test_new_null(self, name_update_func, name_fetch_func):
-        """ When a key/item, isn't known, null is allowed. """
+        """When a key/item, isn't known, null is allowed."""
         ad = AttMap()
         setter = getattr(ad, name_update_func)
         args = ("new_key", None)
@@ -243,7 +243,7 @@ class AttMapNullTests:
         assert getter("new_key") is None
 
     def test_replace_null(self, name_update_func, name_fetch_func):
-        """ Null can be replaced by non-null. """
+        """Null can be replaced by non-null."""
         ad = AttMap({"lone_attr": None})
         assert getattr(ad, name_fetch_func)("lone_attr") is None
         setter = getattr(ad, name_update_func)
@@ -260,7 +260,7 @@ class AttMapNullTests:
 
 
 class AttMapItemAccessTests:
-    """ Tests for access of items (key- or attribute- style). """
+    """Tests for access of items (key- or attribute- style)."""
 
     @pytest.mark.parametrize(argnames="missing", argvalues=["att", ""])
     def test_missing_getattr(self, missing):
@@ -275,7 +275,7 @@ class AttMapItemAccessTests:
             attrd[missing]
 
     def test_numeric_key(self):
-        """ Attribute request must be string. """
+        """Attribute request must be string."""
         ad = AttMap({1: "a"})
         assert "a" == ad[1]
         with pytest.raises(TypeError):
@@ -283,7 +283,7 @@ class AttMapItemAccessTests:
 
 
 class AttMapSerializationTests:
-    """ Tests for AttMap serialization. """
+    """Tests for AttMap serialization."""
 
     DATA_PAIRS = [
         ("a", 1),
@@ -311,7 +311,7 @@ class AttMapSerializationTests:
         ids=lambda data_type: " data_type = {}".format(data_type),
     )
     def test_pickle_restoration(self, tmpdir, data, data_type):
-        """ Pickled and restored AttMap objects are identical. """
+        """Pickled and restored AttMap objects are identical."""
 
         # Type the AttMap input data argument according to parameter.
         data = data_type(data)
@@ -336,7 +336,7 @@ class AttMapSerializationTests:
 
 
 class AttMapObjectSyntaxAccessTests:
-    """ Test behavior of dot attribute access / identity setting. """
+    """Test behavior of dot attribute access / identity setting."""
 
     DEFAULT_VALUE = "totally-arbitrary"
     NORMAL_ITEM_ARG_VALUES = [
@@ -352,7 +352,7 @@ class AttMapObjectSyntaxAccessTests:
 
     @pytest.fixture(scope="function")
     def attrdict(self, request):
-        """ Provide a test case with an AttMap. """
+        """Provide a test case with an AttMap."""
         d = self.ATTR_DICT_DATA
         return (
             AttMapEcho(d) if request.getfixturevalue("return_identity") else AttMap(d)
@@ -372,7 +372,7 @@ class AttMapObjectSyntaxAccessTests:
         ids=lambda attr: " requested={} ".format(attr),
     )
     def test_attribute_access(self, return_identity, attr_to_request, attrdict):
-        """ Access behavior depends on request and behavior toggle. """
+        """Access behavior depends on request and behavior toggle."""
         if attr_to_request == "__dict__":
             # The underlying mapping is still accessible.
             assert attrdict.__dict__ is getattr(attrdict, "__dict__")
@@ -405,19 +405,19 @@ class AttMapObjectSyntaxAccessTests:
 
 
 class NullityTests:
-    """ Tests of null/non-null values """
+    """Tests of null/non-null values"""
 
     _KEYNAMES = ["sample_name", "protocol", "arbitrary_attribute"]
 
     @pytest.mark.parametrize(argnames="item", argvalues=_KEYNAMES)
     def test_missing_is_neither_null_nor_non_null(self, item):
-        """ Value of absent key is neither null nor non-null """
+        """Value of absent key is neither null nor non-null"""
         ad = AttMap()
         assert not ad.is_null(item) and not ad.non_null(item)
 
     @pytest.mark.parametrize(argnames="item", argvalues=_KEYNAMES)
     def test_is_null(self, item):
-        """ Null-valued key/item evaluates as such. """
+        """Null-valued key/item evaluates as such."""
         ad = AttMap()
         ad[item] = None
         assert ad.is_null(item) and not ad.non_null(item)
@@ -427,7 +427,7 @@ class NullityTests:
         argvalues=list(zip(_KEYNAMES, ["sampleA", "WGBS", "random"])),
     )
     def test_non_null(self, k, v):
-        """ AD is sensitive to value updates """
+        """AD is sensitive to value updates"""
         ad = AttMap()
         assert not ad.is_null(k) and not ad.non_null(k)
         ad[k] = None
@@ -438,7 +438,7 @@ class NullityTests:
 
 @pytest.mark.usefixtures("write_project_files")
 class SampleYamlTests:
-    """ AttMap metadata only appear in YAML if non-default. """
+    """AttMap metadata only appear in YAML if non-default."""
 
     @staticmethod
     def _yaml_data(
@@ -467,5 +467,5 @@ class SampleYamlTests:
 
 @pytest.mark.parametrize(["func", "exp"], [(repr, "AttMap: {}"), (str, "AttMap: {}")])
 def test_text_repr_empty(func, exp):
-    """ Empty AttMap is correctly represented as text. """
+    """Empty AttMap is correctly represented as text."""
     assert exp == func(AttMap())

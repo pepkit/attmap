@@ -2,6 +2,9 @@
 
 import abc
 import sys
+from typing import Generator, Iterator
+
+import pandas
 
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
@@ -20,7 +23,7 @@ _LOGGER = get_logger(__name__)
 
 
 class AttMapLike(MutableMapping):
-    """ Base class for multi-access-mode data objects. """
+    """Base class for multi-access-mode data objects."""
 
     __metaclass__ = abc.ABCMeta
 
@@ -215,17 +218,29 @@ class AttMapLike(MutableMapping):
         """
         return False
 
+    def _excl_classes_from_todict(self):
+        """
+        Hook for exclusion of particular class from a dict conversion
+        """
+        return
+
     @abc.abstractproperty
     def _lower_type_bound(self):
-        """ Most specific type to which stored Mapping should be transformed """
+        """Most specific type to which stored Mapping should be transformed"""
         pass
 
     @abc.abstractmethod
     def _new_empty_basic_map(self):
-        """ Return the empty collection builder for Mapping type simplification. """
+        """Return the empty collection builder for Mapping type simplification."""
         pass
 
-    def _simplify_keyvalue(self, kvs, build, acc=None, conversions=None):
+    def _simplify_keyvalue(
+        self,
+        kvs,
+        build,
+        acc=None,
+        conversions=None,
+    ):
         """
         Simplify a collection of key-value pairs, "reducing" to simpler types.
 
@@ -234,19 +249,19 @@ class AttMapLike(MutableMapping):
         :param Iterable acc: accumulating collection of simplified data
         :return Iterable: collection of simplified data
         """
-
         acc = acc or build()
         kvs = iter(kvs)
         try:
             k, v = next(kvs)
         except StopIteration:
             return acc
-        if is_custom_map(v):
-            v = self._simplify_keyvalue(v.items(), build, build())
-        if isinstance(v, Mapping):
-            for pred, proxy in conversions or []:
-                if pred(v):
-                    v = proxy
-                    break
-        acc[k] = v
+        if not isinstance(v, self._excl_classes_from_todict() or tuple()):
+            if is_custom_map(v):
+                v = self._simplify_keyvalue(v.items(), build, build())
+            if isinstance(v, Mapping):
+                for pred, proxy in conversions or []:
+                    if pred(v):
+                        v = proxy
+                        break
+            acc[k] = v
         return self._simplify_keyvalue(kvs, build, acc, conversions)

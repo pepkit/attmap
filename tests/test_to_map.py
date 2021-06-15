@@ -21,7 +21,7 @@ __email__ = "vreuter@virginia.edu"
 
 @pytest.fixture(scope="function")
 def entries():
-    """ Basic data for a test case """
+    """Basic data for a test case"""
     return copy.deepcopy(
         {
             "arb_key": "text",
@@ -38,18 +38,18 @@ def entries():
 
 @pytest.fixture(scope="function")
 def exp_num_raw(entries):
-    """ Expected number of entries """
+    """Expected number of entries"""
     return _get_num_raw(entries)
 
 
 @pytest.fixture(scope="function")
 def am(attmap_type, entries):
-    """ Prepopulated attribute mapping of a particular subtype """
+    """Prepopulated attribute mapping of a particular subtype"""
     return get_att_map(attmap_type, entries)
 
 
 def test_type_conversion_completeness(am, attmap_type, exp_num_raw):
-    """ Each nested mapping should be converted. """
+    """Each nested mapping should be converted."""
     assert type(am) is attmap_type
     num_subtypes = _tally_types(am, AttMap)
     assert exp_num_raw == num_subtypes
@@ -60,7 +60,7 @@ def test_type_conversion_completeness(am, attmap_type, exp_num_raw):
 
 
 def test_correct_size(am, entries):
-    """ The transformed mapping should have its original size. """
+    """The transformed mapping should have its original size."""
     assert len(am) == len(entries), "{} entries in attmap and {} in raw data".format(
         len(am), len(entries)
     )
@@ -70,7 +70,7 @@ def test_correct_size(am, entries):
 
 
 def test_correct_keys(am, entries):
-    """ Keys should be unaltered by the mapping type upcasting. """
+    """Keys should be unaltered by the mapping type upcasting."""
 
     def text_keys(m):
         return ", ".join(m.keys())
@@ -87,7 +87,7 @@ def test_correct_keys(am, entries):
 
 
 def test_values_equivalence(am, entries):
-    """ Raw values should be equivalent. """
+    """Raw values should be equivalent."""
 
     def check(v1, v2):
         return (

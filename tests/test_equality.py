@@ -18,7 +18,7 @@ __email__ = "vreuter@virginia.edu"
 
 @pytest.fixture(scope="function")
 def basic_data():
-    """ Provide a test case with a couple of key-value pairs to work with. """
+    """Provide a test case with a couple of key-value pairs to work with."""
     return {"a": 1, "b": 2}
 
 
@@ -27,7 +27,7 @@ def basic_data():
     ["s1_data", "s2_data"], [({"c": 3}, {"d": 4}), ({}, {"c": 3}), ({"d": 4}, {})]
 )
 def test_series_labels_mismatch_is_not_equal(basic_data, s1_data, s2_data, attmap_type):
-    """ Maps with differently-labeled Series as values cannot be equal. """
+    """Maps with differently-labeled Series as values cannot be equal."""
     d1 = copy.copy(basic_data)
     d1.update(s1_data)
     d2 = copy.copy(basic_data)
@@ -52,7 +52,7 @@ def test_series_labels_mismatch_is_not_equal(basic_data, s1_data, s2_data, attma
     ],
 )
 def test_eq_with_scistack_value_types(attmap_type, obj1, obj2, expected):
-    """ Map comparison properly handles array-likes from scientific stack. """
+    """Map comparison properly handles array-likes from scientific stack."""
     key = "obj"
     m1 = get_att_map(attmap_type, {key: obj1})
     m2 = get_att_map(attmap_type, {key: obj2})
@@ -77,7 +77,7 @@ def test_eq_with_scistack_value_types(attmap_type, obj1, obj2, expected):
     ],
 )
 def test_equality_is_strict_in_type(data, this_type, that_type, exp):
-    """ Attmap equality requires exact type match. """
+    """Attmap equality requires exact type match."""
     m1 = get_att_map(this_type, data)
     m2 = get_att_map(that_type, data)
     assert type(m1) == this_type
@@ -94,7 +94,7 @@ def test_equality_is_strict_in_type(data, this_type, that_type, exp):
     [({"a": 1}, "a"), ({"b": 2, "c": 3}, "b"), ({"b": 2, "c": 3}, "c")],
 )
 def test_equality_fails_when_keysets_are_non_identical(maptype, data, delkey):
-    """ Map comparison fails--unexceptionally--when operands differ in keys. """
+    """Map comparison fails--unexceptionally--when operands differ in keys."""
     m1 = get_att_map(maptype, data)
     m2 = get_att_map(maptype, data)
     assert m1 == m2

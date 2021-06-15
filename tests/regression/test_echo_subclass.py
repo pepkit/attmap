@@ -9,7 +9,7 @@ __email__ = "vreuter@virginia.edu"
 
 
 class _SubEcho(EchoAttMap):
-    """ Dummy class to derive from EchoAttMap """
+    """Dummy class to derive from EchoAttMap"""
 
     def __init__(self, entries=None):
         super(_SubEcho, self).__init__(entries)
@@ -17,7 +17,7 @@ class _SubEcho(EchoAttMap):
 
 @pytest.mark.parametrize("entries", [None, {}])
 def test_echo_subclass_smoke(entries):
-    """ Superclass ctor invocation avoids infinite recursion. """
+    """Superclass ctor invocation avoids infinite recursion."""
     try:
         _SubEcho(entries)
     except RuntimeError as e:

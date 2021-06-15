@@ -22,7 +22,7 @@ __email__ = "vreuter@virginia.edu"
     ],
 )
 def test_to_dict_type(attmap_type, entries):
-    """ Validate to_dict result is a base dict and that contents match. """
+    """Validate to_dict result is a base dict and that contents match."""
     m = get_att_map(attmap_type, entries)
     assert type(m) is not dict
     d = m.to_dict()
