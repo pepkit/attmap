@@ -1,12 +1,15 @@
 """ Canonical behavior for attmap in pepkit projects """
 
 import sys
-if sys.version_info < (3,4):
+
+if sys.version_info < (3, 4):
     from collections import Mapping
 else:
     from collections.abc import Mapping
-from .ordattmap import OrdAttMap
+
 from ubiquerg import expandpath
+
+from .ordattmap import OrdAttMap
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -16,7 +19,7 @@ __all__ = ["PathExAttMap"]
 
 
 class PathExAttMap(OrdAttMap):
-    """ Used in pepkit projects, with Mapping conversion and path expansion """
+    """Used in pepkit projects, with Mapping conversion and path expansion"""
 
     def __getattribute__(self, item, expand=True):
         res = super(PathExAttMap, self).__getattribute__(item)
@@ -88,8 +91,10 @@ class PathExAttMap(OrdAttMap):
         :return Iterable[(hashable, object)]: collection of key-value pairs
             to include in object's text representation
         """
-        return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
-                      self.items(expand))
+        return filter(
+            lambda kv: not self._excl_from_repr(kv[0], self.__class__),
+            self.items(expand),
+        )
 
     def to_map(self, expand=False):
         """

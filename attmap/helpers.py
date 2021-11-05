@@ -1,8 +1,9 @@
 """ Ancillary functions """
 
-from copy import deepcopy
 import logging
 import sys
+from copy import deepcopy
+
 if sys.version_info < (3, 3):
     from collections import Mapping
 else:
@@ -15,7 +16,6 @@ __all__ = ["get_data_lines"]
 
 
 def copy(obj):
-
     def copy(self):
         """
         Copy self to a new object.
@@ -54,7 +54,8 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
             return space(lev) + ktext
         else:
             return space(lev) + "{} {}".format(
-                ktext, "null" if val is None else fun_val(val, space(lev)))
+                ktext, "null" if val is None else fun_val(val, space(lev))
+            )
 
     def go(kvs, curr_lev, acc):
         try:

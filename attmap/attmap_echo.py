@@ -9,7 +9,7 @@ __all__ = ["AttMapEcho", "EchoAttMap"]
 
 
 class EchoAttMap(PathExAttMap):
-    """ An AttMap that returns key/attr if it has no set value. """
+    """An AttMap that returns key/attr if it has no set value."""
 
     def __getattr__(self, item, default=None, expand=True):
         """
@@ -32,8 +32,9 @@ class EchoAttMap(PathExAttMap):
             return super(EchoAttMap, self).__getattr__(item, default, expand)
         except (AttributeError, TypeError):
             # If not, triage and cope accordingly.
-            if self._is_od_member(item) or \
-                    (item.startswith("__") and item.endswith("__")):
+            if self._is_od_member(item) or (
+                item.startswith("__") and item.endswith("__")
+            ):
                 # Accommodate security-through-obscurity approach of some libs.
                 error_reason = "Protected-looking attribute: {}".format(item)
                 raise AttributeError(error_reason)
@@ -41,7 +42,7 @@ class EchoAttMap(PathExAttMap):
 
     @property
     def _lower_type_bound(self):
-        """ Most specific type to which an inserted value may be converted """
+        """Most specific type to which an inserted value may be converted"""
         return AttMapEcho
 
 

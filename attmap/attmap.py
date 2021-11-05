@@ -1,14 +1,14 @@
 """ Dot notation support for Mappings. """
 
 import sys
+
 if sys.version_info < (3, 3):
     from collections import Mapping
 else:
     from collections.abc import Mapping
 
-from .helpers import copy, get_logger, safedel_message
 from ._att_map_like import AttMapLike
-
+from .helpers import copy, get_logger, safedel_message
 
 _LOGGER = get_logger(__name__)
 
@@ -60,12 +60,15 @@ class AttMap(AttMapLike):
 
     @staticmethod
     def _cmp(a, b):
-        """ Hook to tailor value comparison in determination of map equality. """
+        """Hook to tailor value comparison in determination of map equality."""
+
         def same_type(obj1, obj2, typenames=None):
             t1, t2 = str(obj1.__class__), str(obj2.__class__)
             return (t1 in typenames and t2 in typenames) if typenames else t1 == t2
-        if same_type(a, b, ["<type 'numpy.ndarray'>", "<class 'numpy.ndarray'>"]) or \
-            same_type(a, b, ["<class 'pandas.core.series.Series'>"]):
+
+        if same_type(
+            a, b, ["<type 'numpy.ndarray'>", "<class 'numpy.ndarray'>"]
+        ) or same_type(a, b, ["<class 'pandas.core.series.Series'>"]):
             check = lambda x, y: (x == y).all()
         elif same_type(a, b, ["<class 'pandas.core.frame.DataFrame'>"]):
             check = lambda x, y: (x == y).all().all()
@@ -102,14 +105,14 @@ class AttMap(AttMapLike):
         :return Mapping: a (perhaps more specialized) version of the given map
         :raise TypeError: if the given value isn't a Mapping
         """
-        _LOGGER.debug("Transforming map-like: {}".format(m))
         if not isinstance(m, Mapping):
-            raise TypeError("Cannot integrate a non-Mapping: {}\nType: {}".
-                            format(m, type(m)))
+            raise TypeError(
+                "Cannot integrate a non-Mapping: {}\nType: {}".format(m, type(m))
+            )
         return self._lower_type_bound(m.items())
 
     def _new_empty_basic_map(self):
-        """ Return the empty collection builder for Mapping type simplification. """
+        """Return the empty collection builder for Mapping type simplification."""
         return dict()
 
     def _repr_pretty_(self, p, cycle):
@@ -120,4 +123,4 @@ class AttMap(AttMapLike):
         :param bool cycle: whether a cyclic reference is detected
         :return str: text representation of the instance
         """
-        return p.text(repr(self) if not cycle else '...')
+        return p.text(repr(self) if not cycle else "...")

@@ -2,11 +2,13 @@
 
 import abc
 import sys
+
 if sys.version_info < (3, 3):
     from collections import Mapping, MutableMapping
 else:
     from collections.abc import Mapping, MutableMapping
-from .helpers import is_custom_map, get_data_lines, get_logger
+
+from .helpers import get_data_lines, get_logger, is_custom_map
 
 __author__ = "Vince Reuter"
 __email__ = "vreuter@virginia.edu"
@@ -18,7 +20,7 @@ _LOGGER = get_logger(__name__)
 
 
 class AttMapLike(MutableMapping):
-    """ Base class for multi-access-mode data objects. """
+    """Base class for multi-access-mode data objects."""
 
     __metaclass__ = abc.ABCMeta
 
@@ -61,8 +63,9 @@ class AttMapLike(MutableMapping):
         return sum(1 for _ in iter(self))
 
     def __repr__(self):
-        return self._render(self._simplify_keyvalue(
-            self._data_for_repr(), self._new_empty_basic_map))
+        return self._render(
+            self._simplify_keyvalue(self._data_for_repr(), self._new_empty_basic_map)
+        )
 
     def _render(self, data, exclude_class_list=[]):
         def _custom_repr(obj, prefix=""):
@@ -75,14 +78,13 @@ class AttMapLike(MutableMapping):
             :return str: custom object representation
             """
             if isinstance(obj, list) and len(obj) > 0:
-                return "\n{} - ".format(prefix) + \
-                       "\n{} - ".format(prefix).join([str(i) for i in obj])
-            return repr(obj).strip("'")
+                return f"\n{prefix} - " + f"\n{prefix} - ".join([str(i) for i in obj])
+            return obj.strip("'") if hasattr(obj, "strip") else str(obj)
 
         class_name = self.__class__.__name__
         if class_name in exclude_class_list:
             base = ""
-        else: 
+        else:
             base = class_name + "\n"
 
         if data:
@@ -109,13 +111,21 @@ class AttMapLike(MutableMapping):
         except AttributeError:
             entries_iter = entries
         for k, v in entries_iter:
-            self[k] = v if (k not in self or not isinstance(v, Mapping)
-                            or not isinstance(self[k], Mapping)) \
+            self[k] = (
+                v
+                if (
+                    k not in self
+                    or not isinstance(v, Mapping)
+                    or not isinstance(self[k], Mapping)
+                )
                 else self[k].add_entries(v)
+            )
         return self
 
-    def get_yaml_lines(self, conversions=(
-            (lambda obj: isinstance(obj, Mapping) and 0 == len(obj), None), )):
+    def get_yaml_lines(
+        self,
+        conversions=((lambda obj: isinstance(obj, Mapping) and 0 == len(obj), None),),
+    ):
         """
         Get collection of lines that define YAML text rep. of this instance.
 
@@ -127,8 +137,8 @@ class AttMapLike(MutableMapping):
         if 0 == len(self):
             return ["{}"]
         data = self._simplify_keyvalue(
-            self._data_for_repr(), self._new_empty_basic_map,
-            conversions=conversions)
+            self._data_for_repr(), self._new_empty_basic_map, conversions=conversions
+        )
         return self._render(data).split("\n")[1:]
 
     def is_null(self, item):
@@ -181,8 +191,9 @@ class AttMapLike(MutableMapping):
         :return Iterable[(hashable, object)]: collection of key-value pairs
             to include in object's text representation
         """
-        return filter(lambda kv: not self._excl_from_repr(kv[0], self.__class__),
-                      self.items())
+        return filter(
+            lambda kv: not self._excl_from_repr(kv[0], self.__class__), self.items()
+        )
 
     def _excl_from_eq(self, k):
         """
@@ -204,17 +215,29 @@ class AttMapLike(MutableMapping):
         """
         return False
 
+    def _excl_classes_from_todict(self):
+        """
+        Hook for exclusion of particular class from a dict conversion
+        """
+        return
+
     @abc.abstractproperty
     def _lower_type_bound(self):
-        """ Most specific type to which stored Mapping should be transformed """
+        """Most specific type to which stored Mapping should be transformed"""
         pass
 
     @abc.abstractmethod
     def _new_empty_basic_map(self):
-        """ Return the empty collection builder for Mapping type simplification. """
+        """Return the empty collection builder for Mapping type simplification."""
         pass
 
-    def _simplify_keyvalue(self, kvs, build, acc=None, conversions=None):
+    def _simplify_keyvalue(
+        self,
+        kvs,
+        build,
+        acc=None,
+        conversions=None,
+    ):
         """
         Simplify a collection of key-value pairs, "reducing" to simpler types.
 
@@ -223,19 +246,19 @@ class AttMapLike(MutableMapping):
         :param Iterable acc: accumulating collection of simplified data
         :return Iterable: collection of simplified data
         """
-
         acc = acc or build()
         kvs = iter(kvs)
         try:
             k, v = next(kvs)
         except StopIteration:
             return acc
-        if is_custom_map(v):
-            v = self._simplify_keyvalue(v.items(), build, build())
-        if isinstance(v, Mapping):
-            for pred, proxy in (conversions or []):
-                if pred(v):
-                    v = proxy
-                    break
-        acc[k] = v
+        if not isinstance(v, self._excl_classes_from_todict() or tuple()):
+            if is_custom_map(v):
+                v = self._simplify_keyvalue(v.items(), build, build())
+            if isinstance(v, Mapping):
+                for pred, proxy in conversions or []:
+                    if pred(v):
+                        v = proxy
+                        break
+            acc[k] = v
         return self._simplify_keyvalue(kvs, build, acc, conversions)

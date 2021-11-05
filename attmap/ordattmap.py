@@ -1,7 +1,8 @@
 """ Ordered attmap """
 
-from collections import OrderedDict
 import sys
+from collections import OrderedDict
+
 from .attmap import AttMap
 from .helpers import get_logger, safedel_message
 
@@ -16,7 +17,7 @@ _SUB_PY3 = sys.version_info.major < 3
 
 
 class OrdAttMap(OrderedDict, AttMap):
-    """ Insertion-ordered mapping with dot notation access """
+    """Insertion-ordered mapping with dot notation access"""
 
     def __init__(self, entries=None):
         super(OrdAttMap, self).__init__(entries or {})
@@ -47,27 +48,27 @@ class OrdAttMap(OrderedDict, AttMap):
             return AttMap.__getitem__(self, item)
 
     def __setitem__(self, key, value, finalize=True):
-        """ Support hook for value transformation before storage. """
+        """Support hook for value transformation before storage."""
         super(OrdAttMap, self).__setitem__(
-            key, self._final_for_store(key, value) if finalize else value)
+            key, self._final_for_store(key, value) if finalize else value
+        )
 
     def __delitem__(self, key):
-        """ Make unmapped key deletion unexceptional. """
+        """Make unmapped key deletion unexceptional."""
         try:
             super(OrdAttMap, self).__delitem__(key)
         except KeyError:
             _LOGGER.debug(safedel_message(key))
 
     def __eq__(self, other):
-        """ Leverage base AttMap eq check, and check key order. """
-        return AttMap.__eq__(self, other) and \
-               list(self.keys()) == list(other.keys())
+        """Leverage base AttMap eq check, and check key order."""
+        return AttMap.__eq__(self, other) and list(self.keys()) == list(other.keys())
 
     def __ne__(self, other):
         return not self == other
 
     def __repr__(self):
-        """ Leverage base AttMap text representation. """
+        """Leverage base AttMap text representation."""
         return AttMap.__repr__(self)
 
     def __reversed__(self):
@@ -84,8 +85,9 @@ class OrdAttMap(OrderedDict, AttMap):
         return [(k, self[k]) for k in self]
 
     def clear(self):
-        raise NotImplementedError("Clearance isn't implemented for {}".
-                                  format(self.__class__.__name__))
+        raise NotImplementedError(
+            "Clearance isn't implemented for {}".format(self.__class__.__name__)
+        )
 
     __marker = object()
 
@@ -101,19 +103,20 @@ class OrdAttMap(OrderedDict, AttMap):
                 return default
 
     def popitem(self, last=True):
-        raise NotImplementedError("popitem isn't supported on a {}".
-                                  format(self.__class__.__name__))
+        raise NotImplementedError(
+            "popitem isn't supported on a {}".format(self.__class__.__name__)
+        )
 
     @staticmethod
     def _is_od_member(name):
-        """ Assess whether name appears to be a protected OrderedDict member. """
+        """Assess whether name appears to be a protected OrderedDict member."""
         return name.startswith("_OrderedDict")
 
     def _new_empty_basic_map(self):
-        """ For ordered maps, OrderedDict is the basic building block. """
+        """For ordered maps, OrderedDict is the basic building block."""
         return OrderedDict()
 
     @property
     def _lower_type_bound(self):
-        """ OrdAttMap is the type to which nested maps are converted. """
+        """OrdAttMap is the type to which nested maps are converted."""
         return OrdAttMap
