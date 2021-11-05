@@ -30,7 +30,7 @@ extra["install_requires"] = DEPENDENCIES
 with open("{}/_version.py".format(PACKAGE), "r") as versionfile:
     version = versionfile.readline().split()[-1].strip("\"'\n")
 
-with open('README.md') as f:
+with open("README.md") as f:
     long_description = f.read()
 
 setup(
