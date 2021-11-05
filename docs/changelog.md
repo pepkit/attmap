@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.13.2] - 2021-11-04
+### Fixed
+- Made compatibile with setuptools 58 by removing use_2to3
+
 ## [0.13.1] - 2021-11-04
 ### Added
 - `_excl_classes_from_todict`, which can be used to list classes to be excluded from the `dict` representation
