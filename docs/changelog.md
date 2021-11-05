@@ -1,8 +1,11 @@
 # Changelog
 
-## [0.13.1] - unreleased
+## [0.13.1] - 2021-11-04
 ### Added
-- `_excl_classes_from_todict`, which can be used to list classes to be exluded from the `dict` representation
+- `_excl_classes_from_todict`, which can be used to list classes to be excluded from the `dict` representation
+
+### Fixed
+- A bug that caused double-backslashes
 
 ## [0.13.0] - 2021-02-22
 ### Added
