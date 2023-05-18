@@ -112,12 +112,12 @@ class AttMap(AttMapLike):
         to_return = self._lower_type_bound(m.items())
 
         # Don't forget any attributes included in this item
-        for x in dir(m):
-            if x in m.items():
+        for attr in dir(m):
+            if attr in m.items():
                 continue
-            if x[:1] == "_":
+            if attr[:1] == "_":
                 continue
-            to_return.__setattr__(x, m.__getattribute__(x))
+            to_return.__setattr__(attr, m.__getattribute__(attr))
 
         return to_return
 
