@@ -115,9 +115,9 @@ class AttMap(AttMapLike):
         for x in dir(m):
             if x in m.items():
                 continue
-            if x[:2] == "__":
+            if x[:1] == "_":
                 continue
-            to_return.x = m.x
+            to_return.__setattr__(x, m.__getattribute__(x))
 
         return to_return
 
