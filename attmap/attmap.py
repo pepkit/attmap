@@ -111,20 +111,20 @@ class AttMap(AttMapLike):
             )
         to_return = self._lower_type_bound(m.items())
 
-        # Don't forget any attributes included in this item
-        for attr in dir(m):
-            if attr in m.items():
-                continue
-            if attr[:1] == "_":
-                continue
-            to_return.__setattr__(attr, m.__getattribute__(attr))
+        # Don't forget any attributes included in this item, for non-builtin items
+        if (
+            m.__class__.__module__ != "builtins"
+            and m.__class__.__module__ != "collections"
+        ):
+            print(f"Class:{m.__class__.__module__}")
+            for attr in dir(m):
+                if attr in m.items():
+                    continue
+                if attr[:1] == "_":
+                    continue
+                to_return.__setattr__(attr, m.__getattribute__(attr))
 
         return to_return
-
-   
-
-
-
 
     def _new_empty_basic_map(self):
         """Return the empty collection builder for Mapping type simplification."""
