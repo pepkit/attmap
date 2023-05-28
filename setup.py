@@ -49,7 +49,7 @@ setup(
     ],
     keywords="dict, map, mapping, dot, item, getitem, attr, getattr, key-value, dynamic, mutable, access",
     url="https://github.com/pepkit/{}/".format(PACKAGE),
-    author=u"Nathan Sheffield, Vince Reuter, Michal Stolarczyk",
+    author="Nathan Sheffield, Vince Reuter, Michal Stolarczyk",
     license="BSD2",
     include_package_data=True,
     test_suite="tests",

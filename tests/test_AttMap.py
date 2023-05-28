@@ -380,7 +380,11 @@ class AttMapObjectSyntaxAccessTests:
         elif attr_to_request in self.NORMAL_ITEM_ARG_VALUES:
             # Request for common protected function returns the function.
             assert callable(getattr(attrdict, attr_to_request))
-        elif attr_to_request == "__getstate__" and sys.version_info < (3, 11) or attr_to_request == "__setstate__":
+        elif (
+            attr_to_request == "__getstate__"
+            and sys.version_info < (3, 11)
+            or attr_to_request == "__setstate__"
+        ):
             # See: https://stackoverflow.com/questions/74331573/pyomo-compatibility-with-python-3-11
             # We don't tinker with the pickle-relevant attributes.
             with pytest.raises(AttributeError):
