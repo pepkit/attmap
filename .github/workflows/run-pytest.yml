@@ -2,7 +2,7 @@ name: Run pytests
 
 on:
   push:
-    branches: [dev]
+    branches: [dev, vr/fix-tests]
   pull_request:
     branches: [master]
 

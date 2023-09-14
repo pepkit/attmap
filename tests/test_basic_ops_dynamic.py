@@ -29,7 +29,7 @@ def test_length_decrease(attmap_type, entries):
 def test_length_increase(attmap_type, entries):
     """Length/size of an attmap should match number of entries."""
     m = get_att_map(attmap_type)
-    for (i, (k, v)) in enumerate(entries.items()):
+    for i, (k, v) in enumerate(entries.items()):
         assert i == len(m)
         m[k] = v
         assert (i + 1) == len(m)
