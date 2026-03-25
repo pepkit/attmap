@@ -105,7 +105,18 @@ class AttMap(AttMapLike):
             raise TypeError(
                 "Cannot integrate a non-Mapping: {}\nType: {}".format(m, type(m))
             )
-        return self._lower_type_bound(m.items())
+        # Merge any extra instance attributes from non-builtin Mappings
+        # so they aren't lost during type conversion.
+        extra = []
+        try:
+            extra = [
+                (k, v)
+                for k, v in vars(m).items()
+                if not k.startswith("_") and k not in m
+            ]
+        except TypeError:
+            pass
+        return self._lower_type_bound(list(m.items()) + extra)
 
     def _new_empty_basic_map(self) -> dict:
         """Return the empty collection builder for Mapping type simplification."""
