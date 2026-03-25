@@ -1,8 +1,15 @@
 # attmap
 
-[![Build Status](https://travis-ci.org/pepkit/attmap.svg?branch=master)](https://travis-ci.org/pepkit/attmap)
-[![Coverage Status](https://coveralls.io/repos/github/pepkit/attmap/badge.svg?branch=master)](https://coveralls.io/github/pepkit/attmap?branch=master)
+[![Run pytests](https://github.com/pepkit/attmap/actions/workflows/run-pytest.yml/badge.svg)](https://github.com/pepkit/attmap/actions/workflows/run-pytest.yml)
 
-Key-value Mapping supporting nesting and attribute-style access
+Key-value Mapping supporting nesting and attribute-style access.
 
-Originally motivated by and designed for the [pepkit family projects](https://pepkit.github.io/).
+**Note:** This package is no longer actively developed. Consider using plain dicts or dataclasses for new projects.
+
+Originally designed for the [pepkit family projects](https://pepkit.github.io/).
+
+## Install
+
+```
+pip install attmap
+```

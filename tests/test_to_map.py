@@ -1,22 +1,14 @@
-""" Test the basic mapping conversion functionality of an attmap """
+"""Test the basic mapping conversion functionality of an attmap."""
 
 import copy
 import random
-import sys
+from collections.abc import Mapping
 from functools import partial
-
-if sys.version_info < (3, 3):
-    from collections import Mapping
-else:
-    from collections.abc import Mapping
 
 import pytest
 
 from attmap import AttMap
 from tests.helpers import get_att_map
-
-__author__ = "Vince Reuter"
-__email__ = "vreuter@virginia.edu"
 
 
 @pytest.fixture(scope="function")
@@ -64,9 +56,9 @@ def test_correct_size(am, entries):
     assert len(am) == len(entries), "{} entries in attmap and {} in raw data".format(
         len(am), len(entries)
     )
-    assert len(am) == len(
-        am.to_map()
-    ), "{} entries in attmap and {} in conversion".format(len(am), len(am.to_map()))
+    assert len(am) == len(am.to_map()), (
+        "{} entries in attmap and {} in conversion".format(len(am), len(am.to_map()))
+    )
 
 
 def test_correct_keys(am, entries):
@@ -76,10 +68,10 @@ def test_correct_keys(am, entries):
         return ", ".join(m.keys())
 
     def check(m, name):
-        assert set(m.keys()) == set(
-            entries.keys()
-        ), "Mismatch between {} and raw keys.\nIn {}: {}\nIn raw data: {}".format(
-            name, name, text_keys(m), text_keys(entries)
+        assert set(m.keys()) == set(entries.keys()), (
+            "Mismatch between {} and raw keys.\nIn {}: {}\nIn raw data: {}".format(
+                name, name, text_keys(m), text_keys(entries)
+            )
         )
 
     check(am, "attmap")
@@ -99,18 +91,19 @@ def test_values_equivalence(am, entries):
     assert check(am.to_map(), entries)
 
 
-def _tally_types(m, t):
-    """
-    Tally the number of values of a particular type stored in a mapping.
+def _tally_types(m: Mapping, t: type) -> int:
+    """Tally the number of values of a particular type stored in a mapping.
 
-    :param Mapping m: mapping in which to tally value types.
-    :param type t: the type to tally
-    :return int: number of values of the indicated type of interest
+    Args:
+        m: Mapping in which to tally value types.
+        t: The type to tally.
+
+    Returns:
+        Number of values of the indicated type of interest.
     """
     if not isinstance(m, Mapping):
         raise TypeError(
-            "Object in which to tally value types isn't a mapping: "
-            "{}".format(type(m))
+            "Object in which to tally value types isn't a mapping: {}".format(type(m))
         )
     if not issubclass(t, Mapping):
         raise ValueError(

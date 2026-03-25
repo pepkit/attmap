@@ -1,7 +1,6 @@
-""" Package-scope definitions """
+"""Dot notation support for Mappings."""
 
 from ._att_map_like import AttMapLike
-from ._version import __version__
 from .attmap import AttMap
 from .attmap_echo import *
 from .helpers import *

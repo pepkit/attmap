@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.14.0] - 2026-03-25
+### Changed
+- Migrated build system from setup.py to pyproject.toml with hatchling
+- Updated CI to use modern GitHub Actions (v6) and ruff for linting
+- Switched to trusted PyPI publishing
+- Converted docstrings to Google style
+- Added type hints to all public APIs
+- Dropped Python 2 and 3.6/3.7 compatibility code; requires Python >=3.8
+- Replaced `@abc.abstractproperty` with `@property` + `@abc.abstractmethod`
+- Removed `_version.py`; version is now in pyproject.toml
+- Development status set to "Inactive"
+
+### Fixed
+- Pickle-related test compatibility with Python 3.11+
+
+### Removed
+- `setup.py`, `setup.cfg`, `MANIFEST.in`, `requirements/` directory
+- `.pre-commit-config.yaml` (linting via CI with ruff)
+- Codecov workflow
+
 ## [0.13.2] - 2021-11-04
 ### Fixed
 - Made compatibile with setuptools 58 by removing use_2to3

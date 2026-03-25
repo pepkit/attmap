@@ -1,4 +1,4 @@
-""" Tests for the echo behavior """
+"""Tests for the echo behavior"""
 
 import pytest
 from veracitools import ExpectContext

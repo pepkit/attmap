@@ -1,7 +1,6 @@
-""" Validate what's available directly on the top-level import. """
+"""Validate what's available directly on the top-level import."""
 
 import itertools
-from abc import ABCMeta
 from collections import OrderedDict
 from inspect import isclass, isfunction
 
@@ -32,10 +31,7 @@ ECHO_TEST_FUNS = [isclass, get_base_check(PathExAttMap)]
     ["obj_name", "typecheck"],
     itertools.chain(
         *[
-            [
-                ("AttMapLike", f)
-                for f in [isclass, lambda obj: obj.__metaclass__ == ABCMeta]
-            ],
+            [("AttMapLike", f) for f in [isclass, lambda obj: isinstance(obj, type)]],
             [("AttMap", f) for f in [isclass, get_base_check(AttMapLike)]],
             [("OrdAttMap", f) for f in [isclass, get_base_check(OrderedDict, AttMap)]],
             [("PathExAttMap", f) for f in [isclass, get_base_check(OrdAttMap)]],

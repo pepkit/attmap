@@ -1,51 +1,45 @@
-""" Ancillary functions """
+"""Ancillary functions."""
+
+from __future__ import annotations
 
 import logging
-import sys
+from collections.abc import Mapping
 from copy import deepcopy
-
-if sys.version_info < (3, 3):
-    from collections import Mapping
-else:
-    from collections.abc import Mapping
-
-__author__ = "Vince Reuter"
-__email__ = "vreuter@virginia.edu"
 
 __all__ = ["get_data_lines"]
 
 
 def copy(obj):
     def copy(self):
-        """
-        Copy self to a new object.
-        """
+        """Copy self to a new object."""
         return deepcopy(self)
 
     obj.copy = copy
     return obj
 
 
-def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
-    """
-    Get text representation lines for a mapping's data.
+def get_data_lines(
+    data: Mapping,
+    fun_key: callable,
+    space_per_level: int = 2,
+    fun_val: callable | None = None,
+) -> list[str]:
+    """Get text representation lines for a mapping's data.
 
-    :param Mapping data: collection of data for which to get repr lines
-    :param function(object, prefix) -> str fun_key: function to render key
-        as text
-    :param function(object, prefix) -> str fun_val: function to render value
-        as text
-    :param int space_per_level: number of spaces per level of nesting
-    :return Iterable[str]: collection of lines
-    """
+    Args:
+        data: Collection of data for which to get repr lines.
+        fun_key: Function to render key as text.
+        space_per_level: Number of spaces per level of nesting.
+        fun_val: Function to render value as text.
 
-    # If no specific value-render function, use key-render function
+    Returns:
+        Collection of lines.
+    """
     fun_val = fun_val or fun_key
 
     def space(lev):
         return " " * lev * space_per_level
 
-    # Render a line; pass val=<obj> for a line with a value (i.e., not header)
     def render(lev, key, **kwargs):
         ktext = fun_key(key) + ":"
         try:
@@ -63,10 +57,8 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
         except StopIteration:
             return acc
         if not isinstance(v, Mapping) or len(v) == 0:
-            # Add line representing single key-value or empty mapping
             acc.append(render(curr_lev, k, val=v))
         else:
-            # Add section header and section data.
             acc.append(render(curr_lev, k))
             acc.append("\n".join(go(iter(v.items()), curr_lev + 1, [])))
         return go(kvs, curr_lev, acc)
@@ -74,33 +66,39 @@ def get_data_lines(data, fun_key, space_per_level=2, fun_val=None):
     return go(iter(data.items()), 0, [])
 
 
-def get_logger(name):
-    """
-    Return a logger equipped with a null handler.
+def get_logger(name: str) -> logging.Logger:
+    """Return a logger equipped with a null handler.
 
-    :param str name: name for the Logger
-    :return logging.Logger: simple Logger instance with a NullHandler
+    Args:
+        name: Name for the Logger.
+
+    Returns:
+        Simple Logger instance with a NullHandler.
     """
     log = logging.getLogger(name)
     log.addHandler(logging.NullHandler())
     return log
 
 
-def is_custom_map(obj):
-    """
-    Determine whether an object is a Mapping other than dict.
+def is_custom_map(obj: object) -> bool:
+    """Determine whether an object is a Mapping other than dict.
 
-    :param object obj: object to examine
-    :return bool: whether the object is a Mapping other than dict
+    Args:
+        obj: Object to examine.
+
+    Returns:
+        Whether the object is a Mapping other than dict.
     """
     return isinstance(obj, Mapping) and type(obj) is not dict
 
 
-def safedel_message(key):
-    """
-    Create safe deletion log message.
+def safedel_message(key) -> str:
+    """Create safe deletion log message.
 
-    :param hashable key: unmapped key for which deletion/removal was tried
-    :return str: message to log unmapped key deletion attempt.
+    Args:
+        key: Unmapped key for which deletion/removal was tried.
+
+    Returns:
+        Message to log unmapped key deletion attempt.
     """
     return "No key {} to delete".format(key)

@@ -1,23 +1,15 @@
-""" Tests for YAML representation of instances. """
+"""Tests for YAML representation of instances."""
 
 import json
 import os
-import sys
 from collections import namedtuple
-
-if sys.version_info < (3, 3):
-    from collections import MutableMapping
-else:
-    from collections.abc import MutableMapping
+from collections.abc import MutableMapping
 
 import pytest
 import yaml
 
 from attmap import *
 from tests.conftest import ALL_ATTMAPS
-
-__author__ = "Vince Reuter"
-__email__ = "vreuter@virginia.edu"
 
 ENTRIES = [("b", 2), ("a", [("d", 4), ("c", [("f", 6), ("g", 7)])])]
 EXPLINES = ["b: 2", "a:", "  d: 4", "  c:", "    f: 6", "    g: 7"]
@@ -39,14 +31,14 @@ def pytest_generate_tests(metafunc):
 
 
 def check_lines(m, explines, obs_fun, parse, check):
-    """
-    Check a YAML expectation against observation.
+    """Check a YAML expectation against observation.
 
-    :param attmap.AttMap m: the map to convert to YAML
-    :param Iterable[str] explines: collection of expected lines
-    :param str obs_fun: name of attmap function to call to get observation
-    :param function(Iterable[str]) -> object parse: postprocess observed result
-    :param function(object, object) -> bool check: validation function
+    Args:
+        m: The map to convert to YAML.
+        explines: Collection of expected lines.
+        obs_fun: Name of attmap function to call to get observation.
+        parse: Postprocess observed result.
+        check: Validation function.
     """
     obs = parse(getattr(m, obs_fun)())
     print("FUNCNAME: {}".format(obs_fun))
@@ -157,12 +149,14 @@ def test_disk_path_expansion(tmpdir, data, env_var, fmtlib, exp_res, maptype):
 
 
 def make_data(entries, datatype):
-    """
-    Create the base data used to populate an attmap.
+    """Create the base data used to populate an attmap.
 
-    :param Iterable[(str, object)] entries: key-value pairs
-    :param type datatype: the type of mapping to build
-    :return MutableMapping: the newly built/populated mapping
+    Args:
+        entries: Key-value pairs.
+        datatype: The type of mapping to build.
+
+    Returns:
+        The newly built/populated mapping.
     """
     assert issubclass(datatype, MutableMapping)
 

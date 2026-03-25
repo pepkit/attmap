@@ -1,4 +1,4 @@
-""" Tests for subclassing EchoAttMap """
+"""Tests for subclassing EchoAttMap"""
 
 import pytest
 

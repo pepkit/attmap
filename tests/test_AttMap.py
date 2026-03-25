@@ -1,18 +1,15 @@
-""" Tests for AttMap. """
+"""Tests for AttMap."""
 
 import itertools
 import os
 import pickle
+import sys
 
 import numpy as np
 import pytest
 import yaml
 
 from attmap import AttMap, AttMapEcho
-
-__author__ = "Vince Reuter"
-__email__ = "vreuter@virginia.edu"
-
 
 # Provide some basic atomic-type data for models tests.
 _BASE_KEYS = ("epigenomics", "H3K", "ac", "EWS", "FLI1")
@@ -380,13 +377,17 @@ class AttMapObjectSyntaxAccessTests:
             # Request for common protected function returns the function.
             assert callable(getattr(attrdict, attr_to_request))
         elif attr_to_request in self.PICKLE_ITEM_ARG_VALUES:
-            # We don't tinker with the pickle-relevant attributes.
-            with pytest.raises(AttributeError):
-                print(
-                    "Should have failed, but got result: {}".format(
-                        getattr(attrdict, attr_to_request)
+            if attr_to_request == "__getstate__" and sys.version_info >= (3, 11):
+                # Python 3.11+ provides __getstate__ on all objects.
+                # See: https://stackoverflow.com/questions/74331573
+                assert callable(getattr(attrdict, attr_to_request))
+            else:
+                with pytest.raises(AttributeError):
+                    print(
+                        "Should have failed, but got result: {}".format(
+                            getattr(attrdict, attr_to_request)
+                        )
                     )
-                )
         elif attr_to_request in self.UNMAPPED:
             # Unmapped request behavior depends on parameterization.
             if return_identity:

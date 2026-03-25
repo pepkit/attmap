@@ -1,4 +1,4 @@
-""" Tests for path expansion behavior """
+"""Tests for path expansion behavior"""
 
 import copy
 import itertools
