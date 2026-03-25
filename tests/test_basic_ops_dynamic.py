@@ -1,13 +1,9 @@
-""" Test basic Mapping operations' responsiveness to underlying data change. """
+"""Test basic Mapping operations' responsiveness to underlying data change."""
 
 import pytest
-from hypothesis import given
 from pandas import Series
 
-from .helpers import get_att_map, rand_non_null, random_str_key
-
-__author__ = "Vince Reuter"
-__email__ = "vreuter@virginia.edu"
+from .helpers import get_att_map, random_str_key
 
 
 @pytest.fixture(scope="function", params=[{}, {"a": 1}, {"b": [1, 2, 3], "c": (1, 2)}])
@@ -29,7 +25,7 @@ def test_length_decrease(attmap_type, entries):
 def test_length_increase(attmap_type, entries):
     """Length/size of an attmap should match number of entries."""
     m = get_att_map(attmap_type)
-    for (i, (k, v)) in enumerate(entries.items()):
+    for i, (k, v) in enumerate(entries.items()):
         assert i == len(m)
         m[k] = v
         assert (i + 1) == len(m)
@@ -175,9 +171,8 @@ class CheckNullTests:
         """Build an AttMap instance of the given subtype."""
         return get_att_map(attmap_type)
 
-    @pytest.mark.skip(reason="test appears broken")
     @staticmethod
-    @given(v=rand_non_null())
+    @pytest.mark.parametrize("v", [1, "text", True, 3.14])
     def test_null_to_non_null(m, v):
         """Non-null value can overwrite null."""
         k = random_str_key()
@@ -186,9 +181,8 @@ class CheckNullTests:
         m[k] = v
         assert not m.is_null(k) and m.non_null(k)
 
-    @pytest.mark.skip(reason="test appears broken")
     @staticmethod
-    @given(v=rand_non_null())
+    @pytest.mark.parametrize("v", [1, "text", True, 3.14])
     def test_non_null_to_null(m, v):
         """Null value can overwrite non-null."""
         k = random_str_key()
@@ -206,9 +200,8 @@ class CheckNullTests:
         del m[k]
         assert not m.is_null(k) and not m.non_null(k)
 
-    @pytest.mark.skip(reason="test appears broken")
     @staticmethod
-    @given(v=rand_non_null())
+    @pytest.mark.parametrize("v", [1, "text", True, 3.14])
     def test_non_null_to_absent(m, v):
         """Non-null value for previously absent key is inserted."""
         k = random_str_key()

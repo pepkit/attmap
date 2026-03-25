@@ -1,4 +1,4 @@
-""" Tests for attmap equality comparison """
+"""Tests for attmap equality comparison"""
 
 import copy
 

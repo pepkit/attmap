@@ -1,4 +1,4 @@
-""" Tests absent the mutable operations, of basic Mapping operations """
+"""Tests absent the mutable operations, of basic Mapping operations"""
 
 import pytest
 

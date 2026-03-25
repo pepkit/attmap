@@ -1,4 +1,4 @@
-""" Helper functions for tests """
+"""Helper functions for tests"""
 
 import random
 import string

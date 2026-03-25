@@ -1,4 +1,4 @@
-""" Tests for ordered AttMap behavior """
+"""Tests for ordered AttMap behavior."""
 
 import sys
 from collections import OrderedDict
@@ -9,9 +9,6 @@ from hypothesis import given
 from hypothesis.strategies import *
 
 from attmap import AttMap, AttMapEcho, OrdAttMap, PathExAttMap
-
-__author__ = "Vince Reuter"
-__email__ = "vreuter@virginia.edu"
 
 
 def pytest_generate_tests(metafunc):
@@ -101,8 +98,15 @@ def test_ordattmap_contains(kvs):
 @pytest.mark.parametrize("access", [lambda m, k: m[k], getattr])
 def test_ordattmap_access(kvs, access):
     """Verify dual value access modes."""
-    if sys.version_info.major < 3:
-        kvs = [(k.encode("utf-8"), v) for k, v in kvs]
+    # Filter out keys that look like dunder/protected attrs, since
+    # __getattr__ routes those to OrderedDict internals by design.
+    kvs = [
+        (k, v)
+        for k, v in kvs
+        if not k.startswith("__") and not k.startswith("_OrderedDict")
+    ]
+    if not kvs:
+        return
     m = OrdAttMap(kvs)
     bads = []
     for k, exp in kvs:

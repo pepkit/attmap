@@ -1,4 +1,4 @@
-""" Tests for mutability of AttributeDict """
+"""Tests for mutability of AttributeDict"""
 
 import pytest
 

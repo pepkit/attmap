@@ -1,4 +1,4 @@
-""" Fixtures and values shared among project's various test suites """
+"""Fixtures and values shared among project's various test suites"""
 
 import pytest
 

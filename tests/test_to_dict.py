@@ -1,4 +1,4 @@
-""" Tests for conversion to base/builtin dict type """
+"""Tests for conversion to base/builtin dict type"""
 
 import numpy as np
 import pytest
