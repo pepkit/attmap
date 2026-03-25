@@ -54,21 +54,20 @@ class AttMap(AttMapLike):
     @staticmethod
     def _cmp(a: object, b: object) -> bool:
         """Hook to tailor value comparison in determination of map equality."""
-
-        def same_type(obj1, obj2, typenames=None):
-            t1, t2 = str(obj1.__class__), str(obj2.__class__)
-            return (t1 in typenames and t2 in typenames) if typenames else t1 == t2
-
-        if same_type(
-            a, b, ["<type 'numpy.ndarray'>", "<class 'numpy.ndarray'>"]
-        ) or same_type(a, b, ["<class 'pandas.core.series.Series'>"]):
-            check = lambda x, y: (x == y).all()
-        elif same_type(a, b, ["<class 'pandas.core.frame.DataFrame'>"]):
-            check = lambda x, y: (x == y).all().all()
-        else:
-            check = lambda x, y: x == y
         try:
-            return check(a, b)
+            import numpy as np
+            import pandas as pd
+
+            if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
+                return bool(np.array_equal(a, b))
+            if isinstance(a, pd.Series) and isinstance(b, pd.Series):
+                return a.equals(b)
+            if isinstance(a, pd.DataFrame) and isinstance(b, pd.DataFrame):
+                return a.equals(b)
+        except ImportError:
+            pass
+        try:
+            return a == b
         except ValueError:
             return False
 
